@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCR-014: Document Upload - Unified Patient Access Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root{--color-primary-500:#2196F3;--color-success-500:#4CAF50;--color-neutral-50:#FAFAFA;--color-neutral-100:#F5F5F5;--color-neutral-300:#E0E0E0;--color-neutral-500:#9E9E9E;--color-neutral-700:#616161;--color-neutral-900:#212121;--spacing-2:16px;--spacing-3:24px;--spacing-4:32px;--elevation-1:0 1px 3px rgba(0,0,0,0.12),0 1px 2px rgba(0,0,0,0.24);--border-radius-medium:8px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font:400 16px/150% Roboto;color:var(--color-neutral-700);background:var(--color-neutral-50)}
+        .main{max-width:800px;margin:0 auto;padding:var(--spacing-4) var(--spacing-3)}
+        h1{font:400 24px/133.4% Roboto;color:var(--color-neutral-900);margin-bottom:var(--spacing-3)}
+        .upload-zone{background:#FFF;border:2px dashed var(--color-neutral-300);border-radius:var(--border-radius-medium);padding:var(--spacing-4);text-align:center;cursor:pointer;transition:all 150ms;margin-bottom:var(--spacing-3)}
+        .upload-zone:hover{border-color:var(--color-primary-500);background:rgba(33,150,243,0.05)}
+        .upload-zone.dragover{border-color:var(--color-primary-500);background:rgba(33,150,243,0.1)}
+        .upload-icon{font-size:64px;color:var(--color-neutral-300);margin-bottom:var(--spacing-2)}
+        .file-list{background:#FFF;border-radius:var(--border-radius-medium);box-shadow:var(--elevation-1);padding:var(--spacing-3)}
+        .file-item{display:flex;align-items:center;gap:var(--spacing-2);padding:var(--spacing-2);border-bottom:1px solid var(--color-neutral-300)}
+        .file-item:last-child{border-bottom:none}
+        .progress{flex:1;height:8px;background:var(--color-neutral-100);border-radius:4px;overflow:hidden}
+        .progress-bar{height:100%;background:var(--color-success-500);transition:width 300ms}
+    </style>
+</head>
+<body>
+    <!-- Navigation: Upload complete → SCR-015 (Document List) -->
+    <main class="main">
+        <h1>Upload clinical documents</h1>
+        <div class="upload-zone" id="dropzone">
+            <div class="upload-icon material-icons">cloud_upload</div>
+            <div style="font:500 18px/1 Roboto;color:var(--color-neutral-900);margin-bottom:8px">Drop files here or click to browse</div>
+            <div style="font:400 14px/143% Roboto;color:var(--color-neutral-500)">Supported: PDF, JPG, PNG • Max 25MB per file</div>
+            <input type="file" multiple style="display:none" id="fileInput">
+        </div>
+        <div class="file-list" id="fileList" style="display:none">
+            <h2 style="font:500 18px/1 Roboto;margin-bottom:var(--spacing-2)">Uploading files</h2>
+            <div class="file-item">
+                <span class="material-icons" style="color:var(--color-neutral-500)">description</span>
+                <div style="flex:1">
+                    <div style="font:500 14px/1 Roboto;margin-bottom:4px">discharge-summary.pdf</div>
+                    <div class="progress"><div class="progress-bar" style="width:75%"></div></div>
+                </div>
+                <span style="font:400 12px/1 Roboto;color:var(--color-neutral-500)">75%</span>
+            </div>
+        </div>
+    </main>
+    <script>
+        const dropzone=document.getElementById('dropzone');
+        const fileInput=document.getElementById('fileInput');
+        dropzone.addEventListener('click',()=>fileInput.click());
+        dropzone.addEventListener('dragover',e=>{e.preventDefault();dropzone.classList.add('dragover')});
+        dropzone.addEventListener('dragleave',()=>dropzone.classList.remove('dragover'));
+        dropzone.addEventListener('drop',e=>{e.preventDefault();dropzone.classList.remove('dragover');document.getElementById('fileList').style.display='block'});
+    </script>
+</body>
+</html>

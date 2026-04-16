@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCR-018: Conflict Resolution - Unified Patient Access Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root{--color-primary-500:#2196F3;--color-error-50:#FFEBEE;--color-error-500:#F44336;--color-neutral-50:#FAFAFA;--color-neutral-300:#E0E0E0;--color-neutral-500:#9E9E9E;--color-neutral-700:#616161;--color-neutral-900:#212121;--spacing-2:16px;--spacing-3:24px;--spacing-4:32px;--elevation-1:0 1px 3px rgba(0,0,0,0.12),0 1px 2px rgba(0,0,0,0.24);--border-radius-small:4px;--border-radius-medium:8px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font:400 16px/150% Roboto;color:var(--color-neutral-700);background:var(--color-neutral-50)}
+        .main{max-width:900px;margin:0 auto;padding:var(--spacing-4) var(--spacing-3)}
+        h1{font:400 24px/133.4% Roboto;color:var(--color-neutral-900);margin-bottom:var(--spacing-3)}
+        .conflict-card{background:#FFF;border-left:4px solid var(--color-error-500);border-radius:var(--border-radius-medium);padding:var(--spacing-3);box-shadow:var(--elevation-1);margin-bottom:var(--spacing-3)}
+        .conflict-header{display:flex;justify-content:space-between;align-items:start;margin-bottom:var(--spacing-2)}
+        .conflict-title{font:500 18px/1 Roboto;color:var(--color-neutral-900)}
+        .badge{padding:4px 8px;border-radius:var(--border-radius-small);font:500 12px/1 Roboto;background:var(--color-error-500);color:#FFF}
+        .source-comparison{display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-2);margin-bottom:var(--spacing-2)}
+        .source{background:var(--color-neutral-50);padding:var(--spacing-2);border-radius:var(--border-radius-small)}
+        .radio-group{display:flex;flex-direction:column;gap:var(--spacing-2);margin-bottom:var(--spacing-2)}
+        .radio-option{display:flex;align-items:center;gap:var(--spacing-2);padding:var(--spacing-2);border:1px solid var(--color-neutral-300);border-radius:var(--border-radius-small);cursor:pointer}
+        .radio-option:hover{background:var(--color-neutral-50)}
+        textarea{width:100%;padding:12px;border:1px solid var(--color-neutral-300);border-radius:var(--border-radius-small);font:400 14px/143% Roboto;resize:vertical;min-height:80px}
+        .btn{padding:8px 16px;border:none;border-radius:var(--border-radius-small);font:500 16px/1 Roboto;cursor:pointer;min-height:44px;background:var(--color-primary-500);color:#FFF;width:100%}
+    </style>
+</head>
+<body>
+    <!-- Navigation: #resolve-btn → SCR-019 (Code Verification) -->
+    <main class="main">
+        <h1>Resolve conflicts</h1>
+        <div class="conflict-card">
+            <div class="conflict-header">
+                <div class="conflict-title">Blood Pressure Conflict</div>
+                <div class="badge">High Priority</div>
+            </div>
+            <div class="source-comparison">
+                <div class="source">
+                    <div style="font:500 14px/1 Roboto;margin-bottom:8px">Source A: Discharge Summary</div>
+                    <div style="font:400 14px/143% Roboto">Blood Pressure: 140/90 mmHg</div>
+                    <div style="font:400 12px/166% Roboto;color:var(--color-neutral-500);margin-top:4px">Confidence: 92%</div>
+                </div>
+                <div class="source">
+                    <div style="font:500 14px/1 Roboto;margin-bottom:8px">Source B: Lab Report</div>
+                    <div style="font:400 14px/143% Roboto">Blood Pressure: 120/80 mmHg</div>
+                    <div style="font:400 12px/166% Roboto;color:var(--color-neutral-500);margin-top:4px">Confidence: 88%</div>
+                </div>
+            </div>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="resolution" value="a">
+                    <span>Accept Source A (140/90 mmHg)</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="resolution" value="b">
+                    <span>Accept Source B (120/80 mmHg)</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="resolution" value="manual">
+                    <span>Manual override (enter correct value)</span>
+                </label>
+            </div>
+            <textarea placeholder="Justification for resolution (optional)"></textarea>
+        </div>
+        <button class="btn" id="resolve-btn">Continue to code verification</button>
+    </main>
+</body>
+</html>

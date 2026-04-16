@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCR-027: Settings - Unified Patient Access Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root{--color-primary-500:#2196F3;--color-neutral-50:#FAFAFA;--color-neutral-100:#F5F5F5;--color-neutral-300:#E0E0E0;--color-neutral-500:#9E9E9E;--color-neutral-700:#616161;--color-neutral-900:#212121;--spacing-2:16px;--spacing-3:24px;--spacing-4:32px;--elevation-1:0 1px 3px rgba(0,0,0,0.12),0 1px 2px rgba(0,0,0,0.24);--border-radius-small:4px;--border-radius-medium:8px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font:400 16px/150% Roboto;color:var(--color-neutral-700);background:var(--color-neutral-50)}
+        .main{max-width:900px;margin:0 auto;padding:var(--spacing-4) var(--spacing-3)}
+        h1{font:400 24px/133.4% Roboto;color:var(--color-neutral-900);margin-bottom:var(--spacing-3)}
+        .tabs{display:flex;gap:var(--spacing-2);border-bottom:2px solid var(--color-neutral-300);margin-bottom:var(--spacing-3)}
+        .tab{padding:var(--spacing-2);border:none;background:transparent;font:500 14px/1 Roboto;color:var(--color-neutral-700);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px}
+        .tab.active{color:var(--color-primary-500);border-bottom-color:var(--color-primary-500)}
+        .settings-card{background:#FFF;border-radius:var(--border-radius-medium);box-shadow:var(--elevation-1);padding:var(--spacing-3)}
+        .setting-item{display:flex;justify-content:space-between;align-items:center;padding:var(--spacing-3);border-bottom:1px solid var(--color-neutral-300)}
+        .setting-item:last-child{border-bottom:none}
+        .setting-info{flex:1}
+        .setting-title{font:500 16px/1 Roboto;color:var(--color-neutral-900);margin-bottom:4px}
+        .setting-desc{font:400 14px/143% Roboto;color:var(--color-neutral-500)}
+        .toggle{width:48px;height:24px;background:var(--color-neutral-300);border-radius:12px;position:relative;cursor:pointer;transition:background 150ms}
+        .toggle.active{background:var(--color-primary-500)}
+        .toggle::after{content:'';position:absolute;width:20px;height:20px;background:#FFF;border-radius:50%;top:2px;left:2px;transition:left 150ms}
+        .toggle.active::after{left:26px}
+    </style>
+</head>
+<body>
+    <!-- Navigation: Settings accessible from avatar dropdown in SCR-025 -->
+    <main class="main">
+        <h1>Settings</h1>
+        <div class="tabs">
+            <button class="tab active">Account</button>
+            <button class="tab">Notifications</button>
+            <button class="tab">Privacy</button>
+        </div>
+        <div class="settings-card">
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-title">Email notifications</div>
+                    <div class="setting-desc">Receive appointment reminders via email</div>
+                </div>
+                <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+            </div>
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-title">SMS notifications</div>
+                    <div class="setting-desc">Receive appointment reminders via text message</div>
+                </div>
+                <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+            </div>
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-title">Watchlist alerts</div>
+                    <div class="setting-desc">Get notified when preferred appointment slots become available</div>
+                </div>
+                <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+            </div>
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-title">Marketing emails</div>
+                    <div class="setting-desc">Receive health tips and wellness updates</div>
+                </div>
+                <div class="toggle" onclick="this.classList.toggle('active')"></div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCR-019: Code Verification - Unified Patient Access Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary-500: #2196F3;
+            --color-success-500: #4CAF50;
+            --color-neutral-50: #FAFAFA;
+            --color-neutral-300: #E0E0E0;
+            --color-neutral-500: #9E9E9E;
+            --color-neutral-700: #616161;
+            --color-neutral-900: #212121;
+            --color-vitals: #E91E63;
+            --color-medications: #FF5722;
+            --color-history: #795548;
+            --color-diagnoses: #673AB7;
+            --color-procedures: #009688;
+            --spacing-1: 8px;
+            --spacing-2: 16px;
+            --spacing-3: 24px;
+            --spacing-4: 32px;
+            --elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --border-radius-small: 4px;
+            --border-radius-medium: 8px;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font: 400 16px/150% Roboto;
+            color: var(--color-neutral-700);
+            background: var(--color-neutral-50);
+        }
+        
+        .page { min-height: 100vh; display: flex; flex-direction: column; }
+        
+        .header {
+            background: #FFFFFF;
+            box-shadow: var(--elevation-1);
+            padding: var(--spacing-2) var(--spacing-3);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+        }
+        
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--color-primary-500);
+            cursor: pointer;
+            padding: var(--spacing-1);
+        }
+        
+        .main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-4) var(--spacing-3);
+            width: 100%;
+        }
+        
+        h1 {
+            font: 500 24px/133.4% Roboto;
+            color: var(--color-neutral-900);
+            margin-bottom: var(--spacing-1);
+        }
+        
+        .subtitle {
+            font: 400 14px/143% Roboto;
+            color: var(--color-neutral-500);
+            margin-bottom: var(--spacing-4);
+        }
+        
+        .code-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: var(--spacing-3);
+            margin-bottom: var(--spacing-4);
+        }
+        
+        .code-card {
+            background: #FFFFFF;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--border-radius-medium);
+            padding: var(--spacing-3);
+            box-shadow: var(--elevation-1);
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: var(--spacing-2);
+        }
+        
+        .code-title {
+            font: 500 18px/1 Roboto;
+            color: var(--color-neutral-900);
+            margin-bottom: var(--spacing-1);
+        }
+        
+        .code-badge {
+            padding: 4px 8px;
+            border-radius: var(--border-radius-small);
+            font: 500 12px/1 Roboto;
+            background: var(--color-diagnoses);
+            color: #FFFFFF;
+        }
+        
+        .code-badge.procedure {
+            background: var(--color-procedures);
+        }
+        
+        .code-description {
+            font: 400 14px/143% Roboto;
+            color: var(--color-neutral-700);
+            margin-bottom: var(--spacing-2);
+        }
+        
+        .evidence-breadcrumbs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-1);
+            margin-bottom: var(--spacing-2);
+        }
+        
+        .breadcrumb-chip {
+            padding: 4px 8px;
+            border-radius: var(--border-radius-small);
+            font: 400 12px/1 Roboto;
+            background: var(--color-neutral-300);
+            color: var(--color-neutral-900);
+            cursor: pointer;
+            transition: background 150ms;
+        }
+        
+        .breadcrumb-chip:hover {
+            background: var(--color-primary-500);
+            color: #FFFFFF;
+        }
+        
+        .code-actions {
+            display: flex;
+            gap: var(--spacing-1);
+        }
+        
+        .btn {
+            padding: var(--spacing-1) var(--spacing-2);
+            border: none;
+            border-radius: var(--border-radius-small);
+            font: 500 14px/1 Roboto;
+            cursor: pointer;
+            transition: background 150ms;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .btn-accept {
+            background: var(--color-success-500);
+            color: #FFFFFF;
+        }
+        
+        .btn-reject {
+            background: transparent;
+            border: 1px solid var(--color-neutral-300);
+            color: var(--color-neutral-700);
+        }
+        
+        .btn-modify {
+            background: transparent;
+            border: 1px solid var(--color-primary-500);
+            color: var(--color-primary-500);
+        }
+        
+        .bottom-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #FFFFFF;
+            box-shadow: 0 -1px 3px rgba(0,0,0,0.12);
+            padding: var(--spacing-2) var(--spacing-3);
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-2);
+        }
+        
+        .btn-primary {
+            background: var(--color-primary-500);
+            color: #FFFFFF;
+            padding: var(--spacing-1) var(--spacing-4);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--color-neutral-300);
+            color: var(--color-neutral-700);
+            padding: var(--spacing-1) var(--spacing-4);
+        }
+        
+        @media (max-width: 600px) {
+            .code-grid { grid-template-columns: 1fr; }
+            .code-actions { flex-direction: column; }
+            .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Map
+    | Element | Action | Target Screen |
+    |---------|--------|---------------|
+    | #back-btn | click | SCR-017 (360-Degree Patient View) |
+    | .breadcrumb-chip | click | Open Source Citation Drawer (overlay) showing evidence fact |
+    | #confirm-codes-btn | click | SCR-020 (Verification Complete) |
+    | #back-to-review-btn | click | SCR-017 (360-Degree Patient View) |
+    -->
+    
+    <div class="page">
+        <header class="header">
+            <button class="back-btn" id="back-btn" aria-label="Back to patient view">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <span style="font: 500 18px/1 Roboto;">Code verification</span>
+        </header>
+        
+        <main class="main">
+            <h1>Review and confirm codes</h1>
+            <div class="subtitle">Suggested codes based on patient's clinical data • Sarah Johnson (MRN-001234)</div>
+            
+            <div class="code-grid">
+                <!-- ICD-10 Code Card -->
+                <div class="code-card">
+                    <div class="code-header">
+                        <div>
+                            <div class="code-title">I10 - Essential hypertension</div>
+                            <div class="code-badge">ICD-10</div>
+                        </div>
+                    </div>
+                    
+                    <div class="code-description">
+                        High blood pressure without a secondary cause
+                    </div>
+                    
+                    <div style="margin-bottom: var(--spacing-2);">
+                        <div style="font: 500 12px/1 Roboto; color: var(--color-neutral-500); margin-bottom: 4px;">Evidence trail:</div>
+                        <div class="evidence-breadcrumbs">
+                            <div class="breadcrumb-chip" title="Click to view source">BP: 120/80 mmHg</div>
+                            <div class="breadcrumb-chip">Lisinopril 10mg daily</div>
+                            <div class="breadcrumb-chip">History: HTN diagnosis</div>
+                        </div>
+                    </div>
+                    
+                    <div class="code-actions">
+                        <button class="btn btn-accept">
+                            <span class="material-icons" style="font-size: 18px;">check</span>
+                            Accept
+                        </button>
+                        <button class="btn btn-reject">
+                            <span class="material-icons" style="font-size: 18px;">close</span>
+                            Reject
+                        </button>
+                        <button class="btn btn-modify">
+                            <span class="material-icons" style="font-size: 18px;">edit</span>
+                            Modify
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- CPT Code Card -->
+                <div class="code-card">
+                    <div class="code-header">
+                        <div>
+                            <div class="code-title">99213 - Office/outpatient visit, est. patient</div>
+                            <div class="code-badge procedure">CPT</div>
+                        </div>
+                    </div>
+                    
+                    <div class="code-description">
+                        Established patient office visit, low to moderate complexity
+                    </div>
+                    
+                    <div style="margin-bottom: var(--spacing-2);">
+                        <div style="font: 500 12px/1 Roboto; color: var(--color-neutral-500); margin-bottom: 4px;">Evidence trail:</div>
+                        <div class="evidence-breadcrumbs">
+                            <div class="breadcrumb-chip">Visit type: Follow-up</div>
+                            <div class="breadcrumb-chip">Duration: 30 min</div>
+                            <div class="breadcrumb-chip">Provider: Dr. Smith</div>
+                        </div>
+                    </div>
+                    
+                    <div class="code-actions">
+                        <button class="btn btn-accept">
+                            <span class="material-icons" style="font-size: 18px;">check</span>
+                            Accept
+                        </button>
+                        <button class="btn btn-reject">
+                            <span class="material-icons" style="font-size: 18px;">close</span>
+                            Reject
+                        </button>
+                        <button class="btn btn-modify">
+                            <span class="material-icons" style="font-size: 18px;">edit</span>
+                            Modify
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Additional ICD-10 Code -->
+                <div class="code-card">
+                    <div class="code-header">
+                        <div>
+                            <div class="code-title">E78.5 - Hyperlipidemia, unspecified</div>
+                            <div class="code-badge">ICD-10</div>
+                        </div>
+                    </div>
+                    
+                    <div class="code-description">
+                        Abnormal lipid levels in blood (high cholesterol/triglycerides)
+                    </div>
+                    
+                    <div style="margin-bottom: var(--spacing-2);">
+                        <div style="font: 500 12px/1 Roboto; color: var(--color-neutral-500); margin-bottom: 4px;">Evidence trail:</div>
+                        <div class="evidence-breadcrumbs">
+                            <div class="breadcrumb-chip">Total cholesterol: 210 mg/dL</div>
+                            <div class="breadcrumb-chip">LDL: 140 mg/dL</div>
+                            <div class="breadcrumb-chip">Atorvastatin prescribed</div>
+                        </div>
+                    </div>
+                    
+                    <div class="code-actions">
+                        <button class="btn btn-accept">
+                            <span class="material-icons" style="font-size: 18px;">check</span>
+                            Accept
+                        </button>
+                        <button class="btn btn-reject">
+                            <span class="material-icons" style="font-size: 18px;">close</span>
+                            Reject
+                        </button>
+                        <button class="btn btn-modify">
+                            <span class="material-icons" style="font-size: 18px;">edit</span>
+                            Modify
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <div class="bottom-actions">
+            <button class="btn btn-secondary" id="back-to-review-btn">Back to review</button>
+            <button class="btn btn-primary" id="confirm-codes-btn">
+                <span class="material-icons" style="font-size: 18px;">check_circle</span>
+                Confirm codes (3 accepted)
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // Track code approval state
+        let acceptedCodes = 0;
+        
+        document.querySelectorAll('.code-card').forEach(card => {
+            const acceptBtn = card.querySelector('.btn-accept');
+            const rejectBtn = card.querySelector('.btn-reject');
+            const modifyBtn = card.querySelector('.btn-modify');
+            
+            let state = null; // null, 'accepted', 'rejected', 'modified'
+            
+            acceptBtn.addEventListener('click', () => {
+                if (state !== 'accepted') {
+                    if (state === 'rejected') acceptedCodes++;
+                    if (state === null) acceptedCodes++;
+                    state = 'accepted';
+                    card.style.borderLeft = '4px solid var(--color-success-500)';
+                    updateConfirmButton();
+                }
+            });
+            
+            rejectBtn.addEventListener('click', () => {
+                if (state !== 'rejected') {
+                    if (state === 'accepted') acceptedCodes--;
+                    state = 'rejected';
+                    card.style.opacity = '0.5';
+                    updateConfirmButton();
+                }
+            });
+            
+            modifyBtn.addEventListener('click', () => {
+                console.log('Open modify code modal (not in scope)');
+            });
+        });
+        
+        function updateConfirmButton() {
+            const confirmBtn = document.getElementById('confirm-codes-btn');
+            confirmBtn.innerHTML = `
+                <span class="material-icons" style="font-size: 18px;">check_circle</span>
+                Confirm codes (${acceptedCodes} accepted)
+            `;
+            confirmBtn.disabled = acceptedCodes === 0;
+        }
+        
+        // Breadcrumb navigation to source citation
+        document.querySelectorAll('.breadcrumb-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                console.log('Open Source Citation Drawer with evidence fact:', chip.textContent);
+            });
+        });
+        
+        document.getElementById('back-btn').addEventListener('click', () => {
+            console.log('Navigate to SCR-017 360-Degree Patient View');
+        });
+        
+        document.getElementById('back-to-review-btn').addEventListener('click', () => {
+            console.log('Navigate to SCR-017 360-Degree Patient View');
+        });
+        
+        document.getElementById('confirm-codes-btn').addEventListener('click', () => {
+            console.log('Navigate to SCR-020 Verification Complete');
+        });
+        
+        // Initialize with 3 accepted codes
+        document.querySelectorAll('.btn-accept').forEach(btn => btn.click());
+    </script>
+</body>
+</html>

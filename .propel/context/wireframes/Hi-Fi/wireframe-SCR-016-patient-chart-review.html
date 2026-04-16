@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCR-016: Patient Chart Review - Unified Patient Access Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root{--color-primary-500:#2196F3;--color-error-500:#F44336;--color-warning-500:#FF9800;--color-neutral-50:#FAFAFA;--color-neutral-100:#F5F5F5;--color-neutral-300:#E0E0E0;--color-neutral-500:#9E9E9E;--color-neutral-700:#616161;--color-neutral-900:#212121;--spacing-2:16px;--spacing-3:24px;--elevation-1:0 1px 3px rgba(0,0,0,0.12),0 1px 2px rgba(0,0,0,0.24);--border-radius-small:4px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font:400 16px/150% Roboto;color:var(--color-neutral-700);background:var(--color-neutral-50)}
+        .page{display:flex;min-height:100vh}
+        .sidebar{width:240px;background:var(--color-neutral-50);border-right:1px solid var(--color-neutral-300);padding:var(--spacing-3)}
+        .main{flex:1;padding:var(--spacing-3)}
+        h1{font:400 24px/133.4% Roboto;color:var(--color-neutral-900);margin-bottom:var(--spacing-3)}
+        table{width:100%;background:#FFF;border-collapse:collapse;box-shadow:var(--elevation-1)}
+        th{background:var(--color-neutral-50);padding:var(--spacing-2);text-align:left;font:500 14px/143% Roboto;border-bottom:2px solid var(--color-neutral-300)}
+        td{padding:var(--spacing-2);border-bottom:1px solid var(--color-neutral-300);font:400 14px/143% Roboto}
+        tr:hover{background:var(--color-neutral-100);cursor:pointer}
+        .badge{padding:4px 8px;border-radius:var(--border-radius-small);font:500 12px/1 Roboto;display:inline-block}
+        .badge-conflict{background:var(--color-error-500);color:#FFF}
+        .badge-pending{background:var(--color-warning-500);color:#000}
+        .btn{padding:6px 12px;border:none;border-radius:var(--border-radius-small);font:500 14px/1 Roboto;cursor:pointer;background:var(--color-primary-500);color:#FFF}
+    </style>
+</head>
+<body>
+    <!-- Navigation: Table row click → SCR-017 (360-Degree Patient View) -->
+    <div class="page">
+        <aside class="sidebar"><p style="color:var(--color-neutral-500)">Staff navigation</p></aside>
+        <main class="main">
+            <h1>Verification queue</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>MRN</th>
+                        <th>Appointment</th>
+                        <th>Documents</th>
+                        <th>Priority</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr onclick="console.log('Navigate to SCR-017 360-Degree Patient View')">
+                        <td>Sarah Johnson</td>
+                        <td>MRN-001234</td>
+                        <td>Today 2:00 PM</td>
+                        <td>3 uploaded</td>
+                        <td><span class="badge badge-conflict">2 Conflicts</span></td>
+                        <td><button class="btn">Review</button></td>
+                    </tr>
+                    <tr onclick="console.log('Navigate to SCR-017')">
+                        <td>John Davis</td>
+                        <td>MRN-005678</td>
+                        <td>Today 3:30 PM</td>
+                        <td>2 uploaded</td>
+                        <td><span class="badge badge-pending">Pending</span></td>
+                        <td><button class="btn">Review</button></td>
+                    </tr>
+                    <tr onclick="console.log('Navigate to SCR-017')">
+                        <td>Emily Wilson</td>
+                        <td>MRN-009012</td>
+                        <td>Tomorrow 9:00 AM</td>
+                        <td>4 uploaded</td>
+                        <td><span class="badge badge-pending">Pending</span></td>
+                        <td><button class="btn">Review</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </main>
+    </div>
+</body>
+</html>

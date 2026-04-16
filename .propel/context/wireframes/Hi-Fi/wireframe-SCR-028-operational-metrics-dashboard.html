@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCR-028: Operational Metrics Dashboard - Unified Patient Access Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root{--color-primary-500:#2196F3;--color-success-500:#4CAF50;--color-warning-500:#FF9800;--color-error-500:#F44336;--color-neutral-50:#FAFAFA;--color-neutral-100:#F5F5F5;--color-neutral-300:#E0E0E0;--color-neutral-500:#9E9E9E;--color-neutral-700:#616161;--color-neutral-900:#212121;--spacing-2:16px;--spacing-3:24px;--elevation-1:0 1px 3px rgba(0,0,0,0.12),0 1px 2px rgba(0,0,0,0.24);--border-radius-small:4px;--border-radius-medium:8px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font:400 16px/150% Roboto;color:var(--color-neutral-700);background:var(--color-neutral-50)}
+        .page{display:flex;min-height:100vh}
+        .sidebar{width:240px;background:var(--color-neutral-50);border-right:1px solid var(--color-neutral-300);padding:var(--spacing-3)}
+        .main{flex:1;padding:var(--spacing-3)}
+        h1{font:400 24px/133.4% Roboto;color:var(--color-neutral-900);margin-bottom:var(--spacing-3)}
+        .metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:var(--spacing-3);margin-bottom:var(--spacing-3)}
+        .metric-card{background:#FFF;padding:var(--spacing-3);border-radius:var(--border-radius-medium);box-shadow:var(--elevation-1)}
+        .metric-value{font:500 32px/1 Roboto;color:var(--color-neutral-900);margin-bottom:4px}
+        .metric-label{font:400 14px/143% Roboto;color:var(--color-neutral-500)}
+        .metric-trend{font:500 12px/1 Roboto;display:inline-flex;align-items:center;gap:4px;margin-top:8px}
+        .trend-up{color:var(--color-success-500)}
+        .trend-down{color:var(--color-error-500)}
+        .chart-container{background:#FFF;padding:var(--spacing-3);border-radius:var(--border-radius-medium);box-shadow:var(--elevation-1);margin-bottom:var(--spacing-3)}
+        .chart-title{font:500 18px/1 Roboto;color:var(--color-neutral-900);margin-bottom:var(--spacing-2)}
+        .chart-placeholder{height:300px;background:var(--color-neutral-100);border-radius:var(--border-radius-small);display:flex;align-items:center;justify-content:center;color:var(--color-neutral-500)}
+        .filters{display:flex;gap:var(--spacing-2);margin-bottom:var(--spacing-3)}
+        input[type="date"]{padding:8px 12px;border:1px solid var(--color-neutral-300);border-radius:var(--border-radius-small);font:400 14px/1 Roboto}
+    </style>
+</head>
+<body>
+    <!-- Navigation: Accessible from staff/admin sidebar -->
+    <div class="page">
+        <aside class="sidebar"><p style="color:var(--color-neutral-500)">Staff/Admin navigation</p></aside>
+        <main class="main">
+            <h1>Operational metrics</h1>
+            <div class="filters">
+                <input type="date" value="2024-03-01">
+                <span style="padding:8px;color:var(--color-neutral-500)">to</span>
+                <input type="date" value="2024-03-31">
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">847</div>
+                    <div class="metric-label">Total bookings</div>
+                    <div class="metric-trend trend-up">
+                        <span class="material-icons" style="font-size:16px">trending_up</span>
+                        12% vs last month
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">8.3%</div>
+                    <div class="metric-label">No-show rate</div>
+                    <div class="metric-trend trend-down">
+                        <span class="material-icons" style="font-size:16px">trending_down</span>
+                        3.2% vs last month
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">94%</div>
+                    <div class="metric-label">AI agreement</div>
+                    <div class="metric-trend trend-up">
+                        <span class="material-icons" style="font-size:16px">trending_up</span>
+                        2% vs last month
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">23</div>
+                    <div class="metric-label">Active conflicts</div>
+                    <div class="metric-trend trend-down">
+                        <span class="material-icons" style="font-size:16px">trending_down</span>
+                        15% vs last month
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Booking trends</div>
+                <div class="chart-placeholder">
+                    <span>📊 Bar Chart: Daily bookings over time</span>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-3)">
+                <div class="chart-container">
+                    <div class="chart-title">No-show breakdown</div>
+                    <div class="chart-placeholder" style="height:200px">
+                        <span>📊 Pie Chart: No-show reasons</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Verification time</div>
+                    <div class="chart-placeholder" style="height:200px">
+                        <span>📊 Line Chart: Avg verification time</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

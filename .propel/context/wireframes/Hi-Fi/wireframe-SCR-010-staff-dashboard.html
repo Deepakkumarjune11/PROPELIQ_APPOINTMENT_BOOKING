@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCR-010: Staff Dashboard - PropelIQ Healthcare</title>
+    <style>
+        /* Design Tokens from designsystem.md */
+        :root {
+            --color-primary-main: #2196F3;
+            --color-primary-dark: #1976D2;
+            --color-secondary-main: #9C27B0;
+            --color-success: #4CAF50;
+            --color-warning: #FF9800;
+            --color-error: #F44336;
+            --color-neutral-0: #FFFFFF;
+            --color-neutral-50: #FAFAFA;
+            --color-neutral-100: #F5F5F5;
+            --color-neutral-200: #EEEEEE;
+            --color-neutral-300: #E0E0E0;
+            --color-neutral-600: #757575;
+            --color-neutral-700: #616161;
+            --color-neutral-900: #212121;
+            
+            --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-size-h4: 1.5rem;
+            --font-size-h5: 1.25rem;
+            --font-size-body1: 1rem;
+            --font-size-body2: 0.875rem;
+            --font-size-caption: 0.75rem;
+            --font-weight-regular: 400;
+            --font-weight-medium: 500;
+            --line-height-base: 1.5;
+            
+            --spacing-1: 8px;
+            --spacing-2: 16px;
+            --spacing-3: 24px;
+            --spacing-4: 32px;
+            --spacing-6: 48px;
+            
+            --radius-small: 4px;
+            --radius-medium: 8px;
+            
+            --shadow-1: 0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12);
+            --shadow-2: 0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-family);
+            font-size: var(--font-size-body1);
+            line-height: var(--line-height-base);
+            color: var(--color-neutral-900);
+            background-color: var(--color-neutral-50);
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 240px;
+            background: var(--color-neutral-0);
+            box-shadow: var(--shadow-1);
+            padding: var(--spacing-3);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar-logo {
+            font-size: var(--font-size-h5);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-primary-main);
+            margin-bottom: var(--spacing-4);
+        }
+        
+        .nav-menu {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin-bottom: var(--spacing-1);
+        }
+        
+        .nav-link {
+            display: block;
+            padding: var(--spacing-2);
+            color: var(--color-neutral-700);
+            text-decoration: none;
+            border-radius: var(--radius-small);
+            transition: background-color 200ms;
+        }
+        
+        .nav-link:hover {
+            background-color: var(--color-neutral-100);
+        }
+        
+        .nav-link.active {
+            background-color: #E3F2FD;
+            color: var(--color-primary-main);
+            font-weight: var(--font-weight-medium);
+        }
+        
+        .nav-link:focus {
+            outline: 2px solid var(--color-primary-main);
+            outline-offset: 2px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 240px;
+            flex: 1;
+            padding: var(--spacing-3);
+        }
+        
+        /* Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-4);
+        }
+        
+        .page-header h1 {
+            font-size: var(--font-size-h4);
+            font-weight: var(--font-weight-regular);
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--color-primary-main);
+            color: var(--color-neutral-0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+        }
+        
+        /* Summary Cards Grid */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-3);
+            margin-bottom: var(--spacing-4);
+        }
+        
+        .summary-card {
+            background: var(--color-neutral-0);
+            border-radius: var(--radius-medium);
+            box-shadow: var(--shadow-1);
+            padding: var(--spacing-3);
+        }
+        
+        .summary-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-2);
+        }
+        
+        .summary-card-title {
+            font-size: var(--font-size-body2);
+            color: var(--color-neutral-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .summary-card-value {
+            font-size: 2rem;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-neutral-900);
+        }
+        
+        .summary-card-subtitle {
+            font-size: var(--font-size-body2);
+            color: var(--color-neutral-600);
+            margin-top: var(--spacing-1);
+        }
+        
+        .badge {
+            padding: 4px var(--spacing-1);
+            border-radius: var(--radius-small);
+            font-size: var(--font-size-caption);
+            font-weight: var(--font-weight-medium);
+        }
+        
+        .badge-warning {
+            background-color: #FFF3E0;
+            color: #E65100;
+        }
+        
+        .badge-error {
+            background-color: #FFEBEE;
+            color: #C62828;
+        }
+        
+        .badge-success {
+            background-color: #E8F5E9;
+            color: #2E7D32;
+        }
+        
+        /* Table */
+        .card {
+            background: var(--color-neutral-0);
+            border-radius: var(--radius-medium);
+            box-shadow: var(--shadow-1);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: var(--spacing-3);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+        
+        .card-header h2 {
+            font-size: var(--font-size-h5);
+            font-weight: var(--font-weight-regular);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background-color: var(--color-neutral-100);
+        }
+        
+        th {
+            text-align: left;
+            padding: var(--spacing-2);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-neutral-700);
+            font-size: var(--font-size-body2);
+            border-bottom: 2px solid var(--color-neutral-300);
+        }
+        
+        td {
+            padding: var(--spacing-2);
+            border-bottom: 1px solid var(--color-neutral-200);
+        }
+        
+        tr:hover {
+            background-color: var(--color-neutral-50);
+        }
+        
+        .btn {
+            padding: 6px 16px;
+            border: none;
+            border-radius: var(--radius-small);
+            font-family: var(--font-family);
+            font-size: var(--font-size-body2);
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+            transition: all 200ms;
+        }
+        
+        .btn-text {
+            background: transparent;
+            color: var(--color-primary-main);
+        }
+        
+        .btn-text:hover {
+            background-color: #E3F2FD;
+        }
+        
+        .btn-primary {
+            background-color: var(--color-primary-main);
+            color: var(--color-neutral-0);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--color-primary-dark);
+            box-shadow: var(--shadow-2);
+        }
+        
+        /* Skeleton Loading State */
+        .skeleton {
+            background: linear-gradient(90deg, var(--color-neutral-200) 25%, var(--color-neutral-100) 50%, var(--color-neutral-200) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s ease-in-out infinite;
+            border-radius: var(--radius-small);
+        }
+        
+        .skeleton-text {
+            height: 16px;
+            margin-bottom: var(--spacing-1);
+        }
+        
+        .skeleton-value {
+            height: 32px;
+            width: 60%;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* Responsive */
+        @media (max-width: 900px) {
+            .sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Map
+    | Element | Action | Target Screen |
+    |---------|--------|---------------|
+    | #nav-dashboard | click | SCR-010 (current) |
+    | #nav-walkin | click | SCR-011 (Walk-In Booking) |
+    | #nav-queue | click | SCR-012 (Same-Day Queue) |
+    | #nav-verify | click | SCR-016 (Patient Chart Review) |
+    | #nav-metrics | click | SCR-028 (Operational Metrics Dashboard) |
+    | .btn-mark-arrived | click | SCR-013 (Patient Arrival Marking) |
+    -->
+    
+    <aside class="sidebar">
+        <div class="sidebar-logo">PropelIQ Healthcare</div>
+        <nav>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" id="nav-dashboard">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a href="wireframe-SCR-011-walkin-booking.html" class="nav-link" id="nav-walkin">Walk-In Booking</a>
+                </li>
+                <li class="nav-item">
+                    <a href="wireframe-SCR-012-sameday-queue.html" class="nav-link" id="nav-queue">Same-Day Queue</a>
+                </li>
+                <li class="nav-item">
+                    <a href="wireframe-SCR-016-patient-chart-review.html" class="nav-link" id="nav-verify">Chart Review</a>
+                </li>
+                <li class="nav-item">
+                    <a href="wireframe-SCR-028-operational-metrics.html" class="nav-link" id="nav-metrics">Metrics</a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <main class="main-content">
+        <header class="page-header">
+            <h1>Staff Dashboard</h1>
+            <div class="user-menu">
+                <div class="avatar" title="Staff User">SU</div>
+            </div>
+        </header>
+        
+        <!-- Summary Cards -->
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="summary-card-header">
+                    <div>
+                        <div class="summary-card-title">Walk-Ins Today</div>
+                    </div>
+                </div>
+                <div class="summary-card-value">12</div>
+                <div class="summary-card-subtitle">+3 from yesterday</div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="summary-card-header">
+                    <div>
+                        <div class="summary-card-title">Queue Length</div>
+                    </div>
+                    <span class="badge badge-warning">4 waiting</span>
+                </div>
+                <div class="summary-card-value">7</div>
+                <div class="summary-card-subtitle">Avg wait: 18 min</div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="summary-card-header">
+                    <div>
+                        <div class="summary-card-title">Verification Pending</div>
+                    </div>
+                    <span class="badge badge-warning">5 charts</span>
+                </div>
+                <div class="summary-card-value">5</div>
+                <div class="summary-card-subtitle">Oldest: 2 hours ago</div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="summary-card-header">
+                    <div>
+                        <div class="summary-card-title">Critical Conflicts</div>
+                    </div>
+                    <span class="badge badge-error">2 urgent</span>
+                </div>
+                <div class="summary-card-value">2</div>
+                <div class="summary-card-subtitle">Requires review</div>
+            </div>
+        </div>
+        
+        <!-- Same-Day Queue Table -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Same-Day Queue</h2>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Patient Name</th>
+                            <th>Check-In Time</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Sarah Johnson</td>
+                            <td>9:15 AM</td>
+                            <td>Follow-up visit</td>
+                            <td><span class="badge badge-warning">Waiting</span></td>
+                            <td>
+                                <button class="btn btn-text btn-mark-arrived">Mark Arrived</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Michael Chen</td>
+                            <td>9:30 AM</td>
+                            <td>Annual checkup</td>
+                            <td><span class="badge badge-warning">Waiting</span></td>
+                            <td>
+                                <button class="btn btn-text btn-mark-arrived">Mark Arrived</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Emily Rodriguez</td>
+                            <td>9:45 AM</td>
+                            <td>Prescription refill</td>
+                            <td><span class="badge badge-success">In Room</span></td>
+                            <td>
+                                <button class="btn btn-text" disabled>In Progress</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>David Thompson</td>
+                            <td>10:00 AM</td>
+                            <td>Lab results</td>
+                            <td><span class="badge badge-warning">Waiting</span></td>
+                            <td>
+                                <button class="btn btn-text btn-mark-arrived">Mark Arrived</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        // Demo: Mark arrived action
+        document.querySelectorAll('.btn-mark-arrived').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const row = this.closest('tr');
+                const statusBadge = row.querySelector('.badge');
+                statusBadge.classList.remove('badge-warning');
+                statusBadge.classList.add('badge-success');
+                statusBadge.textContent = 'In Room';
+                this.textContent = 'In Progress';
+                this.disabled = true;
+            });
+        });
+        
+        // Demo: Loading state for summary cards
+        function showLoadingState() {
+            document.querySelectorAll('.summary-card-value').forEach(el => {
+                el.innerHTML = '<div class="skeleton skeleton-value"></div>';
+            });
+        }
+        
+        // Uncomment to see loading state demo
+        // showLoadingState();
+    </script>
+</body>
+</html>

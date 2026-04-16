@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCR-025: Header/Navigation - Unified Patient Access Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary-500: #2196F3;
+            --color-neutral-50: #FAFAFA;
+            --color-neutral-300: #E0E0E0;
+            --color-neutral-500: #9E9E9E;
+            --color-neutral-700: #616161;
+            --color-neutral-900: #212121;
+            --spacing-1: 8px;
+            --spacing-2: 16px;
+            --spacing-3: 24px;
+            --elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --border-radius-small: 4px;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font: 400 16px/150% Roboto;
+            color: var(--color-neutral-700);
+            background: var(--color-neutral-50);
+        }
+        
+        /* Header (Desktop) */
+        .header {
+            background: #FFFFFF;
+            box-shadow: var(--elevation-1);
+            padding: var(--spacing-2) var(--spacing-3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            font: 500 20px/1 Roboto;
+            color: var(--color-primary-500);
+            text-decoration: none;
+        }
+        
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+        }
+        
+        .nav-link {
+            color: var(--color-neutral-700);
+            text-decoration: none;
+            font: 400 16px/1 Roboto;
+            padding: var(--spacing-1) var(--spacing-2);
+            border-radius: var(--border-radius-small);
+            transition: background 150ms, color 150ms;
+        }
+        
+        .nav-link:hover {
+            background: var(--color-neutral-50);
+        }
+        
+        .nav-link.active {
+            color: var(--color-primary-500);
+            font-weight: 500;
+        }
+        
+        .user-menu {
+            position: relative;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--color-primary-500);
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font: 500 16px/1 Roboto;
+            cursor: pointer;
+            transition: background 150ms;
+        }
+        
+        .avatar:hover {
+            background: var(--color-primary-700: #1976D2);
+        }
+        
+        .dropdown {
+            position: absolute;
+            top: 48px;
+            right: 0;
+            background: #FFFFFF;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--border-radius-small);
+            box-shadow: var(--elevation-1);
+            min-width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .dropdown.open {
+            display: block;
+        }
+        
+        .dropdown-item {
+            padding: var(--spacing-2) var(--spacing-3);
+            color: var(--color-neutral-700);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-1);
+            font: 400 14px/1 Roboto;
+            border-bottom: 1px solid var(--color-neutral-300);
+            cursor: pointer;
+            transition: background 150ms;
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-item:hover {
+            background: var(--color-neutral-50);
+        }
+        
+        /* Sidebar (Desktop - Staff/Admin) */
+        .sidebar {
+            width: 240px;
+            background: var(--color-neutral-50);
+            border-right: 1px solid var(--color-neutral-300);
+            padding: var(--spacing-3);
+            min-height: calc(100vh - 64px);
+        }
+        
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-1);
+        }
+        
+        .sidebar-link {
+            padding: var(--spacing-1) var(--spacing-2);
+            border-radius: var(--border-radius-small);
+            color: var(--color-neutral-700);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-1);
+            font: 400 14px/143% Roboto;
+            transition: background 150ms, color 150ms;
+        }
+        
+        .sidebar-link.active {
+            background: var(--color-primary-500);
+            color: #FFFFFF;
+        }
+        
+        .sidebar-link:hover:not(.active) {
+            background: #FFFFFF;
+        }
+        
+        /* Bottom Navigation (Mobile - Patient) */
+        .bottom-nav {
+            display: none;
+            background: #FFFFFF;
+            box-shadow: 0 -1px 3px rgba(0,0,0,0.12);
+            padding: var(--spacing-1) 0;
+        }
+        
+        .bottom-nav-items {
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: var(--spacing-1);
+            color: var(--color-neutral-500);
+            text-decoration: none;
+            font: 400 12px/166% Roboto;
+            cursor: pointer;
+            transition: color 150ms;
+            min-width: 60px;
+        }
+        
+        .bottom-nav-item.active {
+            color: var(--color-primary-500);
+        }
+        
+        /* Responsive Behavior */
+        @media (max-width: 900px) {
+            .header-nav {
+                display: none;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .bottom-nav {
+                display: block;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+            }
+        }
+        
+        /* Demo Layout */
+        .page {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .content-wrapper {
+            display: flex;
+            flex: 1;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: var(--spacing-4) var(--spacing-3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Map
+    | Element | Action | Target Screen |
+    |---------|--------|---------------|
+    | #logo | click | Role-dependent dashboard (SCR-001 Patient, SCR-010 Staff, SCR-021 Admin) |
+    | .nav-link[data-target="appointments"] | click | SCR-008 (My Appointments) - Patient only |
+    | .nav-link[data-target="documents"] | click | SCR-015 (Document List) - Patient only |
+    | .avatar | click | Toggle user dropdown menu |
+    | .dropdown-item[data-target="profile"] | click | SCR-026 (User Profile) |
+    | .dropdown-item[data-target="settings"] | click | SCR-027 (Settings) |
+    | .dropdown-item[data-target="logout"] | click | SCR-024 (Login) with logout action |
+    | .sidebar-link[data-target="dashboard"] | click | SCR-010 (Staff Dashboard) OR SCR-021 (Admin User Management) |
+    | .sidebar-link[data-target="verify"] | click | SCR-016 (Patient Chart Review) |
+    | .bottom-nav-item[data-target="book"] | click | SCR-001 (Availability Search) - Patient only |
+    -->
+    
+    <div class="page">
+        <!-- Desktop Header (All Personas) -->
+        <header class="header">
+            <a href="#" class="logo" id="logo">PropelIQ Healthcare</a>
+            
+            <!-- Patient-Specific Nav (Desktop) -->
+            <nav class="header-nav" id="patient-nav">
+                <a href="#" class="nav-link active" data-target="book">Book appointment</a>
+                <a href="#" class="nav-link" data-target="appointments">My appointments</a>
+                <a href="#" class="nav-link" data-target="documents">Documents</a>
+            </nav>
+            
+            <!-- Staff/Admin Nav Hidden on Desktop (uses sidebar instead) -->
+            
+            <div class="user-menu">
+                <div class="avatar" id="avatar-btn" aria-label="User menu" aria-haspopup="true">JD</div>
+                <div class="dropdown" id="user-dropdown">
+                    <a href="#" class="dropdown-item" data-target="profile">
+                        <span class="material-icons">person</span>
+                        Profile
+                    </a>
+                    <a href="#" class="dropdown-item" data-target="settings">
+                        <span class="material-icons">settings</span>
+                        Settings
+                    </a>
+                    <a href="#" class="dropdown-item" data-target="logout">
+                        <span class="material-icons">logout</span>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </header>
+        
+        <div class="content-wrapper">
+            <!-- Staff/Admin Sidebar (Desktop Only) -->
+            <aside class="sidebar" id="staff-sidebar" style="display: none;">
+                <nav class="sidebar-nav">
+                    <a href="#" class="sidebar-link active" data-target="dashboard">
+                        <span class="material-icons">dashboard</span>
+                        Dashboard
+                    </a>
+                    <a href="#" class="sidebar-link" data-target="walkin">
+                        <span class="material-icons">person_add</span>
+                        Walk-in
+                    </a>
+                    <a href="#" class="sidebar-link" data-target="queue">
+                        <span class="material-icons">list</span>
+                        Queue
+                    </a>
+                    <a href="#" class="sidebar-link" data-target="verify">
+                        <span class="material-icons">fact_check</span>
+                        Verify
+                    </a>
+                    <a href="#" class="sidebar-link" data-target="metrics">
+                        <span class="material-icons">bar_chart</span>
+                        Metrics
+                    </a>
+                </nav>
+            </aside>
+            
+            <!-- Page Content -->
+            <main class="main-content">
+                <h1 style="font: 400 24px/133.4% Roboto; color: var(--color-neutral-900); margin-bottom: var(--spacing-2);">Navigation shell demo</h1>
+                <p>This demonstrates the responsive navigation patterns:</p>
+                <ul style="margin-top: var(--spacing-2); line-height: 2;">
+                    <li><strong>Patient (Desktop):</strong> Header navigation with links</li>
+                    <li><strong>Patient (Mobile <900px):</strong> Bottom navigation</li>
+                    <li><strong>Staff/Admin (Desktop):</strong> Sidebar navigation (240px left)</li>
+                    <li><strong>Staff/Admin (Mobile <900px):</strong> Bottom navigation</li>
+                    <li><strong>All roles:</strong> User avatar menu (Profile, Settings, Logout)</li>
+                </ul>
+                <p style="margin-top: var(--spacing-2);">Resize browser to see responsive behavior.</p>
+            </main>
+        </div>
+        
+        <!-- Bottom Navigation (Mobile - Patient) -->
+        <nav class="bottom-nav" id="patient-bottom-nav">
+            <div class="bottom-nav-items">
+                <a href="#" class="bottom-nav-item active" data-target="book">
+                    <span class="material-icons">calendar_today</span>
+                    Book
+                </a>
+                <a href="#" class="bottom-nav-item" data-target="appointments">
+                    <span class="material-icons">event</span>
+                    Appointments
+                </a>
+                <a href="#" class="bottom-nav-item" data-target="documents">
+                    <span class="material-icons">description</span>
+                    Documents
+                </a>
+                <a href="#" class="bottom-nav-item" data-target="profile">
+                    <span class="material-icons">person</span>
+                    Profile
+                </a>
+            </div>
+        </nav>
+        
+        <!-- Bottom Navigation (Mobile - Staff/Admin) -->
+        <nav class="bottom-nav" id="staff-bottom-nav" style="display: none;">
+            <div class="bottom-nav-items">
+                <a href="#" class="bottom-nav-item active" data-target="dashboard">
+                    <span class="material-icons">dashboard</span>
+                    Dashboard
+                </a>
+                <a href="#" class="bottom-nav-item" data-target="queue">
+                    <span class="material-icons">list</span>
+                    Queue
+                </a>
+                <a href="#" class="bottom-nav-item" data-target="verify">
+                    <span class="material-icons">fact_check</span>
+                    Verify
+                </a>
+                <a href="#" class="bottom-nav-item" data-target="metrics">
+                    <span class="material-icons">bar_chart</span>
+                    Metrics
+                </a>
+            </div>
+        </nav>
+    </div>
+    
+    <script>
+        // Avatar dropdown toggle
+        const avatarBtn = document.getElementById('avatar-btn');
+        const userDropdown = document.getElementById('user-dropdown');
+        
+        avatarBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userDropdown.classList.toggle('open');
+        });
+        
+        document.addEventListener('click', () => {
+            userDropdown.classList.remove('open');
+        });
+        
+        // Dropdown navigation
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = item.dataset.target;
+                console.log(`Navigate to ${target}`);
+                if (target === 'logout') {
+                    console.log('Logout user, navigate to SCR-024 Login');
+                }
+            });
+        });
+        
+        // Role switcher demo (for wireframe demonstration only)
+        let currentRole = 'patient'; // patient, staff, admin
+        
+        function switchRole(role) {
+            currentRole = role;
+            const patientNav = document.getElementById('patient-nav');
+            const staffSidebar = document.getElementById('staff-sidebar');
+            const patientBottomNav = document.getElementById('patient-bottom-nav');
+            const staffBottomNav = document.getElementById('staff-bottom-nav');
+            
+            if (role === 'patient') {
+                patientNav.style.display = 'flex';
+                staffSidebar.style.display = 'none';
+                patientBottomNav.style.display = 'block';
+                staffBottomNav.style.display = 'none';
+            } else {
+                patientNav.style.display = 'none';
+                staffSidebar.style.display = 'block';
+                patientBottomNav.style.display = 'none';
+                staffBottomNav.style.display = 'block';
+            }
+        }
+        
+        // Default: show patient nav
+        switchRole('patient');
+        
+        // Allow role switching via console for demonstration:
+        // switchRole('staff') or switchRole('patient')
+        console.log('Role switcher available: switchRole("patient") or switchRole("staff")');
+    </script>
+</body>
+</html>

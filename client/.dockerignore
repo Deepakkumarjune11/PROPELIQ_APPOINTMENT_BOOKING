@@ -1,0 +1,8 @@
+# client/.dockerignore
+# Exclude local install artifacts and secrets from Docker build context (OWASP A02)
+node_modules/
+dist/
+.env
+.env.*
+.git/
+.gitignore

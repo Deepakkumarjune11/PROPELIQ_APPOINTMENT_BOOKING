@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCR-008: My Appointments - Unified Patient Access Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary-50: #E3F2FD;
+            --color-primary-500: #2196F3;
+            --color-success-500: #4CAF50;
+            --color-warning-500: #FF9800;
+            --color-neutral-50: #FAFAFA;
+            --color-neutral-300: #E0E0E0;
+            --color-neutral-500: #9E9E9E;
+            --color-neutral-700: #616161;
+            --color-neutral-900: #212121;
+            --spacing-1: 8px;
+            --spacing-2: 16px;
+            --spacing-3: 24px;
+            --spacing-4: 32px;
+            --elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --border-radius-small: 4px;
+            --border-radius-medium: 8px;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font: 400 16px/150% Roboto;
+            color: var(--color-neutral-700);
+            background: var(--color-neutral-50);
+        }
+        
+        .page { min-height: 100vh; padding-bottom: 72px; }
+        
+        .header {
+            background: #FFFFFF;
+            box-shadow: var(--elevation-1);
+            padding: var(--spacing-2) var(--spacing-3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo { font: 500 20px/1 Roboto; color: var(--color-primary-500); }
+        
+        .main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: var(--spacing-4) var(--spacing-3);
+        }
+        
+        h1 {
+            font: 400 24px/133.4% Roboto;
+            color: var(--color-neutral-900);
+            margin-bottom: var(--spacing-4);
+        }
+        
+        .appointment-cards {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-3);
+        }
+        
+        .appointment-card {
+            background: #FFFFFF;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--border-radius-medium);
+            padding: var(--spacing-3);
+            box-shadow: var(--elevation-1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: var(--spacing-2);
+        }
+        
+        .card-title {
+            font: 500 18px/1 Roboto;
+            color: var(--color-neutral-900);
+            margin-bottom: var(--spacing-1);
+        }
+        
+        .card-subtitle {
+            font: 400 14px/143% Roboto;
+            color: var(--color-neutral-700);
+        }
+        
+        .badge {
+            padding: 4px 8px;
+            border-radius: var(--border-radius-small);
+            font: 500 12px/166% Roboto;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .badge-confirmed {
+            background: var(--color-success-500);
+            color: #FFFFFF;
+        }
+        
+        .badge-watchlist {
+            background: var(--color-warning-500);
+            color: #000000;
+        }
+        
+        .card-details {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-1);
+            margin-bottom: var(--spacing-2);
+        }
+        
+        .detail-row {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-1);
+            font: 400 14px/143% Roboto;
+            color: var(--color-neutral-700);
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: var(--spacing-1);
+        }
+        
+        .btn {
+            padding: var(--spacing-1) var(--spacing-2);
+            border: none;
+            border-radius: var(--border-radius-small);
+            font: 500 14px/1 Roboto;
+            cursor: pointer;
+            min-height: 44px;
+        }
+        
+        .btn-text {
+            background: transparent;
+            color: var(--color-primary-500);
+        }
+        
+        .btn-text:hover {
+            background: var(--color-primary-50);
+        }
+        
+        .bottom-nav {
+            background: #FFFFFF;
+            box-shadow: 0 -1px 3px rgba(0,0,0,0.12);
+            padding: var(--spacing-1) 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+        
+        .bottom-nav-items {
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: var(--spacing-1);
+            color: var(--color-neutral-500);
+            text-decoration: none;
+            font: 400 12px/166% Roboto;
+            cursor: pointer;
+            min-width: 44px;
+        }
+        
+        .bottom-nav-item.active {
+            color: var(--color-primary-500);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Map
+    | Element | Action | Target Screen |
+    |---------|--------|---------------|
+    | .btn-reschedule | click | SCR-001 (Availability Search) |
+    | .btn-cancel | click | Cancel confirmation modal (not in scope) |
+    | .btn-preferred-slot | click | SCR-009 (Preferred Slot Selection) |
+    | .bottom-nav-item[data-target="book"] | click | SCR-001 (Availability Search) |
+    | .bottom-nav-item[data-target="documents"] | click | SCR-015 (Document List) |
+    | .bottom-nav-item[data-target="profile"] | click | SCR-026 (User Profile) |
+    -->
+    
+    <div class="page">
+        <header class="header">
+            <div class="logo">PropelIQ Healthcare</div>
+        </header>
+        
+        <main class="main">
+            <h1>My appointments</h1>
+            
+            <div class="appointment-cards">
+                <!-- Upcoming Appointment -->
+                <div class="appointment-card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Thursday, March 14, 2024 at 9:00 AM</div>
+                            <div class="card-subtitle">Dr. Sarah Smith • Primary Care</div>
+                        </div>
+                        <div class="badge badge-confirmed">
+                            <span class="material-icons" style="font-size: 14px;">check_circle</span>
+                            Confirmed
+                        </div>
+                    </div>
+                    
+                    <div class="card-details">
+                        <div class="detail-row">
+                            <span class="material-icons" style="font-size: 18px;">location_on</span>
+                            123 Main St, Suite 200
+                        </div>
+                        <div class="detail-row">
+                            <span class="material-icons" style="font-size: 18px;">schedule</span>
+                            30 minutes • In-person
+                        </div>
+                        <div class="detail-row">
+                            <span class="material-icons" style="font-size: 18px;">confirmation_number</span>
+                            APT-2024-001234
+                        </div>
+                    </div>
+                    
+                    <div class="card-actions">
+                        <button class="btn btn-text btn-reschedule">Reschedule</button>
+                        <button class="btn btn-text btn-cancel">Cancel</button>
+                    </div>
+                </div>
+                
+                <!-- Watchlist Appointment -->
+                <div class="appointment-card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Monday, March 18, 2024 at 2:00 PM</div>
+                            <div class="card-subtitle">Dr. Michael Jones • Cardiology</div>
+                        </div>
+                        <div class="badge badge-watchlist">
+                            <span class="material-icons" style="font-size: 14px;">watch_later</span>
+                            Watchlist
+                        </div>
+                    </div>
+                    
+                    <div class="card-details">
+                        <div class="detail-row">
+                            <span class="material-icons" style="font-size: 18px;">info</span>
+                            You're on the waitlist • We'll notify you when a slot opens
+                        </div>
+                        <div class="detail-row">
+                            <span class="material-icons" style="font-size: 18px;">schedule</span>
+                            30 minutes • In-person
+                        </div>
+                    </div>
+                    
+                    <div class="card-actions">
+                        <button class="btn btn-text btn-preferred-slot">Select preferred slot</button>
+                        <button class="btn btn-text btn-cancel">Remove from watchlist</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <nav class="bottom-nav">
+            <div class="bottom-nav-items">
+                <a href="#" class="bottom-nav-item" data-target="book">
+                    <span class="material-icons">calendar_today</span>
+                    Book
+                </a>
+                <a href="#" class="bottom-nav-item active" data-target="appointments">
+                    <span class="material-icons">event</span>
+                    Appointments
+                </a>
+                <a href="#" class="bottom-nav-item" data-target="documents">
+                    <span class="material-icons">description</span>
+                    Documents
+                </a>
+                <a href="#" class="bottom-nav-item" data-target="profile">
+                    <span class="material-icons">person</span>
+                    Profile
+                </a>
+            </div>
+        </nav>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.btn-reschedule').forEach(btn => {
+            btn.addEventListener('click', () => {
+                console.log('Navigate to SCR-001 Availability Search (reschedule mode)');
+            });
+        });
+        
+        document.querySelectorAll('.btn-preferred-slot').forEach(btn => {
+            btn.addEventListener('click', () => {
+                console.log('Navigate to SCR-009 Preferred Slot Selection');
+            });
+        });
+        
+        document.querySelectorAll('.bottom-nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = item.dataset.target;
+                console.log(`Navigate to ${target} screen`);
+            });
+        });
+    </script>
+</body>
+</html>

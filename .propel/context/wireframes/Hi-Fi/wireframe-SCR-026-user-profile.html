@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCR-026: User Profile - Unified Patient Access Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root{--color-primary-500:#2196F3;--color-neutral-50:#FAFAFA;--color-neutral-300:#E0E0E0;--color-neutral-500:#9E9E9E;--color-neutral-700:#616161;--color-neutral-900:#212121;--spacing-2:16px;--spacing-3:24px;--spacing-4:32px;--elevation-1:0 1px 3px rgba(0,0,0,0.12),0 1px 2px rgba(0,0,0,0.24);--border-radius-small:4px;--border-radius-medium:8px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font:400 16px/150% Roboto;color:var(--color-neutral-700);background:var(--color-neutral-50)}
+        .main{max-width:800px;margin:0 auto;padding:var(--spacing-4) var(--spacing-3)}
+        h1{font:400 24px/133.4% Roboto;color:var(--color-neutral-900);margin-bottom:var(--spacing-3)}
+        .profile-card{background:#FFF;border-radius:var(--border-radius-medium);box-shadow:var(--elevation-1);padding:var(--spacing-4)}
+        .avatar-section{display:flex;align-items:center;gap:var(--spacing-3);margin-bottom:var(--spacing-4);padding-bottom:var(--spacing-3);border-bottom:1px solid var(--color-neutral-300)}
+        .avatar{width:80px;height:80px;border-radius:50%;background:var(--color-primary-500);color:#FFF;display:flex;align-items:center;justify-content:center;font:500 32px/1 Roboto}
+        .avatar-actions button{background:none;border:1px solid var(--color-primary-500);color:var(--color-primary-500);padding:6px 12px;border-radius:var(--border-radius-small);cursor:pointer;font:500 14px/1 Roboto}
+        .input-group{display:flex;flex-direction:column;gap:8px;margin-bottom:var(--spacing-3)}
+        label{font:500 14px/143% Roboto;color:var(--color-neutral-700)}
+        input{padding:12px 14px;border:1px solid var(--color-neutral-300);border-radius:var(--border-radius-small);font:400 16px/150% Roboto}
+        .actions{display:flex;gap:var(--spacing-2);margin-top:var(--spacing-4)}
+        .btn{padding:8px 16px;border:none;border-radius:var(--border-radius-small);font:500 16px/1 Roboto;cursor:pointer;min-height:44px}
+        .btn-primary{background:var(--color-primary-500);color:#FFF;flex:1}
+        .btn-secondary{background:transparent;border:1px solid var(--color-neutral-300);color:var(--color-neutral-700);flex:1}
+    </style>
+</head>
+<body>
+    <!-- Navigation: Profile accessible from avatar dropdown in SCR-025 -->
+    <main class="main">
+        <h1>My profile</h1>
+        <div class="profile-card">
+            <div class="avatar-section">
+                <div class="avatar">JD</div>
+                <div style="flex:1">
+                    <div style="font:500 18px/1 Roboto;color:var(--color-neutral-900);margin-bottom:4px">John Doe</div>
+                    <div style="font:400 14px/143% Roboto;color:var(--color-neutral-500)">Patient • Member since March 2024</div>
+                </div>
+                <div class="avatar-actions">
+                    <button>Change photo</button>
+                </div>
+            </div>
+            <form>
+                <div class="input-group">
+                    <label for="full-name">Full name</label>
+                    <input type="text" id="full-name" value="John Doe">
+                </div>
+                <div class="input-group">
+                    <label for="email">Email address</label>
+                    <input type="email" id="email" value="john.doe@example.com">
+                </div>
+                <div class="input-group">
+                    <label for="phone">Phone number</label>
+                    <input type="tel" id="phone" value="(555) 123-4567">
+                </div>
+                <div class="input-group">
+                    <label for="dob">Date of birth</label>
+                    <input type="date" id="dob" value="1985-03-15">
+                </div>
+                <div class="input-group">
+                    <label for="address">Address</label>
+                    <input type="text" id="address" placeholder="Street address">
+                </div>
+            </form>
+            <div class="actions">
+                <button class="btn btn-secondary">Cancel</button>
+                <button class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

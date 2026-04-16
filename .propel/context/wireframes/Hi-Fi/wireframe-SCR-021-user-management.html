@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCR-021: User Management - Unified Patient Access Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root{--color-primary-500:#2196F3;--color-success-500:#4CAF50;--color-neutral-50:#FAFAFA;--color-neutral-100:#F5F5F5;--color-neutral-300:#E0E0E0;--color-neutral-500:#9E9E9E;--color-neutral-700:#616161;--color-neutral-900:#212121;--spacing-2:16px;--spacing-3:24px;--elevation-1:0 1px 3px rgba(0,0,0,0.12),0 1px 2px rgba(0,0,0,0.24);--border-radius-small:4px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font:400 16px/150% Roboto;color:var(--color-neutral-700);background:var(--color-neutral-50)}
+        .page{display:flex;min-height:100vh}
+        .sidebar{width:240px;background:var(--color-neutral-50);border-right:1px solid var(--color-neutral-300);padding:var(--spacing-3)}
+        .main{flex:1;padding:var(--spacing-3)}
+        .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--spacing-3)}
+        h1{font:400 24px/133.4% Roboto;color:var(--color-neutral-900)}
+        .btn-primary{padding:8px 16px;border:none;border-radius:var(--border-radius-small);font:500 14px/1 Roboto;cursor:pointer;background:var(--color-primary-500);color:#FFF;min-height:44px}
+        .search-bar{margin-bottom:var(--spacing-2);padding:12px;border:1px solid var(--color-neutral-300);border-radius:var(--border-radius-small);width:300px}
+        table{width:100%;background:#FFF;border-collapse:collapse;box-shadow:var(--elevation-1)}
+        th{background:var(--color-neutral-50);padding:var(--spacing-2);text-align:left;font:500 14px/143% Roboto;border-bottom:2px solid var(--color-neutral-300)}
+        td{padding:var(--spacing-2);border-bottom:1px solid var(--color-neutral-300);font:400 14px/143% Roboto}
+        tr:hover{background:var(--color-neutral-100)}
+        .badge{padding:4px 8px;border-radius:var(--border-radius-small);font:500 12px/1 Roboto;display:inline-block}
+        .badge-staff{background:var(--color-primary-500);color:#FFF}
+        .badge-admin{background:var(--color-success-500);color:#FFF}
+        .btn-icon{background:none;border:none;color:var(--color-neutral-500);cursor:pointer;padding:4px}
+    </style>
+</head>
+<body>
+    <!-- Navigation: #create-user-btn → SCR-022 (Create/Edit User Modal), Edit icon → SCR-022 -->
+    <div class="page">
+        <aside class="sidebar"><p style="color:var(--color-neutral-500)">Admin navigation</p></aside>
+        <main class="main">
+            <div class="header">
+                <h1>User management</h1>
+                <button class="btn-primary" id="create-user-btn">
+                    <span class="material-icons" style="vertical-align:middle;margin-right:4px">add</span>
+                    Create user
+                </button>
+            </div>
+            <input type="text" class="search-bar" placeholder="Search users by name, email, or role">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Dr. Sarah Smith</td>
+                        <td>sarah.smith@hospital.org</td>
+                        <td><span class="badge badge-staff">Staff</span></td>
+                        <td>Active</td>
+                        <td>
+                            <button class="btn-icon" title="Edit"><span class="material-icons">edit</span></button>
+                            <button class="btn-icon" title="Disable"><span class="material-icons">block</span></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>John Davis</td>
+                        <td>john.davis@hospital.org</td>
+                        <td><span class="badge badge-admin">Admin</span></td>
+                        <td>Active</td>
+                        <td>
+                            <button class="btn-icon"><span class="material-icons">edit</span></button>
+                            <button class="btn-icon"><span class="material-icons">block</span></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </main>
+    </div>
+</body>
+</html>

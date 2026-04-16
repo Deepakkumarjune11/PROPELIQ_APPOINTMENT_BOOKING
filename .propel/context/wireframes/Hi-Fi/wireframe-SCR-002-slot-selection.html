@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCR-002: Slot Selection - Unified Patient Access Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary-50: #E3F2FD;
+            --color-primary-500: #2196F3;
+            --color-primary-700: #1976D2;
+            --color-neutral-50: #FAFAFA;
+            --color-neutral-300: #E0E0E0;
+            --color-neutral-500: #9E9E9E;
+            --color-neutral-700: #616161;
+            --color-neutral-900: #212121;
+            --color-warning-500: #FF9800;
+            --spacing-1: 8px;
+            --spacing-2: 16px;
+            --spacing-3: 24px;
+            --spacing-4: 32px;
+            --elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --elevation-4: 0 4px 8px rgba(0,0,0,0.16), 0 4px 6px rgba(0,0,0,0.23);
+            --border-radius-small: 4px;
+            --border-radius-medium: 8px;
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font: 400 16px/150% Roboto;
+            color: var(--color-neutral-700);
+            background: var(--color-neutral-50);
+        }
+        
+        .page { min-height: 100vh; display: flex; flex-direction: column; }
+        
+        .header {
+            background: #FFFFFF;
+            box-shadow: var(--elevation-1);
+            padding: var(--spacing-2) var(--spacing-3);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+        }
+        
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--color-primary-500);
+            cursor: pointer;
+            padding: var(--spacing-1);
+            border-radius: var(--border-radius-small);
+        }
+        
+        .back-btn:hover { background: var(--color-primary-50); }
+        
+        .main {
+            flex: 1;
+            padding: var(--spacing-4) var(--spacing-3);
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        h1 {
+            font: 400 24px/133.4% Roboto;
+            color: var(--color-neutral-900);
+            margin-bottom: var(--spacing-1);
+        }
+        
+        .subtitle {
+            font: 400 14px/143% Roboto;
+            color: var(--color-neutral-500);
+            margin-bottom: var(--spacing-4);
+        }
+        
+        .selected-slot-card {
+            background: #FFFFFF;
+            border: 2px solid var(--color-primary-500);
+            border-radius: var(--border-radius-medium);
+            padding: var(--spacing-3);
+            box-shadow: var(--elevation-1);
+            margin-bottom: var(--spacing-3);
+        }
+        
+        .slot-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: var(--spacing-2);
+        }
+        
+        .slot-details h2 {
+            font: 500 20px/1 Roboto;
+            color: var(--color-neutral-900);
+            margin-bottom: var(--spacing-1);
+        }
+        
+        .slot-details p {
+            font: 400 14px/143% Roboto;
+            color: var(--color-neutral-700);
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: var(--border-radius-small);
+            font: 400 12px/166% Roboto;
+            background: var(--color-warning-500);
+            color: #000000;
+        }
+        
+        .slot-metadata {
+            display: flex;
+            gap: var(--spacing-3);
+            padding-top: var(--spacing-2);
+            border-top: 1px solid var(--color-neutral-300);
+        }
+        
+        .metadata-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-1);
+            font: 400 14px/143% Roboto;
+            color: var(--color-neutral-500);
+        }
+        
+        .change-btn {
+            background: none;
+            border: 1px solid var(--color-primary-500);
+            color: var(--color-primary-500);
+            padding: var(--spacing-1) var(--spacing-2);
+            border-radius: var(--border-radius-small);
+            cursor: pointer;
+            font: 500 14px/1 Roboto;
+            transition: background var(--transition-fast);
+            min-height: 44px;
+        }
+        
+        .change-btn:hover {
+            background: var(--color-primary-50);
+        }
+        
+        .actions {
+            display: flex;
+            gap: var(--spacing-2);
+            margin-top: var(--spacing-4);
+        }
+        
+        .btn {
+            flex: 1;
+            padding: var(--spacing-1) var(--spacing-2);
+            border: none;
+            border-radius: var(--border-radius-small);
+            font: 500 16px/1 Roboto;
+            cursor: pointer;
+            transition: background var(--transition-fast), box-shadow var(--transition-fast);
+            min-height: 44px;
+        }
+        
+        .btn-primary {
+            background: var(--color-primary-500);
+            color: #FFFFFF;
+            box-shadow: var(--elevation-4);
+        }
+        
+        .btn-primary:hover {
+            background: var(--color-primary-700);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--color-neutral-300);
+            color: var(--color-neutral-700);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--color-neutral-50);
+        }
+        
+        @media (max-width: 600px) {
+            .actions { flex-direction: column-reverse; }
+            .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Map
+    | Element | Action | Target Screen |
+    |---------|--------|---------------|
+    | #back-btn | click | SCR-001 (Availability Search) |
+    | #change-slot-btn | click | SCR-001 (Availability Search) |
+    | #continue-btn | click | SCR-003 (Patient Details Form) |
+    -->
+    
+    <div class="page">
+        <header class="header">
+            <button class="back-btn" id="back-btn" aria-label="Go back">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <span style="font: 500 18px/1 Roboto; color: var(--color-neutral-900);">Selected slot</span>
+        </header>
+        
+        <main class="main">
+            <h1>Confirm your appointment</h1>
+            <div class="subtitle">Review the appointment details before continuing</div>
+            
+            <div class="selected-slot-card">
+                <div class="slot-info">
+                    <div class="slot-details">
+                        <h2>Thursday, March 14, 2024 at 9:00 AM</h2>
+                        <p>Dr. Sarah Smith • Primary Care</p>
+                        <p>In-person visit</p>
+                    </div>
+                    <div class="badge" title="High no-show risk detected based on appointment time and insurance status">
+                        <span class="material-icons" style="font-size: 16px;">warning</span>
+                        High no-show risk
+                    </div>
+                </div>
+                
+                <div class="slot-metadata">
+                    <div class="metadata-item">
+                        <span class="material-icons">location_on</span>
+                        123 Main St, Suite 200
+                    </div>
+                    <div class="metadata-item">
+                        <span class="material-icons">schedule</span>
+                        30 minutes
+                    </div>
+                </div>
+            </div>
+            
+            <button class="change-btn" id="change-slot-btn">
+                <span class="material-icons" style="font-size: 18px; vertical-align: middle;">edit</span>
+                Change slot
+            </button>
+            
+            <div class="actions">
+                <button class="btn btn-secondary" id="cancel-btn">Cancel</button>
+                <button class="btn btn-primary" id="continue-btn">Continue to patient details</button>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        document.getElementById('back-btn').addEventListener('click', () => {
+            console.log('Navigate to SCR-001 Availability Search');
+        });
+        
+        document.getElementById('change-slot-btn').addEventListener('click', () => {
+            console.log('Navigate to SCR-001 Availability Search');
+        });
+        
+        document.getElementById('continue-btn').addEventListener('click', () => {
+            console.log('Navigate to SCR-003 Patient Details Form');
+        });
+        
+        document.getElementById('cancel-btn').addEventListener('click', () => {
+            console.log('Navigate to SCR-001 Availability Search');
+        });
+    </script>
+</body>
+</html>

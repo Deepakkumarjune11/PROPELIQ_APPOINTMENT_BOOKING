@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wireframe Gallery - Unified Patient Access Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary-500: #2196F3;
+            --color-success-500: #4CAF50;
+            --color-warning-500: #FF9800;
+            --color-neutral-50: #FAFAFA;
+            --color-neutral-100: #F5F5F5;
+            --color-neutral-300: #E0E0E0;
+            --color-neutral-500: #9E9E9E;
+            --color-neutral-700: #616161;
+            --color-neutral-900: #212121;
+            --spacing-2: 16px;
+            --spacing-3: 24px;
+            --spacing-4: 32px;
+            --elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --border-radius-small: 4px;
+            --border-radius-medium: 8px;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font: 400 16px/150% Roboto;
+            color: var(--color-neutral-700);
+            background: var(--color-neutral-50);
+        }
+        
+        .header {
+            background: #FFFFFF;
+            box-shadow: var(--elevation-1);
+            padding: var(--spacing-3) var(--spacing-4);
+            margin-bottom: var(--spacing-4);
+        }
+        
+        h1 {
+            font: 500 28px/133.4% Roboto;
+            color: var(--color-neutral-900);
+            margin-bottom: var(--spacing-2);
+        }
+        
+        .subtitle {
+            font: 400 16px/150% Roboto;
+            color: var(--color-neutral-500);
+        }
+        
+        .stats {
+            display: flex;
+            gap: var(--spacing-3);
+            margin-top: var(--spacing-3);
+        }
+        
+        .stat-card {
+            background: var(--color-neutral-100);
+            padding: var(--spacing-2) var(--spacing-3);
+            border-radius: var(--border-radius-small);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+        }
+        
+        .stat-value {
+            font: 500 24px/1 Roboto;
+            color: var(--color-neutral-900);
+        }
+        
+        .stat-label {
+            font: 400 14px/143% Roboto;
+            color: var(--color-neutral-500);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-4) var(--spacing-4);
+        }
+        
+        .section {
+            margin-bottom: var(--spacing-4);
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            margin-bottom: var(--spacing-3);
+        }
+        
+        h2 {
+            font: 500 20px/160% Roboto;
+            color: var(--color-neutral-900);
+        }
+        
+        .badge {
+            padding: 4px 8px;
+            border-radius: var(--border-radius-small);
+            font: 500 12px/1 Roboto;
+            background: var(--color-success-500);
+            color: #FFFFFF;
+        }
+        
+        .badge-pending {
+            background: var(--color-neutral-300);
+            color: var(--color-neutral-700);
+        }
+        
+        .wireframe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: var(--spacing-3);
+        }
+        
+        .wireframe-card {
+            background: #FFFFFF;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--border-radius-medium);
+            padding: var(--spacing-3);
+            box-shadow: var(--elevation-1);
+            transition: transform 150ms, box-shadow 150ms;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .wireframe-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.18);
+        }
+        
+        .wireframe-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .wireframe-card.disabled:hover {
+            transform: none;
+            box-shadow: var(--elevation-1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: var(--spacing-2);
+        }
+        
+        .card-title {
+            font: 500 16px/143% Roboto;
+            color: var(--color-neutral-900);
+            margin-bottom: 4px;
+        }
+        
+        .card-id {
+            font: 400 12px/166% Roboto;
+            color: var(--color-neutral-500);
+        }
+        
+        .card-description {
+            font: 400 14px/143% Roboto;
+            color: var(--color-neutral-700);
+            margin-bottom: var(--spacing-2);
+        }
+        
+        .card-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        
+        .feature-tag {
+            padding: 2px 6px;
+            border-radius: var(--border-radius-small);
+            font: 400 11px/1 Roboto;
+            background: var(--color-primary-500);
+            color: #FFFFFF;
+        }
+        
+        .priority-badge {
+            position: absolute;
+            top: var(--spacing-2);
+            right: var(--spacing-2);
+            padding: 4px 8px;
+            border-radius: var(--border-radius-small);
+            font: 500 12px/1 Roboto;
+            background: var(--color-warning-500);
+            color: #000000;
+        }
+        
+        .footer {
+            background: var(--color-neutral-100);
+            padding: var(--spacing-3);
+            text-align: center;
+            margin-top: var(--spacing-4);
+            font: 400 14px/143% Roboto;
+            color: var(--color-neutral-500);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Wireframe Gallery</h1>
+        <div class="subtitle">Unified Patient Access & Clinical Intelligence Platform • High-Fidelity HTML Wireframes</div>
+        <div class="stats">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-value">28</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div>
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div>
+                    <div class="stat-value">100%</div>
+                    <div class="stat-label">Progress</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Patient Booking Flow -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Patient Booking Flow</h2>
+                <span class="badge">9 completed</span>
+            </div>
+            <div class="wireframe-grid">
+                <a href="Hi-Fi/wireframe-SCR-001-availability-search.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Availability Search</div>
+                            <div class="card-id">SCR-001 • P0</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Search filters, slot cards grid, skeleton loading states</div>
+                    <div class="card-features">
+                        <span class="feature-tag">DatePicker</span>
+                        <span class="feature-tag">Card Grid</span>
+                        <span class="feature-tag">Skeleton</span>
+                        <span class="feature-tag">Empty State</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-002-slot-selection.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Slot Selection</div>
+                            <div class="card-id">SCR-002 • P0</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Selected slot highlight, no-show risk badge, change slot action</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Card</span>
+                        <span class="feature-tag">Badge</span>
+                        <span class="feature-tag">Button</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-003-patient-details-form.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Patient Details Form</div>
+                            <div class="card-id">SCR-003 • P0</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Form validation, intake mode toggle, progress indicator</div>
+                    <div class="card-features">
+                        <span class="feature-tag">TextField</span>
+                        <span class="feature-tag">Validation</span>
+                        <span class="feature-tag">Toggle</span>
+                        <span class="feature-tag">ProgressBar</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-004-manual-intake-form.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Manual Intake Form</div>
+                            <div class="card-id">SCR-004 • P0</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Dynamic form fields, progress stepper</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Form</span>
+                        <span class="feature-tag">ProgressBar</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-005-conversational-intake.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Conversational Intake</div>
+                            <div class="card-id">SCR-005 • P0</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Chat interface, AI/user messages, mode switch</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Chat</span>
+                        <span class="feature-tag">Toggle</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-006-booking-confirmation.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Booking Confirmation</div>
+                            <div class="card-id">SCR-006 • P0</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Success state, PDF download, calendar sync buttons</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Alert</span>
+                        <span class="feature-tag">Button</span>
+                        <span class="feature-tag">Summary</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-007-booking-error.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Booking Error</div>
+                            <div class="card-id">SCR-007 • P0</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Error alert, retry action, recovery path</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Alert</span>
+                        <span class="feature-tag">Error</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-008-my-appointments.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">My Appointments</div>
+                            <div class="card-id">SCR-008 • P0</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Appointment cards, status badges, bottom navigation</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Card List</span>
+                        <span class="feature-tag">Badge</span>
+                        <span class="feature-tag">Bottom Nav</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-009-preferred-slot-selection.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Preferred Slot Selection</div>
+                            <div class="card-id">SCR-009 • P1</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Unavailable slot picker, watchlist registration</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Grid</span>
+                        <span class="feature-tag">Alert</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+        
+        <!-- Staff Portal -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Staff Portal</h2>
+                <span class="badge">10 completed</span>
+            </div>
+            <div class="wireframe-grid">
+                <a href="Hi-Fi/wireframe-SCR-010-staff-dashboard.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Staff Dashboard</div>
+                            <div class="card-id">SCR-010 • P0</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Sidebar navigation, summary cards, queue table with badges</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Sidebar</span>
+                        <span class="feature-tag">Card Grid</span>
+                        <span class="feature-tag">Table</span>
+                        <span class="feature-tag">Skeleton</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-011-walk-in-booking.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Walk-In Booking</div>
+                            <div class="card-id">SCR-011 • P0</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Patient search autocomplete, inline creation</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Autocomplete</span>
+                        <span class="feature-tag">Sidebar</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-012-same-day-queue.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Same-Day Queue</div>
+                            <div class="card-id">SCR-012 • P0</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Drag-to-reorder table, status badges, real-time updates</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Table</span>
+                        <span class="feature-tag">Badge</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-013-patient-arrival-marking.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Patient Arrival Marking</div>
+                            <div class="card-id">SCR-013 • P0</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Bulk check-in checkboxes, mark arrived button</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Checkbox</span>
+                        <span class="feature-tag">Button</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-014-document-upload.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Document Upload</div>
+                            <div class="card-id">SCR-014 • P1</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Drag-drop zone, multiple file upload, progress bars</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Drag-Drop</span>
+                        <span class="feature-tag">ProgressBar</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-015-document-list.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Document List</div>
+                            <div class="card-id">SCR-015 • P1</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Document metadata table, processing badges</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Table</span>
+                        <span class="feature-tag">Badge</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-016-patient-chart-review.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Patient Chart Review</div>
+                            <div class="card-id">SCR-016 • P0</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Verification queue table, select patient button</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Table</span>
+                        <span class="feature-tag">Button</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-017-360-patient-view.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">360-Degree Patient View ⭐</div>
+                            <div class="card-id">SCR-017 • P0</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Tabbed facts, healthcare colors, confidence badges, citation drawer</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Tabs</span>
+                        <span class="feature-tag">Card Grid</span>
+                        <span class="feature-tag">Drawer</span>
+                        <span class="feature-tag">Badge</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-018-conflict-resolution.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Conflict Resolution</div>
+                            <div class="card-id">SCR-018 • P0</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Conflict cards, radio options, justification field</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Card</span>
+                        <span class="feature-tag">Radio</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-019-code-verification.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Code Verification</div>
+                            <div class="card-id">SCR-019 • P0</div>
+                        </div>
+                    </div>
+                    <div class="card-description">ICD-10/CPT code cards, evidence breadcrumbs, accept/reject/modify</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Card Grid</span>
+                        <span class="feature-tag">Badge</span>
+                        <span class="feature-tag">Chip</span>
+                        <span class="feature-tag">Action Buttons</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-020-verification-complete.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Verification Complete</div>
+                            <div class="card-id">SCR-020 • P0</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Success alert, next patient button, timer badge</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Alert</span>
+                        <span class="feature-tag">Button</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+        
+        <!-- Admin Portal -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Admin Portal</h2>
+                <span class="badge">3 completed</span>
+            </div>
+            <div class="wireframe-grid">
+                <a href="Hi-Fi/wireframe-SCR-021-user-management.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">User Management</div>
+                            <div class="card-id">SCR-021 • P1</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Sortable/filterable user table, create user button</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Table</span>
+                        <span class="feature-tag">Search</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-022-create-edit-user.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Create/Edit User</div>
+                            <div class="card-id">SCR-022 • P1</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Modal form with name, email, role, permissions</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Modal</span>
+                        <span class="feature-tag">Form</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-023-role-assignment.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Role Assignment</div>
+                            <div class="card-id">SCR-023 • P1</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Modal with role dropdown, permissions checkboxes</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Modal</span>
+                        <span class="feature-tag">Checkbox</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+        
+        <!-- Shared Screens -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Shared Screens</h2>
+                <span class="badge">5 completed</span>
+            </div>
+            <div class="wireframe-grid">
+                <a href="Hi-Fi/wireframe-SCR-024-login.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Login</div>
+                            <div class="card-id">SCR-024 • P0</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Form validation, loading states, error handling</div>
+                    <div class="card-features">
+                        <span class="feature-tag">TextField</span>
+                        <span class="feature-tag">Validation</span>
+                        <span class="feature-tag">Loading</span>
+                        <span class="feature-tag">Error</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-025-header-navigation.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Header/Navigation ⭐</div>
+                            <div class="card-id">SCR-025 • P0</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Responsive nav shell (header/sidebar/bottom nav patterns)</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Header</span>
+                        <span class="feature-tag">Sidebar</span>
+                        <span class="feature-tag">Bottom Nav</span>
+                        <span class="feature-tag">Dropdown</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-026-user-profile.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">User Profile</div>
+                            <div class="card-id">SCR-026 • P2</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Profile card with avatar, editable fields</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Avatar</span>
+                        <span class="feature-tag">Form</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-027-settings.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Settings</div>
+                            <div class="card-id">SCR-027 • P3</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Tabbed settings, toggles, preferences</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Tabs</span>
+                        <span class="feature-tag">Toggle</span>
+                    </div>
+                </a>
+                
+                <a href="Hi-Fi/wireframe-SCR-028-operational-metrics-dashboard.html" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Operational Metrics Dashboard</div>
+                            <div class="card-id">SCR-028 • P2</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Metric cards, charts (bar/line/pie/gauge), date filter</div>
+                    <div class="card-features">
+                        <span class="feature-tag">Card Grid</span>
+                        <span class="feature-tag">Charts</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+        
+        <!-- Documentation -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Documentation</h2>
+                <span class="badge">4 complete</span>
+            </div>
+            <div class="wireframe-grid">
+                <a href="information-architecture.md" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Information Architecture</div>
+                            <div class="card-id">Supporting Doc</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Site map, 7 flows (FL-001 to FL-007), responsive specs</div>
+                </a>
+                
+                <a href="component-inventory.md" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Component Inventory</div>
+                            <div class="card-id">Supporting Doc</div>
+                        </div>
+                    </div>
+                    <div class="card-description">31 component types catalogued across 7 categories</div>
+                </a>
+                
+                <a href="navigation-map.md" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Navigation Map</div>
+                            <div class="card-id">Supporting Doc</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Screen-to-screen navigation matrix, flow coverage validation</div>
+                </a>
+                
+                <a href="design-tokens-applied.md" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Design Tokens Applied</div>
+                            <div class="card-id">Supporting Doc</div>
+                        </div>
+                    </div>
+                    <div class="card-description">MUI token application summary, WCAG 2.2 AA validation</div>
+                </a>
+                
+                <a href="wireframe-status.md" class="wireframe-card" target="_blank">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Wireframe Status Report</div>
+                            <div class="card-id">Status Doc</div>
+                        </div>
+                    </div>
+                    <div class="card-description">Comprehensive status report with quality metrics</div>
+                </a>
+            </div>
+        </section>
+    </div>
+    
+    <div class="footer">
+        <p>Generated from figma_spec.md • React 18 + Material-UI v5 • WCAG 2.2 AA Compliant</p>
+        <p style="margin-top: 8px;">⭐ = Most complex/featured wireframe</p>
+    </div>
+</body>
+</html>

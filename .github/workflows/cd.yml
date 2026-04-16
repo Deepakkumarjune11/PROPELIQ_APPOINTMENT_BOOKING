@@ -1,0 +1,56 @@
+# CD Workflow — runs on every push (merge) to main
+# Produces a versioned IIS-deployable web deploy ZIP artifact.
+# TR-016 (GitHub Actions CI/CD) / AC-3 / TR-024 (IIS production deployment)
+# No paid cloud deployment service — artifact is downloaded and deployed manually to IIS.
+
+name: CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+
+  # ── Build & Package IIS Web Deploy Artifact ──────────────────────────────────
+  build-and-package:
+    name: Publish & Package for IIS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Restore dependencies
+        run: dotnet restore server/PropelIQ.slnx
+
+      - name: Publish API (Release)
+        run: >
+          dotnet publish server/src/PropelIQ.Api/PropelIQ.Api.csproj
+          --configuration Release
+          --no-restore
+          --output ./publish/propeliq
+
+      - name: Package IIS web deploy artifact
+        run: |
+          cd publish
+          zip -r ../PropelIQ-${{ github.run_number }}.zip propeliq/
+
+      - name: Upload IIS web deploy package
+        uses: actions/upload-artifact@v4
+        with:
+          name: iis-web-deploy-pkg-${{ github.run_number }}
+          path: PropelIQ-${{ github.run_number }}.zip
+          retention-days: 30

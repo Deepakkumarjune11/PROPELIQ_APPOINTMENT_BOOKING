@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCR-005: Conversational Intake - Unified Patient Access Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root{--color-primary-50:#E3F2FD;--color-primary-500:#2196F3;--color-neutral-50:#FAFAFA;--color-neutral-300:#E0E0E0;--color-neutral-500:#9E9E9E;--color-neutral-700:#616161;--color-neutral-900:#212121;--spacing-2:16px;--spacing-3:24px;--elevation-1:0 1px 3px rgba(0,0,0,0.12),0 1px 2px rgba(0,0,0,0.24);--border-radius-medium:8px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font:400 16px/150% Roboto;color:var(--color-neutral-700);background:var(--color-neutral-50)}
+        .page{display:flex;flex-direction:column;height:100vh}
+        .header{background:#FFF;box-shadow:var(--elevation-1);padding:var(--spacing-2) var(--spacing-3);display:flex;align-items:center;justify-content:space-between}
+        .chat-container{flex:1;overflow-y:auto;padding:var(--spacing-3);display:flex;flex-direction:column;gap:var(--spacing-2)}
+        .message{max-width:70%;padding:12px 16px;border-radius:var(--border-radius-medium);font:400 14px/143% Roboto}
+        .message-ai{background:#FFF;align-self:flex-start;box-shadow:var(--elevation-1)}
+        .message-user{background:var(--color-primary-500);color:#FFF;align-self:flex-end}
+        .input-area{background:#FFF;box-shadow:0 -1px 3px rgba(0,0,0,0.12);padding:var(--spacing-2) var(--spacing-3);display:flex;gap:var(--spacing-2)}
+        input{flex:1;padding:12px 16px;border:1px solid var(--color-neutral-300);border-radius:20px;font:400 16px/150% Roboto}
+        .btn-send{background:var(--color-primary-500);color:#FFF;border:none;border-radius:50%;width:44px;height:44px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    </style>
+</head>
+<body>
+    <!-- Navigation: Complete intake → SCR-006 (Booking Confirmation) -->
+    <div class="page">
+        <div class="header">
+            <span style="font:500 18px/1 Roboto">AI-assisted intake</span>
+            <button style="background:none;border:none;color:var(--color-primary-500);cursor:pointer;font:500 14px/1 Roboto">Switch to manual</button>
+        </div>
+        <div class="chat-container">
+            <div class="message message-ai">Hi! I'm here to help with your medical intake. Let's start with the basics - what brings you in today?</div>
+            <div class="message message-user">I've been having headaches for the past week</div>
+            <div class="message message-ai">I understand you've been experiencing headaches. Can you describe the pain? Is it constant or does it come and go?</div>
+            <div class="message message-user">It comes and goes, mostly in the afternoon</div>
+            <div class="message message-ai">Thank you. Are you currently taking any medications, including over-the-counter ones?</div>
+        </div>
+        <div class="input-area">
+            <input type="text" placeholder="Type your response..." aria-label="Chat input">
+            <button class="btn-send" aria-label="Send message"><span class="material-icons">send</span></button>
+        </div>
+    </div>
+</body>
+</html>

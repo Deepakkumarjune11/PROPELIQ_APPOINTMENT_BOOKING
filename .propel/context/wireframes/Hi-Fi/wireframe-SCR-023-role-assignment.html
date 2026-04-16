@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCR-023: Role Assignment - Unified Patient Access Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root{--color-primary-500:#2196F3;--color-neutral-50:#FAFAFA;--color-neutral-300:#E0E0E0;--color-neutral-500:#9E9E9E;--color-neutral-700:#616161;--color-neutral-900:#212121;--spacing-2:16px;--spacing-3:24px;--elevation-16:0 16px 32px rgba(0,0,0,0.22),0 16px 24px rgba(0,0,0,0.30);--border-radius-small:4px;--border-radius-medium:8px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000}
+        .modal{background:#FFF;border-radius:var(--border-radius-medium);box-shadow:var(--elevation-16);max-width:500px;width:90%;max-height:90vh;overflow:auto}
+        .modal-header{padding:var(--spacing-3);border-bottom:1px solid var(--color-neutral-300);display:flex;justify-content:space-between;align-items:center}
+        h2{font:500 20px/1 Roboto;color:var(--color-neutral-900)}
+        .modal-body{padding:var(--spacing-3)}
+        .input-group{margin-bottom:var(--spacing-3)}
+        label{font:500 14px/143% Roboto;color:var(--color-neutral-700);display:block;margin-bottom:8px}
+        select{width:100%;padding:12px 14px;border:1px solid var(--color-neutral-300);border-radius:var(--border-radius-small);font:400 16px/150% Roboto}
+        .permissions-group{display:flex;flex-direction:column;gap:var(--spacing-2)}
+        .permission-item{display:flex;align-items:center;gap:var(--spacing-2);padding:var(--spacing-2);background:var(--color-neutral-50);border-radius:var(--border-radius-small)}
+        input[type="checkbox"]{width:20px;height:20px;cursor:pointer}
+        .modal-footer{padding:var(--spacing-3);border-top:1px solid var(--color-neutral-300);display:flex;gap:var(--spacing-2);justify-content:flex-end}
+        .btn{padding:8px 16px;border:none;border-radius:var(--border-radius-small);font:500 16px/1 Roboto;cursor:pointer;min-height:44px}
+        .btn-primary{background:var(--color-primary-500);color:#FFF}
+        .btn-secondary{background:transparent;border:1px solid var(--color-neutral-300);color:var(--color-neutral-700)}
+    </style>
+</head>
+<body>
+    <!-- Navigation: #save-btn → SCR-021 (User Management) with role assigned -->
+    <div class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Assign role & permissions</h2>
+                <button style="background:none;border:none;color:var(--color-neutral-500);cursor:pointer;padding:4px" aria-label="Close"><span class="material-icons">close</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="role">Role</label>
+                    <select id="role">
+                        <option value="staff" selected>Staff</option>
+                        <option value="admin">Admin</option>
+                        <option value="patient">Patient</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Permissions</label>
+                    <div class="permissions-group">
+                        <label class="permission-item">
+                            <input type="checkbox" checked>
+                            <span style="font:400 14px/143% Roboto;flex:1">View patient charts</span>
+                        </label>
+                        <label class="permission-item">
+                            <input type="checkbox" checked>
+                            <span style="font:400 14px/143% Roboto;flex:1">Verify clinical data</span>
+                        </label>
+                        <label class="permission-item">
+                            <input type="checkbox">
+                            <span style="font:400 14px/143% Roboto;flex:1">Manage appointments</span>
+                        </label>
+                        <label class="permission-item">
+                            <input type="checkbox">
+                            <span style="font:400 14px/143% Roboto;flex:1">Upload documents</span>
+                        </label>
+                        <label class="permission-item">
+                            <input type="checkbox">
+                            <span style="font:400 14px/143% Roboto;flex:1">View metrics</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary">Cancel</button>
+                <button class="btn btn-primary" id="save-btn">Save changes</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCR-011: Walk-In Booking - Unified Patient Access Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root{--color-primary-500:#2196F3;--color-neutral-50:#FAFAFA;--color-neutral-300:#E0E0E0;--color-neutral-500:#9E9E9E;--color-neutral-700:#616161;--color-neutral-900:#212121;--spacing-2:16px;--spacing-3:24px;--spacing-4:32px;--elevation-1:0 1px 3px rgba(0,0,0,0.12),0 1px 2px rgba(0,0,0,0.24);--border-radius-small:4px;--border-radius-medium:8px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font:400 16px/150% Roboto;color:var(--color-neutral-700);background:var(--color-neutral-50)}
+        .page{display:flex;min-height:100vh}
+        .sidebar{width:240px;background:var(--color-neutral-50);border-right:1px solid var(--color-neutral-300);padding:var(--spacing-3)}
+        .main{flex:1;padding:var(--spacing-4) var(--spacing-3);max-width:800px;margin:0 auto}
+        h1{font:400 24px/133.4% Roboto;color:var(--color-neutral-900);margin-bottom:var(--spacing-3)}
+        .card{background:#FFF;padding:var(--spacing-3);border-radius:var(--border-radius-medium);box-shadow:var(--elevation-1);margin-bottom:var(--spacing-3)}
+        .input-group{display:flex;flex-direction:column;gap:8px;margin-bottom:var(--spacing-2)}
+        label{font:500 14px/143% Roboto;color:var(--color-neutral-700)}
+        input,select{font:400 16px/150% Roboto;padding:12px 14px;border:1px solid var(--color-neutral-300);border-radius:var(--border-radius-small)}
+        .btn{padding:8px 16px;border:none;border-radius:var(--border-radius-small);font:500 16px/1 Roboto;cursor:pointer;min-height:44px;background:var(--color-primary-500);color:#FFF;width:100%}
+        .autocomplete-results{background:#FFF;border:1px solid var(--color-neutral-300);border-radius:var(--border-radius-small);margin-top:-8px;display:none}
+        .autocomplete-item{padding:var(--spacing-2);cursor:pointer;border-bottom:1px solid var(--color-neutral-300)}
+        .autocomplete-item:hover{background:var(--color-neutral-50)}
+    </style>
+</head>
+<body>
+    <!-- Navigation: #book-walkin-btn → SCR-012 (Same-Day Queue) -->
+    <div class="page">
+        <aside class="sidebar"><p style="color:var(--color-neutral-500)">Staff navigation</p></aside>
+        <main class="main">
+            <h1>Walk-in booking</h1>
+            <div class="card">
+                <div class="input-group">
+                    <label for="patient-search">Search patient</label>
+                    <input type="text" id="patient-search" placeholder="Search by name, DOB, or MRN" aria-label="Patient search">
+                    <div class="autocomplete-results" id="autocomplete">
+                        <div class="autocomplete-item">Sarah Johnson - DOB: 03/15/1985 (MRN-001234)</div>
+                        <div class="autocomplete-item">John Smith - DOB: 07/22/1990 (MRN-005678)</div>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="provider">Provider</label>
+                    <select id="provider">
+                        <option>Dr. Sarah Smith</option>
+                        <option>Dr. Michael Jones</option>
+                        <option>Dr. Emily Lee</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="reason">Reason for visit</label>
+                    <input type="text" id="reason" placeholder="Brief description">
+                </div>
+                <button class="btn" id="book-walkin-btn">Book walk-in appointment</button>
+            </div>
+        </main>
+    </div>
+    <script>
+        document.getElementById('patient-search').addEventListener('input',e=>{
+            document.getElementById('autocomplete').style.display=e.target.value?'block':'none';
+        });
+    </script>
+</body>
+</html>

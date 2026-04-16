@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCR-004: Manual Intake Form - Unified Patient Access Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root{--color-primary-500:#2196F3;--color-neutral-50:#FAFAFA;--color-neutral-300:#E0E0E0;--color-neutral-500:#9E9E9E;--color-neutral-700:#616161;--color-neutral-900:#212121;--spacing-2:16px;--spacing-3:24px;--spacing-4:32px;--elevation-1:0 1px 3px rgba(0,0,0,0.12),0 1px 2px rgba(0,0,0,0.24);--border-radius-small:4px;--border-radius-medium:8px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font:400 16px/150% Roboto;color:var(--color-neutral-700);background:var(--color-neutral-50)}
+        .header{background:#FFF;box-shadow:var(--elevation-1);padding:var(--spacing-2) var(--spacing-3);display:flex;align-items:center;gap:var(--spacing-2)}
+        .back-btn{background:none;border:none;color:var(--color-primary-500);cursor:pointer;padding:8px}
+        .main{max-width:600px;margin:0 auto;padding:var(--spacing-4) var(--spacing-3)}
+        h1{font:400 24px/133.4% Roboto;color:var(--color-neutral-900);margin-bottom:8px}
+        .progress-bar{height:4px;background:var(--color-neutral-300);border-radius:2px;margin-bottom:var(--spacing-4);overflow:hidden}
+        .progress-fill{height:100%;background:var(--color-primary-500);width:66%;transition:width 300ms}
+        form{display:flex;flex-direction:column;gap:var(--spacing-3)}
+        .input-group{display:flex;flex-direction:column;gap:8px}
+        label{font:500 14px/143% Roboto;color:var(--color-neutral-700)}
+        input,select,textarea{font:400 16px/150% Roboto;padding:12px 14px;border:1px solid var(--color-neutral-300);border-radius:var(--border-radius-small)}
+        textarea{resize:vertical;min-height:100px}
+        .btn{padding:8px 16px;border:none;border-radius:var(--border-radius-small);font:500 16px/1 Roboto;cursor:pointer;min-height:44px}
+        .btn-primary{background:var(--color-primary-500);color:#FFF}
+        .actions{display:flex;gap:var(--spacing-2);margin-top:var(--spacing-2)}
+    </style>
+</head>
+<body>
+    <!-- Navigation: #submit-btn → SCR-006 (Booking Confirmation) -->
+    <div class="header">
+        <button class="back-btn" aria-label="Go back"><span class="material-icons">arrow_back</span></button>
+        <span style="font:500 18px/1 Roboto">Manual intake</span>
+    </div>
+    <main class="main">
+        <h1>Medical intake questionnaire</h1>
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+        <form>
+            <div class="input-group">
+                <label for="reason">Reason for visit *</label>
+                <textarea id="reason" required placeholder="Describe your symptoms or reason for appointment"></textarea>
+            </div>
+            <div class="input-group">
+                <label for="symptoms">Current symptoms</label>
+                <input type="text" id="symptoms" placeholder="e.g., Headache, fever, cough">
+            </div>
+            <div class="input-group">
+                <label for="medications">Current medications</label>
+                <textarea id="medications" placeholder="List any medications you're currently taking"></textarea>
+            </div>
+            <div class="input-group">
+                <label for="allergies">Known allergies</label>
+                <input type="text" id="allergies" placeholder="e.g., Penicillin, peanuts">
+            </div>
+            <div class="input-group">
+                <label for="conditions">Medical conditions</label>
+                <textarea id="conditions" placeholder="List any chronic conditions or past diagnoses"></textarea>
+            </div>
+            <div class="actions">
+                <button type="button" class="btn" style="background:transparent;border:1px solid var(--color-neutral-300);color:var(--color-neutral-700)">Back</button>
+                <button type="submit" class="btn btn-primary" id="submit-btn">Submit intake</button>
+            </div>
+        </form>
+    </main>
+</body>
+</html>

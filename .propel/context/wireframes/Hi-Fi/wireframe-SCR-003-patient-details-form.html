@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCR-003: Patient Details Form - Unified Patient Access Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary-500: #2196F3;
+            --color-primary-700: #1976D2;
+            --color-secondary-500: #009688;
+            --color-neutral-50: #FAFAFA;
+            --color-neutral-300: #E0E0E0;
+            --color-neutral-500: #9E9E9E;
+            --color-neutral-700: #616161;
+            --color-neutral-900: #212121;
+            --color-error-500: #F44336;
+            --spacing-1: 8px;
+            --spacing-2: 16px;
+            --spacing-3: 24px;
+            --spacing-4: 32px;
+            --elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --border-radius-small: 4px;
+            --border-radius-medium: 8px;
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font: 400 16px/150% Roboto;
+            color: var(--color-neutral-700);
+            background: var(--color-neutral-50);
+        }
+        
+        .page { min-height: 100vh; padding-bottom: 80px; }
+        
+        .header {
+            background: #FFFFFF;
+            box-shadow: var(--elevation-1);
+            padding: var(--spacing-2) var(--spacing-3);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+        }
+        
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--color-primary-500);
+            cursor: pointer;
+            padding: var(--spacing-1);
+        }
+        
+        .main {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: var(--spacing-4) var(--spacing-3);
+        }
+        
+        h1 {
+            font: 400 24px/133.4% Roboto;
+            color: var(--color-neutral-900);
+            margin-bottom: var(--spacing-1);
+        }
+        
+        .subtitle {
+            font: 400 14px/143% Roboto;
+            color: var(--color-neutral-500);
+            margin-bottom: var(--spacing-4);
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background: var(--color-neutral-300);
+            border-radius: 2px;
+            margin-bottom: var(--spacing-4);
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--color-primary-500);
+            width: 33%;
+            transition: width 300ms;
+        }
+        
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-3);
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-1);
+        }
+        
+        label {
+            font: 500 14px/143% Roboto;
+            color: var(--color-neutral-700);
+        }
+        
+        input, select {
+            font: 400 16px/150% Roboto;
+            padding: 12px 14px;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--border-radius-small);
+            transition: border-color var(--transition-fast);
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--color-primary-500);
+            border-width: 2px;
+            padding: 11px 13px;
+        }
+        
+        input.error {
+            border-color: var(--color-error-500);
+            border-width: 2px;
+            padding: 11px 13px;
+        }
+        
+        .helper-text {
+            font: 400 12px/166% Roboto;
+            color: var(--color-neutral-500);
+        }
+        
+        .error-text {
+            font: 400 12px/166% Roboto;
+            color: var(--color-error-500);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .intake-mode {
+            background: #FFFFFF;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--border-radius-medium);
+            padding: var(--spacing-2);
+            margin-bottom: var(--spacing-3);
+        }
+        
+        .mode-label {
+            font: 400 14px/143% Roboto;
+            color: var(--color-neutral-700);
+            margin-bottom: var(--spacing-1);
+        }
+        
+        .toggle-btns {
+            display: flex;
+            gap: var(--spacing-1);
+        }
+        
+        .toggle-btn {
+            flex: 1;
+            padding: var(--spacing-1) var(--spacing-2);
+            border: 1px solid var(--color-neutral-300);
+            background: #FFFFFF;
+            border-radius: var(--border-radius-small);
+            cursor: pointer;
+            font: 500 14px/1 Roboto;
+            color: var(--color-neutral-700);
+            transition: all var(--transition-fast);
+            min-height: 44px;
+        }
+        
+        .toggle-btn.active {
+            background: var(--color-secondary-500);
+            border-color: var(--color-secondary-500);
+            color: #FFFFFF;
+        }
+        
+        .actions {
+            display: flex;
+            gap: var(--spacing-2);
+            margin-top: var(--spacing-2);
+        }
+        
+        .btn {
+            flex: 1;
+            padding: var(--spacing-1) var(--spacing-2);
+            border: none;
+            border-radius: var(--border-radius-small);
+            font: 500 16px/1 Roboto;
+            cursor: pointer;
+            min-height: 44px;
+        }
+        
+        .btn-primary {
+            background: var(--color-primary-500);
+            color: #FFFFFF;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: var(--color-primary-700);
+        }
+        
+        .btn-primary:disabled {
+            background: var(--color-neutral-300);
+            color: var(--color-neutral-500);
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--color-neutral-300);
+            color: var(--color-neutral-700);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Map
+    | Element | Action | Target Screen |
+    |---------|--------|---------------|
+    | #back-btn | click | SCR-002 (Slot Selection) |
+    | #manual-mode-btn | click (if active) | SCR-004 (Manual Intake Form) |
+    | #conversational-mode-btn | click (default active) | SCR-005 (Conversational Intake) |
+    | #continue-btn | click | SCR-004 OR SCR-005 based on mode selection |
+    -->
+    
+    <div class="page">
+        <header class="header">
+            <button class="back-btn" id="back-btn" aria-label="Go back">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <span style="font: 500 18px/1 Roboto;">Patient details</span>
+        </header>
+        
+        <main class="main">
+            <h1>Your information</h1>
+            <div class="subtitle">We'll create your account to book this appointment</div>
+            
+            <div class="progress-bar" aria-label="Booking progress: Step 1 of 3">
+                <div class="progress-fill"></div>
+            </div>
+            
+            <form id="patient-form">
+                <div class="input-group">
+                    <label for="email">Email address *</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        required 
+                        placeholder="name@example.com"
+                        aria-required="true" />
+                    <span class="helper-text">We'll use this for appointment reminders</span>
+                </div>
+                
+                <div class="input-group">
+                    <label for="full-name">Full name *</label>
+                    <input 
+                        type="text" 
+                        id="full-name" 
+                        required 
+                        placeholder="John Doe"
+                        aria-required="true" />
+                </div>
+                
+                <div class="input-group">
+                    <label for="dob">Date of birth *</label>
+                    <input 
+                        type="date" 
+                        id="dob" 
+                        required 
+                        aria-required="true" />
+                </div>
+                
+                <div class="input-group">
+                    <label for="phone">Phone number *</label>
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        required 
+                        placeholder="(555) 123-4567"
+                        aria-required="true" />
+                </div>
+                
+                <div class="input-group">
+                    <label for="insurance-provider">Insurance provider *</label>
+                    <select id="insurance-provider" required aria-required="true">
+                        <option value="">Select your insurance</option>
+                        <option value="bcbs">Blue Cross Blue Shield</option>
+                        <option value="aetna">Aetna</option>
+                        <option value="uhc">UnitedHealthcare</option>
+                        <option value="cigna">Cigna</option>
+                        <option value="self-pay">Self-pay</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="member-id">Insurance member ID *</label>
+                    <input 
+                        type="text" 
+                        id="member-id" 
+                        required 
+                        placeholder="ABC123456789"
+                        aria-required="true" />
+                    <span class="helper-text">Found on your insurance card</span>
+                </div>
+            </form>
+            
+            <div class="intake-mode">
+                <div class="mode-label">Intake method</div>
+                <div class="toggle-btns">
+                    <button class="toggle-btn" id="manual-mode-btn">Manual form</button>
+                    <button class="toggle-btn active" id="conversational-mode-btn">Conversational (recommended)</button>
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button class="btn btn-secondary" id="back-btn-bottom">Back</button>
+                <button class="btn btn-primary" id="continue-btn">Continue to intake</button>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        const manualBtn = document.getElementById('manual-mode-btn');
+        const conversationalBtn = document.getElementById('conversational-mode-btn');
+        const continueBtn = document.getElementById('continue-btn');
+        const form = document.getElementById('patient-form');
+        
+        let selectedMode = 'conversational'; // default
+        
+        manualBtn.addEventListener('click', () => {
+            manualBtn.classList.add('active');
+            conversationalBtn.classList.remove('active');
+            selectedMode = 'manual';
+        });
+        
+        conversationalBtn.addEventListener('click', () => {
+            conversationalBtn.classList.add('active');
+            manualBtn.classList.remove('active');
+            selectedMode = 'conversational';
+        });
+        
+        continueBtn.addEventListener('click', () => {
+            if (form.checkValidity()) {
+                if (selectedMode === 'manual') {
+                    console.log('Navigate to SCR-004 Manual Intake Form');
+                } else {
+                    console.log('Navigate to SCR-005 Conversational Intake');
+                }
+            } else {
+                form.reportValidity();
+            }
+        });
+        
+        // Inline validation demo
+        const emailInput = document.getElementById('email');
+        emailInput.addEventListener('blur', () => {
+            if (emailInput.value && !emailInput.validity.valid) {
+                emailInput.classList.add('error');
+                const errorText = document.createElement('span');
+                errorText.className = 'error-text';
+                errorText.innerHTML = '<span class="material-icons" style="font-size: 14px;">error</span> Please enter a valid email address';
+                emailInput.parentElement.appendChild(errorText);
+            } else {
+                emailInput.classList.remove('error');
+                const errorText = emailInput.parentElement.querySelector('.error-text');
+                if (errorText) errorText.remove();
+            }
+        });
+    </script>
+</body>
+</html>

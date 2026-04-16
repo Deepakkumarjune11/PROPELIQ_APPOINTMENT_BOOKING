@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCR-001: Availability Search - Unified Patient Access Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* Design Tokens from designsystem.md */
+        :root {
+            /* Colors - Primary (Blue) */
+            --color-primary-50: #E3F2FD;
+            --color-primary-100: #BBDEFB;
+            --color-primary-500: #2196F3;
+            --color-primary-700: #1976D2;
+            
+            /* Colors - Neutral (Grayscale) */
+            --color-neutral-50: #FAFAFA;
+            --color-neutral-100: #F5F5F5;
+            --color-neutral-300: #E0E0E0;
+            --color-neutral-500: #9E9E9E;
+            --color-neutral-700: #616161;
+            --color-neutral-900: #212121;
+            
+            /* Colors - Error */
+            --color-error-50: #FFEBEE;
+            --color-error-500: #F44336;
+            
+            /* Typography */
+            --typography-h1: 400 24px/133.4% Roboto;
+            --typography-h2: 500 20px/160% Roboto;
+            --typography-body1: 400 16px/150% Roboto;
+            --typography-body2: 400 14px/143% Roboto;
+            --typography-caption: 400 12px/166% Roboto;
+            
+            /* Spacing (8px grid) */
+            --spacing-1: 8px;
+            --spacing-2: 16px;
+            --spacing-3: 24px;
+            --spacing-4: 32px;
+            --spacing-6: 48px;
+            
+            /* Elevation */
+            --elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --elevation-4: 0 4px 8px rgba(0,0,0,0.16), 0 4px 6px rgba(0,0,0,0.23);
+            --elevation-8: 0 8px 16px rgba(0,0,0,0.18), 0 8px 12px rgba(0,0,0,0.22);
+            
+            /* Border Radius */
+            --border-radius-small: 4px;
+            --border-radius-medium: 8px;
+            
+            /* Transitions */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-standard: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Breakpoints */
+            --breakpoint-sm: 600px;
+            --breakpoint-md: 900px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font: var(--typography-body1);
+            color: var(--color-neutral-700);
+            background-color: var(--color-neutral-50);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Page Layout */
+        .page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .header {
+            background: #FFFFFF;
+            box-shadow: var(--elevation-1);
+            padding: var(--spacing-2) var(--spacing-3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            font: 500 20px/1 Roboto;
+            color: var(--color-primary-500);
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--color-primary-500);
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font: 500 16px/1 Roboto;
+            cursor: pointer;
+        }
+        
+        /* Main Content */
+        .main {
+            flex: 1;
+            padding: var(--spacing-4) var(--spacing-3);
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        .page-header {
+            margin-bottom: var(--spacing-4);
+        }
+        
+        h1 {
+            font: var(--typography-h1);
+            color: var(--color-neutral-900);
+            margin-bottom: var(--spacing-1);
+        }
+        
+        .subtitle {
+            font: var(--typography-body2);
+            color: var(--color-neutral-500);
+        }
+        
+        /* Search Controls */
+        .search-controls {
+            background: #FFFFFF;
+            padding: var(--spacing-3);
+            border-radius: var(--border-radius-medium);
+            box-shadow: var(--elevation-1);
+            margin-bottom: var(--spacing-4);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-2);
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-1);
+        }
+        
+        label {
+            font: var(--typography-body2);
+            color: var(--color-neutral-700);
+        }
+        
+        input, select {
+            font: var(--typography-body1);
+            padding: 12px 14px;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--border-radius-small);
+            background: #FFFFFF;
+            transition: border-color var(--transition-fast);
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--color-primary-500);
+            border-width: 2px;
+            padding: 11px 13px;
+        }
+        
+        .btn {
+            font: 500 16px/1 Roboto;
+            padding: var(--spacing-1) var(--spacing-2);
+            border: none;
+            border-radius: var(--border-radius-small);
+            cursor: pointer;
+            transition: background-color var(--transition-fast), box-shadow var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-1);
+            min-height: 44px;
+        }
+        
+        .btn-primary {
+            background: var(--color-primary-500);
+            color: #FFFFFF;
+            box-shadow: var(--elevation-4);
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: var(--color-primary-700);
+            box-shadow: var(--elevation-8);
+        }
+        
+        .btn-primary:focus:not(:disabled) {
+            outline: 2px solid var(--color-primary-500);
+            outline-offset: 2px;
+        }
+        
+        .btn-primary:disabled {
+            background: var(--color-neutral-300);
+            color: var(--color-neutral-500);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        /* Slot Grid */
+        .slot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-3);
+        }
+        
+        .slot-card {
+            background: #FFFFFF;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: var(--border-radius-medium);
+            padding: var(--spacing-3);
+            box-shadow: var(--elevation-1);
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+            cursor: pointer;
+        }
+        
+        .slot-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--elevation-8);
+        }
+        
+        .slot-time {
+            font: 500 20px/1 Roboto;
+            color: var(--color-neutral-900);
+            margin-bottom: var(--spacing-1);
+        }
+        
+        .slot-provider {
+            font: var(--typography-body1);
+            color: var(--color-neutral-700);
+            margin-bottom: var(--spacing-1);
+        }
+        
+        .slot-type {
+            font: var(--typography-body2);
+            color: var(--color-neutral-500);
+            margin-bottom: var(--spacing-2);
+        }
+        
+        .slot-availability {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font: var(--typography-caption);
+            color: var(--color-neutral-500);
+        }
+        
+        .material-icons {
+            font-size: 18px;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-6) var(--spacing-3);
+        }
+        
+        .empty-icon {
+            font-size: 64px;
+            color: var(--color-neutral-300);
+            margin-bottom: var(--spacing-2);
+        }
+        
+        .empty-title {
+            font: var(--typography-h2);
+            color: var(--color-neutral-700);
+            margin-bottom: var(--spacing-1);
+        }
+        
+        .empty-text {
+            font: var(--typography-body1);
+            color: var(--color-neutral-500);
+        }
+        
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, var(--color-neutral-100) 25%, var(--color-neutral-50) 50%, var(--color-neutral-100) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+            border-radius: var(--border-radius-small);
+        }
+        
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .skeleton-card {
+            background: #FFFFFF;
+            border-radius: var(--border-radius-medium);
+            padding: var(--spacing-3);
+            box-shadow: var(--elevation-1);
+        }
+        
+        .skeleton-line {
+            height: 20px;
+            margin-bottom: var(--spacing-1);
+        }
+        
+        .skeleton-line.short {
+            width: 60%;
+        }
+        
+        /* Bottom Navigation (Mobile) */
+        .bottom-nav {
+            display: none;
+            background: #FFFFFF;
+            box-shadow: 0 -1px 3px rgba(0,0,0,0.12);
+            padding: var(--spacing-1) 0;
+        }
+        
+        .bottom-nav-items {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: var(--spacing-1);
+            color: var(--color-neutral-500);
+            text-decoration: none;
+            font: var(--typography-caption);
+            cursor: pointer;
+            transition: color var(--transition-fast);
+            min-width: 44px;
+        }
+        
+        .bottom-nav-item.active {
+            color: var(--color-primary-500);
+        }
+        
+        @media (max-width: 900px) {
+            .bottom-nav {
+                display: block;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+            }
+            
+            .main {
+                padding-bottom: 72px;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .search-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .slot-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Map
+    | Element | Action | Target Screen |
+    |---------|--------|---------------|
+    | .slot-card | click | SCR-002 (Slot Selection) |
+    | #avatar-menu | click | SCR-026 (User Profile) OR SCR-027 (Settings) OR Logout |
+    | .bottom-nav-item[data-target="appointments"] | click | SCR-008 (My Appointments) |
+    -->
+    
+    <div class="page">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">PropelIQ Healthcare</div>
+            <div class="avatar" id="avatar-menu" title="User Menu">JD</div>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="main">
+            <div class="page-header">
+                <h1>Find your appointment</h1>
+                <div class="subtitle">Search available time slots and book your visit</div>
+            </div>
+            
+            <!-- Search Controls -->
+            <div class="search-controls">
+                <div class="input-group">
+                    <label for="date-input">Date</label>
+                    <input type="date" id="date-input" aria-label="Appointment date" />
+                </div>
+                <div class="input-group">
+                    <label for="provider-select">Provider (optional)</label>
+                    <select id="provider-select" aria-label="Select healthcare provider">
+                        <option value="">Any provider</option>
+                        <option value="dr-smith">Dr. Sarah Smith (Primary Care)</option>
+                        <option value="dr-jones">Dr. Michael Jones (Cardiology)</option>
+                        <option value="dr-lee">Dr. Emily Lee (Pediatrics)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="visit-type-select">Visit type</label>
+                    <select id="visit-type-select" aria-label="Visit type">
+                        <option value="in-person">In-person</option>
+                        <option value="telehealth">Telehealth</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-primary" id="search-btn" aria-label="Search available slots">
+                        <span class="material-icons">search</span>
+                        Search availability
+                    </button>
+                </div>
+            </div>
+            
+            <!-- DEFAULT STATE: Slot Results -->
+            <div id="slot-results" class="slot-grid">
+                <!-- Slot Card 1 -->
+                <div class="slot-card" data-slot-id="slot-001" aria-label="Available slot: 9:00 AM with Dr. Sarah Smith">
+                    <div class="slot-time">9:00 AM</div>
+                    <div class="slot-provider">Dr. Sarah Smith</div>
+                    <div class="slot-type">Primary Care • In-person</div>
+                    <div class="slot-availability">
+                        <span class="material-icons">event_available</span>
+                        Available
+                    </div>
+                </div>
+                
+                <!-- Slot Card 2 -->
+                <div class="slot-card" data-slot-id="slot-002">
+                    <div class="slot-time">11:30 AM</div>
+                    <div class="slot-provider">Dr. Michael Jones</div>
+                    <div class="slot-type">Cardiology • In-person</div>
+                    <div class="slot-availability">
+                        <span class="material-icons">event_available</span>
+                        Available
+                    </div>
+                </div>
+                
+                <!-- Slot Card 3 -->
+                <div class="slot-card" data-slot-id="slot-003">
+                    <div class="slot-time">2:00 PM</div>
+                    <div class="slot-provider">Dr. Emily Lee</div>
+                    <div class="slot-type">Pediatrics • Telehealth</div>
+                    <div class="slot-availability">
+                        <span class="material-icons">videocam</span>
+                        Telehealth available
+                    </div>
+                </div>
+                
+                <!-- Slot Card 4 -->
+                <div class="slot-card" data-slot-id="slot-004">
+                    <div class="slot-time">4:15 PM</div>
+                    <div class="slot-provider">Dr. Sarah Smith</div>
+                    <div class="slot-type">Primary Care • In-person</div>
+                    <div class="slot-availability">
+                        <span class="material-icons">event_available</span>
+                        Available
+                    </div>
+                </div>
+            </div>
+            
+            <!-- LOADING STATE: Skeleton Cards (hidden by default) -->
+            <div id="loading-state" class="slot-grid" style="display: none;">
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-line" style="width: 80px;"></div>
+                    <div class="skeleton skeleton-line"></div>
+                    <div class="skeleton skeleton-line short"></div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-line" style="width: 80px;"></div>
+                    <div class="skeleton skeleton-line"></div>
+                    <div class="skeleton skeleton-line short"></div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-line" style="width: 80px;"></div>
+                    <div class="skeleton skeleton-line"></div>
+                    <div class="skeleton skeleton-line short"></div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-line" style="width: 80px;"></div>
+                    <div class="skeleton skeleton-line"></div>
+                    <div class="skeleton skeleton-line short"></div>
+                </div>
+            </div>
+            
+            <!-- EMPTY STATE (hidden by default) -->
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <div class="material-icons empty-icon">event_busy</div>
+                <div class="empty-title">No slots available</div>
+                <div class="empty-text">Try searching for a different date or provider</div>
+            </div>
+        </main>
+        
+        <!-- Bottom Navigation (Mobile) -->
+        <nav class="bottom-nav">
+            <div class="bottom-nav-items">
+                <a href="#" class="bottom-nav-item active" data-target="book">
+                    <span class="material-icons">calendar_today</span>
+                    Book
+                </a>
+                <a href="#" class="bottom-nav-item" data-target="appointments">
+                    <span class="material-icons">event</span>
+                    Appointments
+                </a>
+                <a href="#" class="bottom-nav-item" data-target="documents">
+                    <span class="material-icons">description</span>
+                    Documents
+                </a>
+                <a href="#" class="bottom-nav-item" data-target="profile">
+                    <span class="material-icons">person</span>
+                    Profile
+                </a>
+            </div>
+        </nav>
+    </div>
+    
+    <script>
+        // State Management Demo
+        const slotResults = document.getElementById('slot-results');
+        const loadingState = document.getElementById('loading-state');
+        const emptyState = document.getElementById('empty-state');
+        const searchBtn = document.getElementById('search-btn');
+        
+        // Slot Card Click Navigation
+        document.querySelectorAll('.slot-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const slotId = card.dataset.slotId;
+                console.log(`Navigate to SCR-002 Slot Selection with slotId: ${slotId}`);
+                // window.location.href = 'wireframe-SCR-002-slot-selection.html?slotId=' + slotId;
+            });
+        });
+        
+        // Search Button Click (Demo: toggle loading state)
+        searchBtn.addEventListener('click', () => {
+            // Show loading state
+            slotResults.style.display = 'none';
+            emptyState.style.display = 'none';
+            loadingState.style.display = 'grid';
+            searchBtn.disabled = true;
+            searchBtn.innerHTML = '<span class="material-icons">hourglass_empty</span> Searching...';
+            
+            // Simulate API call (2 seconds)
+            setTimeout(() => {
+                loadingState.style.display = 'none';
+                slotResults.style.display = 'grid'; // Show default results
+                // emptyState.style.display = 'block'; // Uncomment to show empty state
+                searchBtn.disabled = false;
+                searchBtn.innerHTML = '<span class="material-icons">search</span> Search availability';
+            }, 2000);
+        });
+        
+        // Bottom Nav Item Click
+        document.querySelectorAll('.bottom-nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.bottom-nav-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                const target = item.dataset.target;
+                console.log(`Navigate to ${target} screen`);
+                // Navigation logic here
+            });
+        });
+    </script>
+</body>
+</html>

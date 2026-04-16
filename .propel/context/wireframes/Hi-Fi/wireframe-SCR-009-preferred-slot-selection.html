@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCR-009: Preferred Slot Selection - Unified Patient Access Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root{--color-primary-500:#2196F3;--color-warning-50:#FFF3E0;--color-warning-500:#FF9800;--color-neutral-50:#FAFAFA;--color-neutral-300:#E0E0E0;--color-neutral-500:#9E9E9E;--color-neutral-700:#616161;--color-neutral-900:#212121;--spacing-2:16px;--spacing-3:24px;--spacing-4:32px;--elevation-1:0 1px 3px rgba(0,0,0,0.12),0 1px 2px rgba(0,0,0,0.24);--border-radius-small:4px;--border-radius-medium:8px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font:400 16px/150% Roboto;color:var(--color-neutral-700);background:var(--color-neutral-50)}
+        .main{max-width:800px;margin:0 auto;padding:var(--spacing-4) var(--spacing-3)}
+        h1{font:400 24px/133.4% Roboto;color:var(--color-neutral-900);margin-bottom:var(--spacing-3)}
+        .alert{background:var(--color-warning-50);border-left:4px solid var(--color-warning-500);padding:var(--spacing-2);border-radius:var(--border-radius-small);margin-bottom:var(--spacing-3);display:flex;gap:var(--spacing-2)}
+        .calendar{background:#FFF;padding:var(--spacing-3);border-radius:var(--border-radius-medium);box-shadow:var(--elevation-1);margin-bottom:var(--spacing-3)}
+        .slot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:var(--spacing-2)}
+        .slot{padding:var(--spacing-2);border:1px solid var(--color-neutral-300);border-radius:var(--border-radius-small);text-align:center;cursor:pointer;transition:all 150ms}
+        .slot:hover:not(.disabled){background:var(--color-primary-500);color:#FFF;border-color:var(--color-primary-500)}
+        .slot.disabled{opacity:0.4;cursor:not-allowed;background:var(--color-neutral-50)}
+        .btn{padding:8px 16px;border:none;border-radius:var(--border-radius-small);font:500 16px/1 Roboto;cursor:pointer;min-height:44px;background:var(--color-primary-500);color:#FFF;width:100%}
+    </style>
+</head>
+<body>
+    <!-- Navigation: #register-watchlist-btn → SCR-008 (My Appointments) with watchlist registered -->
+    <main class="main">
+        <h1>Select preferred slot</h1>
+        <div class="alert">
+            <span class="material-icons" style="color:var(--color-warning-500);font-size:20px">info</span>
+            <div><div style="font:500 14px/143% Roboto;color:var(--color-neutral-900)">No slots currently available</div>
+            <div style="font:400 14px/143% Roboto;color:var(--color-neutral-700)">Select your preferred time slots and we'll notify you when one becomes available</div></div>
+        </div>
+        <div class="calendar">
+            <h2 style="font:500 18px/1 Roboto;margin-bottom:var(--spacing-2)">Monday, March 18, 2024</h2>
+            <div class="slot-grid">
+                <div class="slot disabled">9:00 AM<br><small style="font-size:12px">Unavailable</small></div>
+                <div class="slot">11:00 AM</div>
+                <div class="slot disabled">1:00 PM<br><small style="font-size:12px">Unavailable</small></div>
+                <div class="slot">2:00 PM</div>
+                <div class="slot">3:30 PM</div>
+                <div class="slot disabled">4:00 PM<br><small style="font-size:12px">Unavailable</small></div>
+            </div>
+        </div>
+        <button class="btn" id="register-watchlist-btn">Add to watchlist (2 slots selected)</button>
+    </main>
+    <script>
+        document.querySelectorAll('.slot:not(.disabled)').forEach(slot=>{
+            slot.addEventListener('click',()=>slot.classList.toggle('selected'));
+        });
+    </script>
+</body>
+</html>
