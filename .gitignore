@@ -9,7 +9,7 @@
 # ============================================================
 # CLIENT — React / Vite / TypeScript
 # ============================================================
-# client/node_modules/
+client/node_modules/
 client/dist/
 client/.vite/
 client/coverage/
