@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    /* Enable Node built-in types for __dirname, path, etc. in vite.config.ts */
+    "types": ["node"]
+  },
+  "include": ["vite.config.ts"]
+}

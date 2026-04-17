@@ -1,0 +1,89 @@
+# docker-compose.yml — base service definitions for all environments
+# Port bindings and dev-specific overrides live in docker-compose.override.yml.
+# All sensitive values are injected via .env (never committed).
+services:
+
+  # ── PostgreSQL 15 + pgvector ─────────────────────────────────────────────────
+  db:
+    image: pgvector/pgvector:pg15
+    container_name: propeliq_postgres
+    environment:
+      POSTGRES_DB:       ${POSTGRES_DB}
+      POSTGRES_USER:     ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - propeliq-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ── Redis 7 ──────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: propeliq_redis
+    volumes:
+      - redis-data:/data
+    networks:
+      - propeliq-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ── ASP.NET Core 8 API ───────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: propeliq_api
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ConnectionStrings__DefaultConnection: >
+        Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};
+        Password=${POSTGRES_PASSWORD};Minimum Pool Size=10;Maximum Pool Size=100
+      Redis__ConnectionString: redis:6379,abortConnect=False
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - api-logs:/app/logs
+    networks:
+      - propeliq-net
+    restart: unless-stopped
+
+  # ── React 18 Vite Dev Server ─────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ../client
+      dockerfile: Dockerfile.dev
+    container_name: propeliq_frontend
+    environment:
+      VITE_API_BASE_URL: http://localhost:8080
+    depends_on:
+      - api
+    volumes:
+      - node-modules:/app/node_modules
+    networks:
+      - propeliq-net
+    restart: unless-stopped
+
+# ── Named volumes ─────────────────────────────────────────────────────────────
+volumes:
+  postgres-data:
+  redis-data:
+  api-logs:
+  node-modules:
+
+# ── Isolated bridge network ───────────────────────────────────────────────────
+networks:
+  propeliq-net:
+    driver: bridge

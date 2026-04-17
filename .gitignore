@@ -1,0 +1,80 @@
+# ============================================================
+# ROOT
+# ============================================================
+.env
+.env.*
+!.env.example
+*.log
+
+# ============================================================
+# CLIENT — React / Vite / TypeScript
+# ============================================================
+# client/node_modules/
+client/dist/
+client/.vite/
+client/coverage/
+client/*.local
+client/.DS_Store
+
+# TypeScript build info
+client/tsconfig.tsbuildinfo
+client/*.tsbuildinfo
+
+# ============================================================
+# SERVER — .NET / C#
+# ============================================================
+
+# Build output
+server/**/bin/
+server/**/obj/
+server/**/publish/
+server/**/.vs/
+
+# User-specific / IDE files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vscode/
+.idea/
+
+# NuGet
+*.nupkg
+*.snupkg
+server/**/*.nuget.props
+server/**/*.nuget.g.props
+server/**/*.nuget.g.targets
+server/**/project.assets.json
+server/**/nuget.dgspec.json
+
+# Entity Framework migrations (keep if you commit migrations)
+# server/**/Migrations/
+
+# ASP.NET Core
+server/**/appsettings.*.json
+!server/**/appsettings.json
+!server/**/appsettings.Development.json
+
+# Secrets
+server/**/*secrets*.json
+server/**/*.pfx
+server/**/*.p12
+
+# ============================================================
+# DOCKER
+# ============================================================
+.dockerignore
+
+# ============================================================
+# OS
+# ============================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ============================================================
+# MISC
+# ============================================================
+*.tmp
+*.swp
+*.bak

@@ -1,0 +1,24 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PropelIQ.Api/PropelIQ.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Admin/">
+    <Project Path="src/Modules/Admin/Admin.Application/Admin.Application.csproj" />
+    <Project Path="src/Modules/Admin/Admin.Data/Admin.Data.csproj" />
+    <Project Path="src/Modules/Admin/Admin.Domain/Admin.Domain.csproj" />
+    <Project Path="src/Modules/Admin/Admin.Presentation/Admin.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/ClinicalIntelligence/">
+    <Project Path="src/Modules/ClinicalIntelligence/ClinicalIntelligence.Application/ClinicalIntelligence.Application.csproj" />
+    <Project Path="src/Modules/ClinicalIntelligence/ClinicalIntelligence.Data/ClinicalIntelligence.Data.csproj" />
+    <Project Path="src/Modules/ClinicalIntelligence/ClinicalIntelligence.Domain/ClinicalIntelligence.Domain.csproj" />
+    <Project Path="src/Modules/ClinicalIntelligence/ClinicalIntelligence.Presentation/ClinicalIntelligence.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/PatientAccess/">
+    <Project Path="src/Modules/PatientAccess/PatientAccess.Application/PatientAccess.Application.csproj" />
+    <Project Path="src/Modules/PatientAccess/PatientAccess.Data/PatientAccess.Data.csproj" />
+    <Project Path="src/Modules/PatientAccess/PatientAccess.Domain/PatientAccess.Domain.csproj" />
+    <Project Path="src/Modules/PatientAccess/PatientAccess.Presentation/PatientAccess.Presentation.csproj" />
+  </Folder>
+</Solution>
