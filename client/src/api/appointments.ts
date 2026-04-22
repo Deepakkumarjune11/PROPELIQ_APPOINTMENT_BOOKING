@@ -2,7 +2,7 @@
 // GET  /api/v1/appointments                                — authenticated patient's bookings
 // GET  /api/v1/slots/availability                         — per-provider slot availability for calendar
 // POST /api/v1/appointments/{appointmentId}/preferred-slot — watchlist registration (US_015)
-const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? '';
+import api from '@/lib/api';
 
 // ── Domain types ────────────────────────────────────────────────────────────────
 
@@ -45,16 +45,8 @@ export class AppointmentsApiError extends Error {
  * GET /api/v1/appointments
  */
 export async function getAppointments(): Promise<AppointmentDto[]> {
-  const response = await fetch(`${BASE_URL}/api/v1/appointments`);
-
-  if (!response.ok) {
-    throw new AppointmentsApiError(
-      response.status,
-      `Failed to load appointments (status ${response.status})`,
-    );
-  }
-
-  return response.json() as Promise<AppointmentDto[]>;
+  const response = await api.get<AppointmentDto[]>('/api/v1/appointments');
+  return response.data;
 }
 
 /**
@@ -69,21 +61,10 @@ export async function getSlotAvailability(
   year: number,
   month: number,
 ): Promise<SlotAvailabilityEntry[]> {
-  const params = new URLSearchParams({
-    providerId,
-    year: String(year),
-    month: String(month),
+  const response = await api.get<SlotAvailabilityEntry[]>('/api/v1/slots/availability', {
+    params: { providerId, year, month },
   });
-  const response = await fetch(`${BASE_URL}/api/v1/slots/availability?${params}`);
-
-  if (!response.ok) {
-    throw new AppointmentsApiError(
-      response.status,
-      `Failed to load slot availability (status ${response.status})`,
-    );
-  }
-
-  return response.json() as Promise<SlotAvailabilityEntry[]>;
+  return response.data;
 }
 
 /**
@@ -98,26 +79,10 @@ export async function registerPreferredSlot(
   appointmentId: string,
   preferredSlotDatetime: string,
 ): Promise<void> {
-  const response = await fetch(
-    `${BASE_URL}/api/v1/appointments/${encodeURIComponent(appointmentId)}/preferred-slot`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ preferredSlotDatetime }),
-    },
+  await api.post(
+    `/api/v1/appointments/${encodeURIComponent(appointmentId)}/preferred-slot`,
+    { preferredSlotDatetime },
   );
-
-  if (!response.ok) {
-    let body: unknown;
-    try {
-      body = await response.json();
-    } catch {
-      // Non-JSON error body — ignore
-    }
-    throw new AppointmentsApiError(
-      response.status,
-      `Preferred slot registration failed (status ${response.status})`,
-      body,
-    );
-  }
 }
+
+

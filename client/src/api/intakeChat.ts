@@ -1,6 +1,6 @@
 // API client for POST /api/v1/patients/{patientId}/intake/chat.
 // No LLM calls from the frontend — the AI service is entirely encapsulated in the backend.
-const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? '';
+import api from '@/lib/api';
 
 /** A single turn in the conversation — used for display and for sending history to the backend. */
 export interface ChatMessage {
@@ -42,18 +42,9 @@ export async function sendIntakeChatMessage(
   patientId: string,
   payload: SendChatMessageRequest,
 ): Promise<SendChatMessageResponse> {
-  const response = await fetch(
-    `${BASE_URL}/api/v1/patients/${encodeURIComponent(patientId)}/intake/chat`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    },
+  const response = await api.post<SendChatMessageResponse>(
+    `/api/v1/patients/${encodeURIComponent(patientId)}/intake/chat`,
+    payload,
   );
-
-  if (!response.ok) {
-    throw new Error(`Intake chat request failed with status ${response.status}`);
-  }
-
-  return response.json() as Promise<SendChatMessageResponse>;
+  return response.data;
 }

@@ -66,9 +66,10 @@ try
     var redisConnectionString = builder.Configuration["Redis:ConnectionString"]!;
     var redisOptions = ConfigurationOptions.Parse(redisConnectionString);
     redisOptions.AbortOnConnectFail = false;
-    redisOptions.ConnectRetry       = 3;
-    redisOptions.ConnectTimeout     = 5_000;
-    redisOptions.SyncTimeout        = 3_000;
+    redisOptions.ConnectRetry       = 2;
+    redisOptions.ConnectTimeout     = 500;   // fail-fast in dev when Redis is not running
+    redisOptions.SyncTimeout        = 500;   // prevents 3s hang per cache call
+    redisOptions.AsyncTimeout       = 500;
     builder.Services.AddSingleton<IConnectionMultiplexer>(
         ConnectionMultiplexer.Connect(redisOptions));
 
@@ -296,7 +297,15 @@ try
                   .AllowAnyMethod()
                   .AllowCredentials()));
 
-    builder.Services.AddControllers();
+    builder.Services.AddControllers()
+        .AddJsonOptions(opts =>
+        {
+            // Serialize enums as camelCase strings (e.g. "booked") instead of integers.
+            // Matches frontend AppointmentDto.status union type ('booked' | 'arrived' | ...).
+            opts.JsonSerializerOptions.Converters.Add(
+                new System.Text.Json.Serialization.JsonStringEnumConverter(
+                    System.Text.Json.JsonNamingPolicy.CamelCase));
+        });
 
     // SignalR — real-time queue broadcast for staff dashboard (US_017, AC-4).
     builder.Services.AddSignalR();
@@ -447,7 +456,9 @@ try
         exceptionApp.Run(async context =>
         {
             var feature = context.Features.Get<IExceptionHandlerFeature>();
-            if (feature?.Error is FeatureDisabledException fde)
+            var error   = feature?.Error;
+
+            if (error is FeatureDisabledException fde)
             {
                 context.Response.StatusCode  = StatusCodes.Status503ServiceUnavailable;
                 context.Response.ContentType = "application/problem+json";
@@ -459,8 +470,36 @@ try
                     detail      = $"The AI feature '{fde.FeatureName}' is currently disabled.",
                     featureName = fde.FeatureName,
                 });
+                return;
             }
-            // All other exceptions fall through to the default problem-details handler
+
+            // In Development, return the full exception detail so engineers can diagnose 500s.
+            // In Production, return a generic 500 without leaking internals (OWASP A05).
+            context.Response.StatusCode  = StatusCodes.Status500InternalServerError;
+            context.Response.ContentType = "application/problem+json";
+
+            if (app.Environment.IsDevelopment() && error is not null)
+            {
+                await context.Response.WriteAsJsonAsync(new
+                {
+                    type    = "https://propeliq.health/errors/internal",
+                    title   = "Internal Server Error",
+                    status  = 500,
+                    detail  = error.Message,
+                    exception = error.GetType().FullName,
+                    stackTrace = error.StackTrace,
+                });
+            }
+            else
+            {
+                await context.Response.WriteAsJsonAsync(new
+                {
+                    type   = "https://propeliq.health/errors/internal",
+                    title  = "Internal Server Error",
+                    status = 500,
+                    detail = "An unexpected error occurred. Please try again later.",
+                });
+            }
         });
     });
 

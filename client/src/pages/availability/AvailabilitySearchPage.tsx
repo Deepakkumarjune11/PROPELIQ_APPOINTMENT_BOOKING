@@ -61,16 +61,24 @@ export default function AvailabilitySearchPage() {
       setValidationError('End date must be on or after start date');
       return;
     }
-    setConfirmedStart(startDate);
-    setConfirmedEnd(endDate);
+    // If dates haven't changed, force a fresh fetch bypassing staleTime
+    if (startDate === confirmedStart && endDate === confirmedEnd) {
+      void refetch();
+    } else {
+      setConfirmedStart(startDate);
+      setConfirmedEnd(endDate);
+    }
   };
 
   const handleReset = () => {
-    setStartDate(DEFAULT_START);
-    setEndDate(DEFAULT_END);
+    // Advance to the next 7-day window so the query key changes and a new API call fires.
+    const nextStart = getPlusDaysISO(7);
+    const nextEnd   = getPlusDaysISO(14);
+    setStartDate(nextStart);
+    setEndDate(nextEnd);
     setValidationError('');
-    setConfirmedStart(DEFAULT_START);
-    setConfirmedEnd(DEFAULT_END);
+    setConfirmedStart(nextStart);
+    setConfirmedEnd(nextEnd);
   };
 
   return (

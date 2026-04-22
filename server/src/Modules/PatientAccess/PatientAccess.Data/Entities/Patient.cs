@@ -10,6 +10,13 @@ public class Patient
     public string? InsuranceProvider { get; set; }
     public string? InsuranceMemberId { get; set; }
     public string? InsuranceStatus { get; set; }
+
+    /// <summary>
+    /// Bcrypt/PBKDF2 hash of the patient's password. Null until the patient sets a password.
+    /// Never returned in any API response (OWASP A02).
+    /// </summary>
+    public string? AuthCredentials { get; set; }
+
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public bool IsDeleted { get; set; }

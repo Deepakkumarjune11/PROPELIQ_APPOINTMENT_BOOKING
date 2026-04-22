@@ -25,84 +25,94 @@ public sealed class WalkInBookingRepository : IWalkInBookingRepository
         BookWalkInCommand command,
         CancellationToken cancellationToken = default)
     {
-        await using var tx = await _db.Database
-            .BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+        // NpgsqlRetryingExecutionStrategy blocks direct BeginTransactionAsync calls.
+        // Wrapping in CreateExecutionStrategy().ExecuteAsync() satisfies the retry contract
+        // while still allowing a user-initiated SERIALIZABLE transaction (BUG-008).
+        var strategy = _db.Database.CreateExecutionStrategy();
 
-        try
+        return await strategy.ExecuteAsync(async () =>
         {
-            var todayUtc = DateTime.UtcNow.Date;
+            await using var tx = await _db.Database
+                .BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
 
-            // Duplicate guard: same patient booked twice today → 409.
-            bool alreadyBooked = await _db.Appointments
-                .AnyAsync(
-                    a => a.PatientId == command.PatientId &&
-                         a.IsWalkIn &&
-                         a.SlotDatetime.Date == todayUtc &&
-                         !a.IsDeleted,
-                    cancellationToken);
-
-            if (alreadyBooked)
-                throw new ConflictException("Patient already has a walk-in appointment today.");
-
-            // Check for an available same-day slot (slot = Available status appointment today).
-            bool slotAvailable = await _db.Appointments
-                .AnyAsync(
-                    a => a.SlotDatetime.Date == todayUtc &&
-                         a.Status == AppointmentStatus.Available &&
-                         !a.IsDeleted,
-                    cancellationToken);
-
-            // Assign next queue position atomically (MAX + 1 within SERIALIZABLE tx).
-            int nextPosition = ((await _db.Appointments
-                .Where(a => a.IsWalkIn &&
-                            a.SlotDatetime.Date == todayUtc &&
-                            !a.IsDeleted)
-                .MaxAsync(a => (int?)a.QueuePosition, cancellationToken)) ?? 0) + 1;
-
-            var appointment = new Appointment
+            try
             {
-                Id            = Guid.NewGuid(),
-                PatientId     = command.PatientId,
-                SlotDatetime  = DateTime.UtcNow,
-                Status        = AppointmentStatus.Booked,
-                IsWalkIn      = true,
-                QueuePosition = nextPosition,
-                CreatedAt     = DateTime.UtcNow,
-                UpdatedAt     = DateTime.UtcNow,
-            };
+                // Use >= / < range on SlotDatetime — .Date is not translatable by EF Core/Npgsql.
+                var todayStart = DateTime.UtcNow.Date;
+                var todayEnd   = todayStart.AddDays(1);
 
-            _db.Appointments.Add(appointment);
+                // Duplicate guard: same patient booked twice today → 409.
+                bool alreadyBooked = await _db.Appointments
+                    .AnyAsync(
+                        a => a.PatientId == command.PatientId &&
+                             a.IsWalkIn &&
+                             a.SlotDatetime >= todayStart &&
+                             a.SlotDatetime < todayEnd,
+                        cancellationToken);
 
-            _db.AuditLogs.Add(new AuditLog
-            {
-                Id             = Guid.NewGuid(),
-                ActorId        = command.StaffId,
-                ActorType      = AuditActorType.Staff,
-                ActionType     = AuditActionType.AppointmentBooked,
-                TargetEntityId = appointment.Id,
-                OccurredAt     = DateTime.UtcNow,
-                Details        = JsonSerializer.Serialize(new
+                if (alreadyBooked)
+                    throw new ConflictException("Patient already has a walk-in appointment today.");
+
+                // Check for an available same-day slot (slot = Available status appointment today).
+                bool slotAvailable = await _db.Appointments
+                    .AnyAsync(
+                        a => a.SlotDatetime >= todayStart &&
+                             a.SlotDatetime < todayEnd &&
+                             a.Status == AppointmentStatus.Available,
+                        cancellationToken);
+
+                // Assign next queue position atomically (MAX + 1 within SERIALIZABLE tx).
+                int nextPosition = ((await _db.Appointments
+                    .Where(a => a.IsWalkIn &&
+                                a.SlotDatetime >= todayStart &&
+                                a.SlotDatetime < todayEnd)
+                    .MaxAsync(a => (int?)a.QueuePosition, cancellationToken)) ?? 0) + 1;
+
+                var appointment = new Appointment
                 {
-                    action        = "WalkInBooked",
-                    patientId     = command.PatientId,
-                    queuePosition = nextPosition,
-                    waitQueue     = !slotAvailable,
-                    visitType     = command.VisitType,
-                }),
-            });
+                    Id            = Guid.NewGuid(),
+                    PatientId     = command.PatientId,
+                    SlotDatetime  = DateTime.UtcNow,
+                    Status        = AppointmentStatus.Booked,
+                    IsWalkIn      = true,
+                    QueuePosition = nextPosition,
+                    CreatedAt     = DateTime.UtcNow,
+                    UpdatedAt     = DateTime.UtcNow,
+                };
 
-            await _db.SaveChangesAsync(cancellationToken);
-            await tx.CommitAsync(cancellationToken);
+                _db.Appointments.Add(appointment);
 
-            return new WalkInBookingResultDto(
-                AppointmentId: appointment.Id,
-                QueuePosition: nextPosition,
-                WaitQueue:     !slotAvailable);
-        }
-        catch
-        {
-            await tx.RollbackAsync(cancellationToken);
-            throw;
-        }
+                _db.AuditLogs.Add(new AuditLog
+                {
+                    Id             = Guid.NewGuid(),
+                    ActorId        = command.StaffId,
+                    ActorType      = AuditActorType.Staff,
+                    ActionType     = AuditActionType.AppointmentBooked,
+                    TargetEntityId = appointment.Id,
+                    OccurredAt     = DateTime.UtcNow,
+                    Details        = JsonSerializer.Serialize(new
+                    {
+                        action        = "WalkInBooked",
+                        patientId     = command.PatientId,
+                        queuePosition = nextPosition,
+                        waitQueue     = !slotAvailable,
+                        visitType     = command.VisitType,
+                    }),
+                });
+
+                await _db.SaveChangesAsync(cancellationToken);
+                await tx.CommitAsync(cancellationToken);
+
+                return new WalkInBookingResultDto(
+                    AppointmentId: appointment.Id,
+                    QueuePosition: nextPosition,
+                    WaitQueue:     !slotAvailable);
+            }
+            catch
+            {
+                await tx.RollbackAsync(cancellationToken);
+                throw;
+            }
+        });
     }
 }

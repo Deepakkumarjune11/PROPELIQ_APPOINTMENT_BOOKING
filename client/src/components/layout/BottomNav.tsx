@@ -12,17 +12,17 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/auth-store';
 
 const PATIENT_ITEMS = [
-  { label: 'Book',         icon: <CalendarTodayIcon />, path: '/book',         navId: 'nav-book-mobile' as string | undefined },
-  { label: 'Appointments', icon: <EventIcon />,         path: '/appointments', navId: undefined as string | undefined },
-  { label: 'Documents',    icon: <DescriptionIcon />,   path: '/documents',    navId: 'nav-documents-mobile' as string | undefined },
+  { label: 'Book',         icon: <CalendarTodayIcon />, path: '/appointments/search', navId: 'nav-book-mobile' as string | undefined },
+  { label: 'Appointments', icon: <EventIcon />,         path: '/appointments',        navId: undefined as string | undefined },
+  { label: 'Documents',    icon: <DescriptionIcon />,   path: '/documents',           navId: 'nav-documents-mobile' as string | undefined },
   { label: 'Profile',      icon: <PersonIcon />,        path: '/profile',      navId: 'nav-profile-mobile' as string | undefined },
 ];
 
 const STAFF_ITEMS = [
-  { label: 'Dashboard', icon: <DashboardIcon />, path: '/',        navId: undefined as string | undefined },
-  { label: 'Queue',     icon: <ListIcon />,      path: '/queue',   navId: undefined as string | undefined },
-  { label: 'Verify',   icon: <FactCheckIcon />, path: '/verify',  navId: undefined as string | undefined },
-  { label: 'Metrics',  icon: <BarChartIcon />,  path: '/metrics', navId: undefined as string | undefined },
+  { label: 'Dashboard', icon: <DashboardIcon />, path: '/staff/dashboard', navId: undefined as string | undefined },
+  { label: 'Queue',     icon: <ListIcon />,      path: '/staff/queue',    navId: undefined as string | undefined },
+  { label: 'Verify',   icon: <FactCheckIcon />, path: '/staff/patients', navId: undefined as string | undefined },
+  { label: 'Metrics',  icon: <BarChartIcon />,  path: '/metrics',        navId: undefined as string | undefined },
 ];
 
 // SCR-025: Mobile bottom navigation (<900px breakpoint) — role-aware tab set

@@ -51,9 +51,13 @@ public sealed class SlotSwapRepository : ISlotSwapRepository
         Guid patientId,
         CancellationToken ct = default)
     {
-        // Open a SERIALIZABLE transaction to prevent phantom-read anomalies when
-        // checking slot availability. The isolation level is set at the ADO.NET level
-        // because EF Core's BeginTransactionAsync wraps the underlying connection.
+        // NpgsqlRetryingExecutionStrategy blocks direct BeginTransactionAsync calls (BUG-008).
+        // Wrap in CreateExecutionStrategy().ExecuteAsync() to satisfy the retry contract.
+        // The inner SERIALIZABLE transaction still prevents phantom-read anomalies.
+        var strategy = _db.Database.CreateExecutionStrategy();
+
+        return await strategy.ExecuteAsync(async () =>
+        {
         await using var tx = await _db.Database
             .BeginTransactionAsync(IsolationLevel.Serializable, ct);
 
@@ -142,6 +146,7 @@ public sealed class SlotSwapRepository : ISlotSwapRepository
             await tx.RollbackAsync(ct);
             throw;
         }
+        }); // end strategy.ExecuteAsync
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

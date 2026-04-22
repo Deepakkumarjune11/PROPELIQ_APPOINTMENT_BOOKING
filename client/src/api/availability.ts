@@ -1,6 +1,6 @@
 // API client for GET /api/v1/appointments/availability
 // Accepts ISO-8601 date strings (YYYY-MM-DD); returns typed AvailabilitySlot array.
-const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? '';
+import api from '@/lib/api';
 
 export interface AvailabilitySlot {
   id: string;
@@ -25,12 +25,8 @@ export async function fetchAvailability(
   startDate: string,
   endDate: string,
 ): Promise<AvailabilitySlot[]> {
-  const params = new URLSearchParams({ startDate, endDate });
-  const response = await fetch(`${BASE_URL}/api/v1/appointments/availability?${params}`);
-
-  if (!response.ok) {
-    throw new Error(`Availability request failed with status ${response.status}`);
-  }
-
-  return response.json() as Promise<AvailabilitySlot[]>;
+  const response = await api.get<AvailabilitySlot[]>('/api/v1/appointments/availability', {
+    params: { startDate, endDate },
+  });
+  return response.data;
 }

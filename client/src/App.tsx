@@ -9,6 +9,14 @@ import { AppErrorBoundary } from '@/components/errors/AppErrorBoundary';
 import { GlobalErrorPage } from '@/components/errors/GlobalErrorPage';
 import { RoleGuard } from '@/components/auth/RoleGuard';
 import { StaffRouteGuard } from '@/components/guards/StaffRouteGuard';
+import { useAuthStore } from '@/stores/auth-store';
+
+/** Redirects to the role-appropriate home page. Staff → /staff/dashboard, patient → /appointments. */
+function RoleHomeRedirect() {
+  const role = useAuthStore((s) => s.user?.role);
+  if (role === 'patient') return <Navigate to="/appointments" replace />;
+  return <Navigate to="/staff/dashboard" replace />;
+}
 import LoginPage from '@/pages/LoginPage';
 import AvailabilitySearchPage from '@/pages/availability/AvailabilitySearchPage';
 import BookingErrorPage from '@/pages/booking-error/BookingErrorPage';
@@ -31,6 +39,7 @@ import DocumentListPage from '@/pages/documents/DocumentListPage';
 import DocumentUploadPage from '@/pages/documents/DocumentUploadPage';
 import UserManagementPage from '@/pages/admin/UserManagementPage';
 import AnalyticsDashboardPage from '@/pages/AnalyticsDashboardPage';
+import PatientProfilePage from '@/pages/profile/PatientProfilePage';
 import { healthcareTheme } from '@/theme/healthcare-theme';
 
 const queryClient = new QueryClient({
@@ -63,6 +72,8 @@ const router = createBrowserRouter([
     children: [
       // SCR-001: Availability search — step 1 of the booking flow
       { path: 'appointments/search', element: <AvailabilitySearchPage />, handle: { crumb: 'Search Availability' } },
+      // '/book' alias — matches BottomNav "Book" tab on mobile
+      { path: 'book', element: <Navigate to="/appointments/search" replace /> },
       // SCR-002: Slot selection / confirmation — step 2 of the booking flow
       { path: 'appointments/slot-selection', element: <SlotSelectionPage />, handle: { crumb: 'Select Slot' } },
       // SCR-003: Patient details form — step 3 of the booking flow
@@ -79,9 +90,8 @@ const router = createBrowserRouter([
       { path: 'appointments', element: <MyAppointmentsPage />, handle: { crumb: 'My Appointments' } },
       // SCR-009: Preferred Slot Selection (US_015) — slot calendar for watchlist registration
       { path: 'appointments/:appointmentId/preferred-slot', element: <PreferredSlotSelectionPage />, handle: { crumb: 'Preferred Slot' } },
-      // SCR-010: Staff Dashboard (US_016) — walk-ins, queue, verification, conflicts
-      // '/' index + '/staff/dashboard' both render the dashboard (Sidebar links to '/')
-      { index: true, element: <StaffRouteGuard><StaffDashboardPage /></StaffRouteGuard> },
+      // '/' index — role-aware redirect: patient → /appointments, staff/admin → /staff/dashboard
+      { index: true, element: <RoleHomeRedirect /> },
       {
         path: 'staff/dashboard',
         handle: { crumb: 'Staff Dashboard' },
@@ -171,6 +181,8 @@ const router = createBrowserRouter([
       { path: 'documents/upload', element: <DocumentUploadPage />, handle: { crumb: 'Upload Documents' } },
       // SCR-015: Document List (US_018) — status badges, conditional polling, delete dialog
       { path: 'documents', element: <DocumentListPage />, handle: { crumb: 'Documents' } },
+      // SCR-P01: Patient Profile — account details + logout
+      { path: 'profile', element: <PatientProfilePage />, handle: { crumb: 'Profile' } },
 
       // Admin routes — US_024 AC-3: only 'admin' role permitted (RoleGuard renders 403 for others)
       {

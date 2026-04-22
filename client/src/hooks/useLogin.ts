@@ -22,6 +22,7 @@ interface ApiLoginResponse {
 /** Map backend role string to the frontend union expected by UserProfile. */
 function normalizeRole(role: string): UserProfile['role'] {
   if (role === 'Admin') return 'admin';
+  if (role === 'Patient') return 'patient';
   // FrontDesk, CallCenter, ClinicalReviewer all map to 'staff'
   return 'staff';
 }
@@ -56,6 +57,7 @@ export function useLogin() {
       setAuth(user, data.token, data.expiresAt);
       if (role === 'staff') navigate('/staff/dashboard', { replace: true });
       else if (role === 'admin') navigate('/admin/dashboard', { replace: true });
+      else if (role === 'patient') navigate('/appointments', { replace: true });
       else navigate('/', { replace: true });
     },
   });

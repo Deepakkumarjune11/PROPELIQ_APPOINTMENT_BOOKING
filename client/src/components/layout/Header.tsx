@@ -112,7 +112,7 @@ export default function Header() {
           transformOrigin={{ vertical: 'top', horizontal: 'right' }}
           PaperProps={{ sx: { minWidth: 200, mt: 0.5 } }}
         >
-          <MenuItem onClick={handleClose}>
+          <MenuItem onClick={() => { handleClose(); navigate('/profile'); }}>
             <ListItemIcon>
               <PersonIcon fontSize="small" />
             </ListItemIcon>

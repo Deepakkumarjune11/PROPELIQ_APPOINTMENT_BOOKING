@@ -43,7 +43,7 @@ public sealed class PatientsController : ControllerBase
     ///   <c>403 Forbidden</c> for non-Staff roles (AC-1).
     /// </returns>
     [HttpGet("search")]
-    [Authorize(Roles = "Staff")]
+    [Authorize(Roles = "Staff,Admin")]
     [ProducesResponseType(typeof(IReadOnlyList<PatientSearchResultDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -75,7 +75,7 @@ public sealed class PatientsController : ControllerBase
     ///   <c>403 Forbidden</c> for non-Staff roles.
     /// </returns>
     [HttpPost]
-    [Authorize(Roles = "Staff")]
+    [Authorize(Roles = "Staff,Admin")]
     [ProducesResponseType(typeof(PatientSearchResultDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]

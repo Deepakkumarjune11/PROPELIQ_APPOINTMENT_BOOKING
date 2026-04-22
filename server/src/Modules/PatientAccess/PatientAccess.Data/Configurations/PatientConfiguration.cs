@@ -58,6 +58,13 @@ internal sealed class PatientConfiguration : IEntityTypeConfiguration<Patient>
             .HasColumnType("varchar(100)")
             .IsRequired(false);
 
+        // Auth credentials: hashed password — nullable (null until patient sets a password).
+        // NOT PHI and NOT encrypted at-rest (it is already a one-way hash per OWASP A02).
+        builder.Property(p => p.AuthCredentials)
+            .HasColumnName("auth_credentials")
+            .HasColumnType("text")
+            .IsRequired(false);
+
         builder.Property(p => p.CreatedAt)
             .HasDefaultValueSql("NOW()")
             .ValueGeneratedOnAdd();

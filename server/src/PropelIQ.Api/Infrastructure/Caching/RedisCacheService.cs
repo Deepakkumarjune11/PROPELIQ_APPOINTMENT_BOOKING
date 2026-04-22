@@ -36,9 +36,9 @@ public sealed class RedisCacheService : ICacheService
 
             return JsonSerializer.Deserialize<T>(value!);
         }
-        catch (RedisConnectionException)
+        catch (RedisException ex)
         {
-            _logger.LogWarning("Cache miss (Redis unavailable) for key {Key}", key);
+            _logger.LogWarning(ex, "Cache get skipped (Redis unavailable) for key {Key}", key);
             return default;
         }
     }
@@ -55,9 +55,9 @@ public sealed class RedisCacheService : ICacheService
             else
                 await db.StringSetAsync(key, json).ConfigureAwait(false);
         }
-        catch (RedisConnectionException)
+        catch (RedisException ex)
         {
-            _logger.LogWarning("Cache set skipped (Redis unavailable) for key {Key}", key);
+            _logger.LogWarning(ex, "Cache set skipped (Redis unavailable) for key {Key}", key);
         }
     }
 
@@ -69,9 +69,9 @@ public sealed class RedisCacheService : ICacheService
             var db = _redis.GetDatabase();
             await db.KeyDeleteAsync(key).ConfigureAwait(false);
         }
-        catch (RedisConnectionException)
+        catch (RedisException ex)
         {
-            _logger.LogWarning("Cache remove skipped (Redis unavailable) for key {Key}", key);
+            _logger.LogWarning(ex, "Cache remove skipped (Redis unavailable) for key {Key}", key);
         }
     }
 }
