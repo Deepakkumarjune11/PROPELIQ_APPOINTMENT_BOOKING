@@ -40,12 +40,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IIntakeSubmissionRepository, IntakeSubmissionRepository>();
         services.AddScoped<IAIPromptLogRepository, AIPromptLogRepository>();
 
-        // .NET Data Protection API — encrypts PHI columns at rest (DR-015, OWASP A02).
-        // SetApplicationName ensures keys produced in different environments are cross-compatible
-        // when the same key ring is shared (e.g., multiple API instances behind a load balancer).
-        services.AddDataProtection()
-                .SetApplicationName("PropelIQ");
-
         // Insurance validation options — loaded from appsettings.json:InsuranceReference (FR-009).
         services.Configure<InsuranceReferenceOptions>(
             configuration.GetSection(InsuranceReferenceOptions.SectionName));

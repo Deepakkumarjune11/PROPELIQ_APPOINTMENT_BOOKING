@@ -1,6 +1,6 @@
 // API client for POST /api/v1/patients/{patientId}/intake
 // Submits the collected intake answers with the active intake mode tag.
-const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? '';
+import api from '@/lib/api';
 
 export interface IntakeSubmissionRequest {
   /** Canonical question-answer map: questionId → free-text answer. */
@@ -17,18 +17,9 @@ export async function submitIntake(
   patientId: string,
   payload: IntakeSubmissionRequest,
 ): Promise<IntakeSubmissionResponse> {
-  const response = await fetch(
-    `${BASE_URL}/api/v1/patients/${encodeURIComponent(patientId)}/intake`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    },
+  const response = await api.post<IntakeSubmissionResponse>(
+    `/api/v1/patients/${encodeURIComponent(patientId)}/intake`,
+    payload,
   );
-
-  if (!response.ok) {
-    throw new Error(`Intake submission failed with status ${response.status}`);
-  }
-
-  return response.json() as Promise<IntakeSubmissionResponse>;
+  return response.data;
 }

@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 
 import { type AvailabilitySlot, fetchAvailability } from '@/api/availability';
 
-// staleTime matches Redis TTL (60 s) per AC-2 — prevents redundant re-fetches within cache window.
-const STALE_TIME_MS = 60_000;
+// staleTime: 0 — always fetch fresh availability; slots change in real time.
+const STALE_TIME_MS = 0;
 
 export function useAvailability(startDate: string, endDate: string) {
   const { data, isLoading, isError, refetch } = useQuery<AvailabilitySlot[], Error>({

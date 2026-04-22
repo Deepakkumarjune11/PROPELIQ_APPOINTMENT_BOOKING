@@ -79,7 +79,7 @@ export default function WalkInBookingPage() {
   // ── Walk-in mutation ─────────────────────────────────────────────────────
   const { mutate: submitBooking, isLoading: isSubmitting } = useBookWalkIn({
     onSuccess: (message, severity) => showSnack(message, severity),
-    onError: () => showSnack('Walk-in booking failed. Please try again.', 'error'),
+    onError: (detail) => showSnack(detail, 'error'),
   });
 
   // ── Show "Create new patient" only when search is active but returns nothing ──
@@ -171,7 +171,11 @@ export default function WalkInBookingPage() {
           loading={isSearching}
           inputValue={inputValue}
           value={selectedPatient}
-          onInputChange={(_e, value) => {
+          onInputChange={(_e, value, reason) => {
+            // "reset" fires after an option is selected — MUI sets the input to
+            // getOptionLabel(). We already set inputValue in onChange; skip here
+            // to prevent re-triggering a search with the full display label.
+            if (reason === 'reset') return;
             setInputValue(value);
             // Clear selection when user edits the field
             if (selectedPatient && value !== selectedPatient.fullName) {

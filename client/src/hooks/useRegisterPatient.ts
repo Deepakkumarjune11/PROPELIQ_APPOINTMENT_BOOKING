@@ -1,6 +1,7 @@
 // React Query mutation hook for POST /api/v1/appointments/{slotId}/register.
-// Handles success navigation, 409 email-conflict mapping, 409 slot-conflict rollback (UXR-404),
-// and generic API errors.
+// Handles 409 email-conflict mapping, 409 slot-conflict rollback (UXR-404), and generic API errors.
+// Navigation is intentionally NOT performed here — the calling page controls when to proceed so it
+// can show the insurance status check result before advancing to intake (AC-2, AC-3).
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
@@ -35,7 +36,8 @@ export function useRegisterPatient({ onEmailConflict, onError }: UseRegisterPati
       setPatientDetails({ ...variables.payload, patientId: data.patientId });
       // Store the appointment ID for PDF download and calendar sync on the confirmation screen
       if (data.appointmentId) setAppointmentId(data.appointmentId);
-      navigate('/appointments/intake/manual');
+      // Navigation is deliberately omitted here — the page shows InsuranceStatusAlert
+      // and lets the patient confirm before proceeding to intake.
     },
 
     onError: (error) => {

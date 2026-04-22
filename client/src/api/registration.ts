@@ -1,6 +1,6 @@
 // API client for POST /api/v1/appointments/{slotId}/register
 // Creates or identifies a patient record and associates it with the selected slot.
-const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? '';
+import api from '@/lib/api';
 
 export interface PatientRegistrationRequest {
   email: string;
@@ -39,21 +39,9 @@ export async function registerPatient(
   slotId: string,
   payload: PatientRegistrationRequest,
 ): Promise<PatientRegistrationResponse> {
-  const response = await fetch(`${BASE_URL}/api/v1/appointments/${encodeURIComponent(slotId)}/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    let body: unknown;
-    try {
-      body = await response.json();
-    } catch {
-      // Non-JSON error body — ignore
-    }
-    throw new RegistrationApiError(response.status, `Registration failed with status ${response.status}`, body);
-  }
-
-  return response.json() as Promise<PatientRegistrationResponse>;
+  const response = await api.post<PatientRegistrationResponse>(
+    `/api/v1/appointments/${encodeURIComponent(slotId)}/register`,
+    payload,
+  );
+  return response.data;
 }

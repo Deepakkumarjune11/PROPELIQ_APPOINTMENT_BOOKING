@@ -2,24 +2,24 @@
 // Dispatches appropriate toast on success (booked vs wait-queue) then navigates to queue (US_016).
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import type { AxiosError } from 'axios';
 
 import {
   type WalkInBookingRequest,
   type WalkInBookingResult,
-  StaffApiError,
   bookWalkIn,
 } from '@/api/staff';
 
 interface UseBookWalkInOptions {
   /** Called on any outcome so the page can show the appropriate Snackbar message. */
   onSuccess: (message: string, severity: 'success' | 'info') => void;
-  onError: () => void;
+  onError: (detail: string) => void;
 }
 
 export function useBookWalkIn({ onSuccess, onError }: UseBookWalkInOptions) {
   const navigate = useNavigate();
 
-  return useMutation<WalkInBookingResult, StaffApiError, WalkInBookingRequest>({
+  return useMutation<WalkInBookingResult, AxiosError<{ detail?: string }>, WalkInBookingRequest>({
     mutationFn: bookWalkIn,
 
     onSuccess: (result) => {
@@ -34,8 +34,9 @@ export function useBookWalkIn({ onSuccess, onError }: UseBookWalkInOptions) {
       void navigate('/staff/queue');
     },
 
-    onError: () => {
-      onError();
+    onError: (error) => {
+      const detail = error.response?.data?.detail ?? 'Walk-in booking failed. Please try again.';
+      onError(detail);
     },
   });
 }

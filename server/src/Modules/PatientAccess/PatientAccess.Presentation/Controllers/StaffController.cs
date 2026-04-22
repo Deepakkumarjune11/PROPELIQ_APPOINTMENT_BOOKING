@@ -21,7 +21,7 @@ namespace PatientAccess.Presentation.Controllers;
 ///   <c>api/v1/staff/dashboard/summary</c>
 /// </summary>
 [ApiController]
-[Authorize(Roles = "Staff")]
+[Authorize(Roles = "Staff,Admin")]
 public sealed class StaffController : ControllerBase
 {
     private readonly IMediator _mediator;

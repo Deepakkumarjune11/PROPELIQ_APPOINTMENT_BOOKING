@@ -2,12 +2,7 @@
 // POST /api/v1/documents/upload — multipart/form-data, returns DocumentRecord
 // GET  /api/v1/documents        — returns DocumentRecord[]
 // DELETE /api/v1/documents/{id} — soft delete
-//
-// Axios is used exclusively for POST /upload to support onUploadProgress callbacks
-// (XMLHttpRequest-backed). GET and DELETE use the shared fetch pattern (project standard).
-import axios from 'axios';
-
-const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? '';
+import api from '@/lib/api';
 
 // ── Domain types ─────────────────────────────────────────────────────────────
 
@@ -71,32 +66,7 @@ export async function validatePdf(
   return 'ok';
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 
-/** Reads the JWT Bearer token from the Zustand auth-store persisted in localStorage. */
-function getAuthToken(): string | null {
-  const raw = localStorage.getItem('auth-store');
-  if (raw) {
-    try {
-      const parsed = JSON.parse(raw) as { state?: { token?: string } };
-      return parsed?.state?.token ?? null;
-    } catch {
-      // Fall through
-    }
-  }
-  return null;
-}
-
-function getJsonHeaders(): HeadersInit {
-  const token = getAuthToken();
-  const headers: HeadersInit = { 'Content-Type': 'application/json' };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
-  return headers;
-}
-
-async function assertOk(res: Response, context: string): Promise<void> {
-  if (!res.ok) throw new DocumentApiError(res.status, `${context} failed (${res.status})`);
-}
 
 // ── API functions ─────────────────────────────────────────────────────────────
 
@@ -115,23 +85,15 @@ export async function uploadDocument(
   formData.append('file', file);
   if (encounterId) formData.append('encounterId', encounterId);
 
-  const token = getAuthToken();
-  const headers: Record<string, string> = {};
-  if (token) headers['Authorization'] = `Bearer ${token}`;
   // Do NOT set Content-Type — axios sets multipart boundary automatically.
-
-  const response = await axios.post<DocumentRecord>(
-    `${BASE_URL}/api/v1/documents/upload`,
-    formData,
-    {
-      headers,
-      onUploadProgress(progressEvent) {
-        const total = progressEvent.total ?? file.size;
-        const pct = Math.round((progressEvent.loaded / total) * 100);
-        onProgress(pct);
-      },
+  // Authorization header is injected by the api interceptor in lib/api.ts.
+  const response = await api.post<DocumentRecord>('/api/v1/documents/upload', formData, {
+    onUploadProgress(progressEvent) {
+      const total = progressEvent.total ?? file.size;
+      const pct = Math.round((progressEvent.loaded / total) * 100);
+      onProgress(pct);
     },
-  );
+  });
 
   return response.data;
 }
@@ -141,11 +103,8 @@ export async function uploadDocument(
  * GET /api/v1/documents
  */
 export async function getDocuments(): Promise<DocumentRecord[]> {
-  const res = await fetch(`${BASE_URL}/api/v1/documents`, {
-    headers: getJsonHeaders(),
-  });
-  await assertOk(res, 'Get documents');
-  return res.json() as Promise<DocumentRecord[]>;
+  const response = await api.get<DocumentRecord[]>('/api/v1/documents');
+  return response.data;
 }
 
 /**
@@ -153,12 +112,5 @@ export async function getDocuments(): Promise<DocumentRecord[]> {
  * DELETE /api/v1/documents/{id}
  */
 export async function deleteDocument(documentId: string): Promise<void> {
-  const res = await fetch(
-    `${BASE_URL}/api/v1/documents/${encodeURIComponent(documentId)}`,
-    {
-      method: 'DELETE',
-      headers: getJsonHeaders(),
-    },
-  );
-  await assertOk(res, 'Delete document');
+  await api.delete(`/api/v1/documents/${encodeURIComponent(documentId)}`);
 }

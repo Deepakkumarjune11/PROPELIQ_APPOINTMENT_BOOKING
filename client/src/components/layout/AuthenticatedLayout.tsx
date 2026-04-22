@@ -60,7 +60,8 @@ export default function AuthenticatedLayout() {
   // Derive display flags from breakpoint + role
   const showFullSidebar = isDesktop && isStaffOrAdmin;   // persistent 240px drawer
   const showIconRail    = isTablet  && isStaffOrAdmin;   // persistent 64px icon-rail
-  const showBottomNav   = !isDesktop && !isTablet;        // < 900px — bottom tabs
+  // Patients always see BottomNav (no sidebar), staff/admin see it on mobile only (<900px).
+  const showBottomNav   = !isStaffOrAdmin || (!isDesktop && !isTablet);
 
   // Swipe gesture spread props — wired to main content box on mobile (AC-4 UXR-203)
   const swipeHandlers = useSwipeGesture({

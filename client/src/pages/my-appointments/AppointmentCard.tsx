@@ -120,7 +120,7 @@ export default function AppointmentCard({ appointment }: AppointmentCardProps) {
           {!isConfirmed && !isOnWatchlist && (
             <Chip
               icon={<ScheduleIcon fontSize="small" />}
-              label={status.charAt(0).toUpperCase() + status.slice(1)}
+              label={String(status).charAt(0).toUpperCase() + String(status).slice(1)}
               size="small"
               variant="outlined"
             />

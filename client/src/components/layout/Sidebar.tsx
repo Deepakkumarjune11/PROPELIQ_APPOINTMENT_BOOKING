@@ -21,11 +21,11 @@ export const SIDEBAR_WIDTH = 240;
 export const ICON_RAIL_WIDTH = 64;
 
 const NAV_ITEMS = [
-  { label: 'Dashboard', icon: <DashboardIcon />, path: '/', navId: undefined },
-  { label: 'Walk-in',   icon: <PersonAddIcon />,  path: '/walkin',   navId: 'nav-book' },
-  { label: 'Queue',     icon: <ListIcon />,        path: '/queue',    navId: undefined },
-  { label: 'Verify',    icon: <FactCheckIcon />,   path: '/verify',   navId: undefined },
-  { label: 'Metrics',   icon: <BarChartIcon />,    path: '/metrics',  navId: 'nav-documents' },
+  { label: 'Dashboard', icon: <DashboardIcon />, path: '/staff/dashboard', navId: undefined },
+  { label: 'Walk-in',   icon: <PersonAddIcon />,  path: '/staff/walk-in',  navId: 'nav-book' },
+  { label: 'Queue',     icon: <ListIcon />,        path: '/staff/queue',    navId: undefined },
+  { label: 'Verify',    icon: <FactCheckIcon />,   path: '/staff/patients', navId: undefined },
+  { label: 'Metrics',   icon: <BarChartIcon />,    path: '/metrics',        navId: 'nav-documents' },
 ] as const;
 
 interface SidebarProps {

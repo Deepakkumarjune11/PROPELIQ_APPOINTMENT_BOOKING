@@ -10,6 +10,7 @@ public sealed class DevelopmentDataSeeder : IDataSeeder
     private readonly PropelIQDbContext _db;
     private readonly IPasswordHasher<Staff> _staffHasher;
     private readonly IPasswordHasher<Admin> _adminHasher;
+    private readonly IPasswordHasher<Patient> _patientHasher;
 
     // Well-known development seed password — documented in developer README.
     // Never used in production (seeder is env-gated). OWASP A02 compliance:
@@ -19,11 +20,13 @@ public sealed class DevelopmentDataSeeder : IDataSeeder
     public DevelopmentDataSeeder(
         PropelIQDbContext db,
         IPasswordHasher<Staff> staffHasher,
-        IPasswordHasher<Admin> adminHasher)
+        IPasswordHasher<Admin> adminHasher,
+        IPasswordHasher<Patient> patientHasher)
     {
         _db = db;
         _staffHasher = staffHasher;
         _adminHasher = adminHasher;
+        _patientHasher = patientHasher;
     }
 
     public async Task SeedAsync(CancellationToken cancellationToken = default)
@@ -86,28 +89,31 @@ public sealed class DevelopmentDataSeeder : IDataSeeder
         if (await _db.Patients.AnyAsync(p => p.Email == "seed-patient-1@dev.local", ct))
             return;
 
-        _db.Patients.AddRange(
-            new Patient
-            {
-                Id = Guid.NewGuid(),
-                Email = "seed-patient-1@dev.local",
-                Name = "Alice Dev",
-                Dob = new DateOnly(1985, 4, 10),
-                Phone = "555-0001",
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            },
-            new Patient
-            {
-                Id = Guid.NewGuid(),
-                Email = "seed-patient-2@dev.local",
-                Name = "Bob Dev",
-                Dob = new DateOnly(1972, 11, 23),
-                Phone = "555-0002",
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            }
-        );
+        var alice = new Patient
+        {
+            Id = Guid.NewGuid(),
+            Email = "seed-patient-1@dev.local",
+            Name = "Alice Dev",
+            Dob = new DateOnly(1985, 4, 10),
+            Phone = "555-0001",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+        alice.AuthCredentials = _patientHasher.HashPassword(alice, SeedPassword);
+
+        var bob = new Patient
+        {
+            Id = Guid.NewGuid(),
+            Email = "seed-patient-2@dev.local",
+            Name = "Bob Dev",
+            Dob = new DateOnly(1972, 11, 23),
+            Phone = "555-0002",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+        bob.AuthCredentials = _patientHasher.HashPassword(bob, SeedPassword);
+
+        _db.Patients.AddRange(alice, bob);
     }
 
     private async Task SeedAppointmentsAsync(CancellationToken ct)

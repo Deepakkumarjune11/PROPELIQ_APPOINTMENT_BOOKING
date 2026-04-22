@@ -27,12 +27,13 @@ public sealed class PatientStaffRepository : IPatientStaffRepository
     {
         var pattern = $"%{query}%";
 
+        // Phone and Name are PHI-encrypted (ciphertext in the DB) — ILike against
+        // ciphertext never matches a plaintext pattern. Search by Email only (unencrypted).
+        // OrderBy Email (plain) to avoid sorting by ciphertext.
         return await _db.Patients
             .AsNoTracking()
-            .Where(p => !p.IsDeleted &&
-                        (EF.Functions.ILike(p.Email, pattern) ||
-                         EF.Functions.ILike(p.Phone, pattern)))
-            .OrderBy(p => p.Name)
+            .Where(p => EF.Functions.ILike(p.Email, pattern))
+            .OrderBy(p => p.Email)
             .Take(MaxResults)
             .Select(p => new PatientSearchResultDto(p.Id, p.Name, p.Email, p.Phone))
             .ToListAsync(cancellationToken);

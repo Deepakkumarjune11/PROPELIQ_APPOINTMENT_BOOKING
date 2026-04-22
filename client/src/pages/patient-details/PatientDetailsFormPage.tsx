@@ -5,9 +5,15 @@
 // UXR-502: All fields validate inline on blur; submit disabled until valid.
 // UXR-101: Keyboard accessible throughout.
 // UXR-102: 44px min touch targets on action buttons.
+// After successful registration the insurance check result is shown and the patient
+// must explicitly click "Continue to intake" before advancing — this ensures the alert
+// is actually seen (AC-2, AC-3).
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
@@ -15,13 +21,12 @@ import Typography from '@mui/material/Typography';
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 
-import type { PatientRegistrationRequest } from '@/api/registration';
+import type { PatientRegistrationRequest, PatientRegistrationResponse } from '@/api/registration';
 import BookingProgressStepper from '@/pages/availability/components/BookingProgressStepper';
 import { useBookingStore } from '@/stores/booking-store';
 import { useRegisterPatient } from '@/hooks/useRegisterPatient';
 import InsuranceStatusAlert from './components/InsuranceStatusAlert';
 import PatientDetailsForm from './components/PatientDetailsForm';
-import type { PatientRegistrationResponse } from '@/api/registration';
 
 export default function PatientDetailsFormPage() {
   const navigate = useNavigate();
@@ -31,6 +36,9 @@ export default function PatientDetailsFormPage() {
   const [apiError, setApiError] = useState<string | null>(null);
   const [insuranceStatus, setInsuranceStatus] =
     useState<PatientRegistrationResponse['insuranceStatus'] | null>(null);
+  // True once the registration API call succeeds — switches the view to the
+  // insurance-status + "Continue" state so the patient can review before intake.
+  const [registrationComplete, setRegistrationComplete] = useState(false);
 
   // Guard: no slot selected → send back to step 1
   if (!selectedSlot) {
@@ -55,7 +63,9 @@ export default function PatientDetailsFormPage() {
       { slotId: selectedSlot.id, payload },
       {
         onSuccess: (data) => {
+          // Show insurance check result; patient clicks Continue to advance to intake.
           setInsuranceStatus(data.insuranceStatus);
+          setRegistrationComplete(true);
         },
       },
     );
@@ -63,6 +73,10 @@ export default function PatientDetailsFormPage() {
 
   const handleBack = () => {
     navigate('/appointments/slot-selection');
+  };
+
+  const handleContinueToIntake = () => {
+    navigate('/appointments/intake/manual');
   };
 
   return (
@@ -96,50 +110,79 @@ export default function PatientDetailsFormPage() {
         {/* UXR-403: Progress stepper — step 2 (Details) active */}
         <BookingProgressStepper activeStep={2} />
 
-        <Stack spacing={1} sx={{ mb: 4 }}>
-          <Typography variant="h5" component="h1">
-            Your information
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            We'll create your account to book this appointment
-          </Typography>
-        </Stack>
+        {registrationComplete ? (
+          /* ── Post-registration: show insurance result + Continue button ────────── */
+          <Stack spacing={3}>
+            <Alert
+              severity="success"
+              icon={<CheckCircleOutlineIcon fontSize="inherit" />}
+              sx={{ mt: 2 }}
+            >
+              Your details have been saved successfully.
+            </Alert>
 
-        {/* Generic API error */}
-        {apiError && (
-          <Alert
-            severity="error"
-            sx={{ mb: 3 }}
-            action={
-              <Typography
-                component="button"
-                variant="body2"
-                onClick={() => setApiError(null)}
-                sx={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: 'error.main',
-                  fontWeight: 500,
-                }}
-              >
-                Retry
+            {/* Insurance validation result — non-blocking (AC-2, AC-3) */}
+            {insuranceStatus && <InsuranceStatusAlert insuranceStatus={insuranceStatus} />}
+
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              endIcon={<ArrowForwardIcon />}
+              onClick={handleContinueToIntake}
+              fullWidth
+              sx={{ minHeight: 48 }}
+              aria-label="Continue to intake questionnaire"
+            >
+              Continue to intake
+            </Button>
+          </Stack>
+        ) : (
+          /* ── Default: registration form ─────────────────────────────────────────── */
+          <>
+            <Stack spacing={1} sx={{ mb: 4 }}>
+              <Typography variant="h5" component="h1">
+                Your information
               </Typography>
-            }
-          >
-            {apiError}
-          </Alert>
+              <Typography variant="body2" color="text.secondary">
+                We'll create your account to book this appointment
+              </Typography>
+            </Stack>
+
+            {/* Generic API error */}
+            {apiError && (
+              <Alert
+                severity="error"
+                sx={{ mb: 3 }}
+                action={
+                  <Typography
+                    component="button"
+                    variant="body2"
+                    onClick={() => setApiError(null)}
+                    sx={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: 'error.main',
+                      fontWeight: 500,
+                    }}
+                  >
+                    Retry
+                  </Typography>
+                }
+              >
+                {apiError}
+              </Alert>
+            )}
+
+            <PatientDetailsForm
+              isLoading={isLoading}
+              emailConflictError={emailConflictError}
+              onSubmit={handleSubmit}
+              onBack={handleBack}
+            />
+          </>
         )}
-
-        {/* Insurance validation result — non-blocking (AC-2, AC-3) */}
-        {insuranceStatus && <InsuranceStatusAlert insuranceStatus={insuranceStatus} />}
-
-        <PatientDetailsForm
-          isLoading={isLoading}
-          emailConflictError={emailConflictError}
-          onSubmit={handleSubmit}
-          onBack={handleBack}
-        />
       </Container>
     </Box>
   );

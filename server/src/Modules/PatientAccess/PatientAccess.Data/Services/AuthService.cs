@@ -25,6 +25,7 @@ public sealed class AuthService(
     IDistributedCache cache,
     IPasswordHasher<Staff> staffHasher,
     IPasswordHasher<Admin> adminHasher,
+    IPasswordHasher<Patient> patientHasher,
     ILogger<AuthService> logger) : IAuthService
 {
     private static readonly JwtSecurityTokenHandler TokenHandler = new();
@@ -130,8 +131,7 @@ public sealed class AuthService(
     // ── Private helpers ──────────────────────────────────────────────────────
 
     /// <summary>
-    /// Resolves credentials by querying Staff (by Username), then Admin (by Username).
-    /// Patient authentication is not yet supported (no AuthCredentials field on Patient).
+    /// Resolves credentials by querying Staff (by Username), Admin (by Username), then Patient (by Email).
     /// Returns <c>(Guid.Empty, "", "")</c> when no matching active principal is found.
     /// </summary>
     private async Task<(Guid UserId, string Role, string PasswordHash)> ResolveCredentialAsync(
@@ -149,6 +149,13 @@ public sealed class AuthService(
         if (admin is not null)
             return (admin.Id, "Admin", admin.AuthCredentials);
 
+        // 3. Patient — identifier maps to Email; must have a password set
+        var patient = await db.Patients
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(p => p.Email == identifier && !p.IsDeleted && p.AuthCredentials != null, ct);
+        if (patient is not null)
+            return (patient.Id, "Patient", patient.AuthCredentials!);
+
         return (Guid.Empty, string.Empty, string.Empty);
     }
 
@@ -157,6 +164,9 @@ public sealed class AuthService(
     {
         if (role == "Admin")
             return adminHasher.VerifyHashedPassword(new Admin(), hash, providedPassword);
+
+        if (role == "Patient")
+            return patientHasher.VerifyHashedPassword(new Patient(), hash, providedPassword);
 
         // All StaffRole enum values (FrontDesk, CallCenter, ClinicalReviewer) share one hasher.
         return staffHasher.VerifyHashedPassword(new Staff(), hash, providedPassword);
@@ -169,10 +179,15 @@ public sealed class AuthService(
             new SymmetricSecurityKey(keyBytes),
             SecurityAlgorithms.HmacSha256);
 
-        // Normalize to coarse-grained claim: "Admin" stays "Admin";
+        // Normalize to coarse-grained claim: "Admin" stays "Admin"; "Patient" stays "Patient";
         // FrontDesk / CallCenter / ClinicalReviewer all become "Staff"
         // so [Authorize(Roles = "Staff")] on StaffController passes correctly.
-        var roleClaim = role == "Admin" ? "Admin" : "Staff";
+        var roleClaim = role switch
+        {
+            "Admin"   => "Admin",
+            "Patient" => "Patient",
+            _         => "Staff",
+        };
 
         var claims = new[]
         {
