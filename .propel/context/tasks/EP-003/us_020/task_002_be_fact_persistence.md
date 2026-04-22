@@ -266,8 +266,8 @@ dotnet test --filter "Category=Unit"
 
 ## Implementation Checklist
 
-- [ ] Create `IFactPersistenceService` with `PersistAsync(documentId, facts, ct)` signature
-- [ ] Implement `FactPersistenceService`: confidence threshold split → idempotent soft-delete of old rows via `ExecuteUpdateAsync` → encrypt `value` with `IDataProtector` (DR-015) → `AddRange` confident facts → `ExecuteUpdateAsync` status → `SaveChangesAsync` → `CommitAsync` → AuditLog → enqueue `PatientView360UpdateJob` if `Completed`
-- [ ] Create `PatientView360UpdateJob` stub with `[Queue("view360-update")]` and `[AutomaticRetry(Attempts=3)]`; body logs `TODO US_021`
-- [ ] Register `IFactPersistenceService` → `FactPersistenceService` and `view360-update` queue in `ServiceCollectionExtensions.cs`
-- [ ] Verify partial confidence split logic: `Completed` status requires at least 1 fact with score ≥ 0.70; `ManualReview` only when ALL facts below threshold
+- [x] Create `IFactPersistenceService` with `PersistAsync(documentId, facts, ct)` signature
+- [x] Implement `FactPersistenceService`: confidence threshold split → idempotent hard-delete of old rows via `ExecuteDeleteAsync` → encrypt `value` with `IDataProtector` (DR-015) → `AddRange` confident facts → `ExecuteUpdateAsync` status → `SaveChangesAsync` → `CommitAsync` → AuditLog → enqueue `PatientView360UpdateJob` if `Completed`
+- [x] Create `PatientView360UpdateJob` stub with `[Queue("view360-update")]` and `[AutomaticRetry(Attempts=3)]`; body logs `TODO US_021`
+- [x] Register `IFactPersistenceService` → `FactPersistenceService` and `PatientView360UpdateJob` in `ServiceCollectionExtensions.cs`
+- [x] Verify partial confidence split logic: `Completed` status requires at least 1 fact with score ≥ 0.70; `ManualReview` only when ALL facts below threshold

@@ -322,13 +322,13 @@ npm run build
 
 ## Implementation Checklist
 
-- [ ] Create `client/src/api/staff.ts` with typed `PatientSearchResult`, `DashboardSummary`, `WalkInBookingResult`, and API functions
-- [ ] Create `client/src/hooks/usePatientSearch.ts` with `enabled: query.length >= 2` guard and 300ms debounce in consumer
-- [ ] Create `client/src/hooks/useBookWalkIn.ts` with success/error/wait-queue toast callbacks and `/staff/queue` navigation
-- [ ] Create `client/src/components/guards/StaffRouteGuard.tsx` checking `auth-store.role`; redirect on non-staff
-- [ ] Create `client/src/pages/staff/dashboard/DashboardSummaryCard.tsx` reusable count card
-- [ ] Create `client/src/pages/staff/dashboard/StaffDashboardPage.tsx` with all 4 states + breadcrumb
-- [ ] Create `client/src/pages/staff/walk-in/WalkInBookingPage.tsx` with autocomplete, inline create form, visit type select, validation
-- [ ] Modify `client/src/App.tsx` to add `/staff/dashboard` and `/staff/walk-in` routes inside `<StaffRouteGuard>`
-- [ ] **[UI Tasks - MANDATORY]** Reference wireframes from Design References table during implementation
-- [ ] **[UI Tasks - MANDATORY]** Validate UI matches wireframes before marking task complete
+- [x] Create `client/src/api/staff.ts` with typed `PatientSearchResult`, `DashboardSummary`, `WalkInBookingResult`, and API functions
+- [x] Create `client/src/hooks/usePatientSearch.ts` with `enabled: query.length >= 2` guard and 300ms debounce in consumer
+- [x] Create `client/src/hooks/useBookWalkIn.ts` with success/error/wait-queue toast callbacks and `/staff/queue` navigation
+- [x] Create `client/src/components/guards/StaffRouteGuard.tsx` checking `auth-store.role`; redirect on non-staff
+- [x] Create `client/src/pages/staff/dashboard/DashboardSummaryCard.tsx` reusable count card
+- [x] Create `client/src/pages/staff/dashboard/StaffDashboardPage.tsx` with all 4 states + breadcrumb
+- [x] Create `client/src/pages/staff/walk-in/WalkInBookingPage.tsx` with autocomplete, inline create form, visit type select, validation
+- [x] Modify `client/src/App.tsx` to add `/staff/dashboard` and `/staff/walk-in` routes inside `<StaffRouteGuard>`
+- [x] **[UI Tasks - MANDATORY]** Reference wireframes from Design References table during implementation
+- [x] **[UI Tasks - MANDATORY]** Validate UI matches wireframes before marking task complete

@@ -2,6 +2,22 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ClinicalIntelligence.Domain\ClinicalIntelligence.Domain.csproj" />
+    <!-- ExtractionStatus enum lives in PatientAccess.Domain (shared across bounded contexts) -->
+    <ProjectReference Include="..\..\PatientAccess\PatientAccess.Domain\PatientAccess.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.AI.OpenAI" Version="2.*" />
+    <PackageReference Include="Azure.Identity" Version="1.12.*" />
+    <PackageReference Include="Hangfire.Core" Version="1.8.*" />
+    <PackageReference Include="MediatR" Version="12.*" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.*" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.*" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.*" />
+    <PackageReference Include="PdfPig" Version="0.1.14" />
+    <PackageReference Include="Polly" Version="8.*" />
+    <PackageReference Include="SharpToken" Version="1.0.28" />
+    <PackageReference Include="StackExchange.Redis" Version="2.*" />
   </ItemGroup>
 
   <PropertyGroup>

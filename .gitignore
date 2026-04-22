@@ -20,6 +20,12 @@ client/.DS_Store
 client/tsconfig.tsbuildinfo
 client/*.tsbuildinfo
 
+# tsc compiled vite config output — Vite resolves .js before .ts, so these
+# must never land next to vite.config.ts (outDir redirects them here instead)
+client/vite.config.js
+client/vite.config.d.ts
+client/.tsc-node-out/
+
 # ============================================================
 # SERVER — .NET / C#
 # ============================================================
@@ -78,3 +84,9 @@ desktop.ini
 *.tmp
 *.swp
 *.bak
+
+# ============================================================
+# BACKUP SCRIPTS — secrets
+# ============================================================
+# Never commit actual backup credentials — use .env.example as template
+scripts/backup/.env

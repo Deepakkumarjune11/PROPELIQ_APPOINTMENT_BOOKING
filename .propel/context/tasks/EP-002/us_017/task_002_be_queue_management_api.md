@@ -313,11 +313,11 @@ dotnet test --filter "Category=Unit"
 
 ## Implementation Checklist
 
-- [ ] Add `InRoom` and `Left` values to `AppointmentStatus` enum; verify EF Core `HasConversion<string>()` covers new values
-- [ ] Create `QueueEntryDto` record with 6 fields
-- [ ] Implement `GetSameDayQueueQuery` handler with Redis cache check → 30s TTL rebuild; filter out `Left`/`Completed` statuses
-- [ ] Implement `ReorderQueueCommand` handler using `ExecuteUpdateAsync` bulk update + Redis invalidation + `IHubContext<QueueHub>` broadcast
-- [ ] Implement `UpdateAppointmentStatusCommand` handler with status whitelist validation, AuditLog, Redis invalidation, and SignalR broadcast
-- [ ] Create `QueueHub` with `[Authorize(Roles = "Staff")]`, `OnConnectedAsync` adds to `QueueStaff` group
-- [ ] Add `GET /api/v1/staff/queue` and `PATCH /api/v1/staff/queue/reorder` to `StaffController`
-- [ ] Register `AddSignalR()` and `app.MapHub<QueueHub>("/hubs/queue")` in `Program.cs`
+- [x] Add `InRoom` and `Left` values to `AppointmentStatus` enum; verify EF Core `HasConversion<string>()` covers new values
+- [x] Create `QueueEntryDto` record with 6 fields
+- [x] Implement `GetSameDayQueueQuery` handler with Redis cache check → 30s TTL rebuild; filter out `Left`/`Completed` statuses
+- [x] Implement `ReorderQueueCommand` handler using `ExecuteUpdateAsync` bulk update + Redis invalidation + `IHubContext<QueueHub>` broadcast
+- [x] Implement `UpdateAppointmentStatusCommand` handler with status whitelist validation, AuditLog, Redis invalidation, and SignalR broadcast
+- [x] Create `QueueHub` with `[Authorize(Roles = "Staff")]`, `OnConnectedAsync` adds to `QueueStaff` group
+- [x] Add `GET /api/v1/staff/queue` and `PATCH /api/v1/staff/queue/reorder` to `StaffController`
+- [x] Register `AddSignalR()` and `app.MapHub<QueueHub>("/hubs/queue")` in `Program.cs`

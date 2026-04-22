@@ -277,10 +277,10 @@ dotnet test --filter "Category=Unit"
 
 ## Implementation Checklist
 
-- [ ] Create `ExtractionDocumentStatus` enum with 5 values: `Queued`, `Processing`, `Completed`, `ManualReview`, `Failed`
-- [ ] Create `ClinicalDocument` entity: private setters, constructor validating non-null `patientId`/`fileUri`, `SetExtractionStatus()` and `SoftDelete()` domain methods
-- [ ] Create `ClinicalDocumentConfiguration` with `HasConversion<string>()` on `ExtractionStatus`, `HasMaxLength` on text columns, FK `Restrict` for Patient, `SetNull` for optional Encounter
-- [ ] Add `DbSet<ClinicalDocument> ClinicalDocuments` to `AppDbContext`
-- [ ] Generate EF Core migration `CreateClinicalDocumentsTable`; verify scaffold includes all columns with correct nullability
-- [ ] Replace EF-generated `CreateIndex` calls with `migrationBuilder.Sql("CREATE INDEX CONCURRENTLY IF NOT EXISTS ...")` for both indexes (NFR-012 zero-downtime)
-- [ ] Implement `Down()` with `DROP INDEX IF EXISTS` calls before `DropTable` to avoid dependency errors
+- [x] Create `ExtractionDocumentStatus` enum with 5 values: `Queued`, `Processing`, `Completed`, `ManualReview`, `Failed`
+- [x] Create `ClinicalDocument` entity: private setters, constructor validating non-null `patientId`/`fileUri`, `SetExtractionStatus()` and `SoftDelete()` domain methods
+- [x] Create `ClinicalDocumentConfiguration` with `HasConversion<string>()` on `ExtractionStatus`, `HasMaxLength` on text columns, FK `Restrict` for Patient, `SetNull` for optional Encounter
+- [x] Add `DbSet<ClinicalDocument> ClinicalDocuments` to `AppDbContext`
+- [x] Generate EF Core migration `CreateClinicalDocumentsTable`; verify scaffold includes all columns with correct nullability
+- [x] Replace EF-generated `CreateIndex` calls with `migrationBuilder.Sql("CREATE INDEX CONCURRENTLY IF NOT EXISTS ...")` for both indexes (NFR-012 zero-downtime)
+- [x] Implement `Down()` with `DROP INDEX IF EXISTS` calls before `DropTable` to avoid dependency errors

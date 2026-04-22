@@ -230,13 +230,13 @@ npm run build
 
 ## Implementation Checklist
 
-- [ ] Add `/appointments/patient-details` route to `App.tsx` with `selectedSlot` null-guard redirect
-- [ ] Extend `booking-store.ts` with `patientDetails: PatientDetailsFields | null` and `setPatientDetails` action
-- [ ] Create `client/src/api/registration.ts` — typed `registerPatient(slotId, payload)` function
-- [ ] Create `client/src/hooks/useRegisterPatient.ts` — `useMutation` with 409 error mapping and success navigation
-- [ ] Create `PatientDetailsForm.tsx` — 5 TextFields + 1 DatePicker + 1 Select, all with blur-triggered inline validation, submit disabled until valid (UXR-502)
-- [ ] Implement phone regex inline validation with guidance message per edge case
-- [ ] Create `InsuranceStatusAlert.tsx` — maps `insuranceStatus` → MUI Alert severity (warning/info) or null
-- [ ] Create `PatientDetailsFormPage.tsx` — compose form, stepper (step 3, UXR-403), insurance alert, error alert
+- [X] Add `/appointments/patient-details` route to `App.tsx` with `selectedSlot` null-guard redirect
+- [X] Extend `booking-store.ts` with `patientDetails: PatientDetailsFields | null` and `setPatientDetails` action
+- [X] Create `client/src/api/registration.ts` — typed `registerPatient(slotId, payload)` function
+- [X] Create `client/src/hooks/useRegisterPatient.ts` — `useMutation` with 409 error mapping and success navigation
+- [X] Create `PatientDetailsForm.tsx` — 5 TextFields + 1 DatePicker + 1 Select, all with blur-triggered inline validation, submit disabled until valid (UXR-502)
+- [X] Implement phone regex inline validation with guidance message per edge case
+- [X] Create `InsuranceStatusAlert.tsx` — maps `insuranceStatus` → MUI Alert severity (warning/info) or null
+- [X] Create `PatientDetailsFormPage.tsx` — compose form, stepper (step 3, UXR-403), insurance alert, error alert
 - [ ] **[UI Tasks - MANDATORY]** Reference wireframe from Design References table during implementation
 - [ ] **[UI Tasks - MANDATORY]** Validate UI matches wireframe at 375px, 768px, 1440px before marking task complete

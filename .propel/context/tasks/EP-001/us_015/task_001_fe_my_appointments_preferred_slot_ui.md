@@ -306,12 +306,12 @@ npm run build
 
 ## Implementation Checklist
 
-- [ ] Create `client/src/api/appointments.ts` with typed `AppointmentDto`, `getAppointments`, `getSlotAvailability`, `registerPreferredSlot`
-- [ ] Create `client/src/hooks/useAppointments.ts` with 30s staleTime
-- [ ] Create `client/src/hooks/useRegisterPreferredSlot.ts` with success/error toast callbacks
-- [ ] Create `client/src/pages/my-appointments/AppointmentCard.tsx` with conditional status badge and "Select preferred slot" button
-- [ ] Create `client/src/pages/my-appointments/MyAppointmentsPage.tsx` with all 4 states (Default, Loading, Empty, Error)
-- [ ] Create `client/src/pages/preferred-slot/PreferredSlotSelectionPage.tsx` with `shouldDisableDate` logic and confirm/cancel flow
-- [ ] Modify `client/src/App.tsx` to add `/appointments` and `/appointments/:appointmentId/preferred-slot` routes (auth-guarded)
-- [ ] **[UI Tasks - MANDATORY]** Reference wireframes from Design References table during implementation
-- [ ] **[UI Tasks - MANDATORY]** Validate UI matches wireframe before marking task complete
+- [X] Create `client/src/api/appointments.ts` with typed `AppointmentDto`, `getAppointments`, `getSlotAvailability`, `registerPreferredSlot`
+- [X] Create `client/src/hooks/useAppointments.ts` with 30s staleTime
+- [X] Create `client/src/hooks/useRegisterPreferredSlot.ts` with success/error toast callbacks
+- [X] Create `client/src/pages/my-appointments/AppointmentCard.tsx` with conditional status badge and "Select preferred slot" button
+- [X] Create `client/src/pages/my-appointments/MyAppointmentsPage.tsx` with all 4 states (Default, Loading, Empty, Error)
+- [X] Create `client/src/pages/preferred-slot/PreferredSlotSelectionPage.tsx` with `shouldDisableDate` logic and confirm/cancel flow
+- [X] Modify `client/src/App.tsx` to add `/appointments` and `/appointments/:appointmentId/preferred-slot` routes (auth-guarded)
+- [X] **[UI Tasks - MANDATORY]** Reference wireframes from Design References table during implementation
+- [X] **[UI Tasks - MANDATORY]** Validate UI matches wireframe before marking task complete

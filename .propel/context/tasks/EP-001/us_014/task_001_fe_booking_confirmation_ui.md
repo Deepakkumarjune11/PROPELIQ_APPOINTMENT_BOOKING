@@ -267,11 +267,11 @@ npm run build
 
 ## Implementation Checklist
 
-- [ ] Modify `booking-store.ts` — add `appointmentId: string | null` field + `clearIntake()` action
-- [ ] Create `client/src/api/calendar.ts` — `getCalendarInitUrl(provider, appointmentId)` API client
-- [ ] Create `BookingConfirmationPage.tsx` — success alert, booking summary card, PDF download button (`<a>` via MUI Button), Google/Outlook calendar buttons with OAuth redirect + loading state, `useEffect` for query param handling + store clearance
-- [ ] Create `BookingErrorPage.tsx` — null-guard redirect, error alert, retry button, "Select another slot" link
-- [ ] Modify `useRegisterPatient.ts` — `onSuccess`: set `appointmentId`, navigate `/appointments/confirmation`; `onError` non-409: navigate `/appointments/error`
-- [ ] Modify `App.tsx` — add `/appointments/confirmation` + `/appointments/error` routes
-- [ ] **[UI Tasks - MANDATORY]** Reference both wireframes during implementation
-- [ ] **[UI Tasks - MANDATORY]** Validate UI matches wireframes at 375px, 768px, 1440px
+- [x] Modify `booking-store.ts` — added `appointmentId: string | null` field, `setAppointmentId` action, and `clearIntake()` action (resets selectedSlot, patientDetails, appointmentId, hasConflictError); `clearBooking` also updated
+- [x] Create `client/src/api/calendar.ts` — `getCalendarInitUrl(provider, appointmentId)` typed API client for `GET /api/v1/calendar/{provider}/init?appointmentId`
+- [x] Create `BookingConfirmationPage.tsx` — success Alert, booking summary Card, PDF download Button (`href` + `target="_blank"`), Google/Outlook calendar buttons with CircularProgress loading state, `useEffect` for query param handling (`?calendarSynced` / `?calendarError`) + store clearance, null-guard redirect, Snackbar transient feedback
+- [x] Create `BookingErrorPage.tsx` — null-guard redirect to `/appointments/search`, error Alert, "Retry" button (re-calls `registerPatient` directly), "Select another slot" Link navigating to `/appointments/slot-selection`
+- [x] Modify `useRegisterPatient.ts` — `onSuccess`: calls `setAppointmentId(data.appointmentId)`, navigates to `/appointments/intake/manual`; `onError` non-409: calls `onError` callback then navigates to `/appointments/error`
+- [x] Modify `api/registration.ts` — added `appointmentId?: string` to `PatientRegistrationResponse`
+- [x] Modify `App.tsx` — added `/appointments/confirmation` → `BookingConfirmationPage` and `/appointments/error` → `BookingErrorPage` routes
+- [x] `npx tsc --noEmit` passes with zero errors

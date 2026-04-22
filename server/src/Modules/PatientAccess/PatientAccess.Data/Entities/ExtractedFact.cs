@@ -9,7 +9,9 @@ public class ExtractedFact
     public FactType FactType { get; set; }
 
     /// <summary>
-    /// PHI column — extracted clinical text (e.g., "Blood Pressure: 130/85"). Encrypted at rest per DR-015.
+    /// PHI column — extracted clinical text (e.g., "Blood Pressure: 130/85").
+    /// Stored as ciphertext produced by .NET Data Protection API (DR-015).
+    /// Column type is <c>text</c> (unbounded) to accommodate arbitrary ciphertext length.
     /// </summary>
     public string FactText { get; set; } = string.Empty;
 
@@ -21,18 +23,36 @@ public class ExtractedFact
 
     /// <summary>
     /// Character offset in the source document where this fact was extracted.
-    /// Used for character-level tracing per AIR-006.
+    /// Nullable — a fact without a resolved citation position is valid (AIR-006).
     /// </summary>
-    public int SourceCharOffset { get; set; }
+    public int? SourceCharOffset { get; set; }
 
     /// <summary>
     /// Length in characters of the extracted fact in the source document.
-    /// Used for character-level tracing per AIR-006.
+    /// Nullable — a fact without a resolved citation span is valid (AIR-006).
     /// </summary>
-    public int SourceCharLength { get; set; }
+    public int? SourceCharLength { get; set; }
 
-    public DateTime ExtractedAt { get; set; }
+    public DateTimeOffset ExtractedAt { get; set; }
+
+    /// <summary>
+    /// Soft-delete flag per DR-017. Facts are never hard-deleted so the audit trail
+    /// is preserved even when a document is re-processed (idempotent re-run support).
+    /// </summary>
+    public bool IsDeleted { get; set; }
+
+    /// <summary>UTC timestamp of the soft-delete operation. Null when <see cref="IsDeleted"/> is false.</summary>
+    public DateTimeOffset? DeletedAt { get; set; }
 
     // Navigation
     public ClinicalDocument Document { get; set; } = null!;
+
+    /// <summary>
+    /// Marks this fact as soft-deleted (DR-017). Idempotent — calling multiple times is safe.
+    /// </summary>
+    public void SoftDelete()
+    {
+        IsDeleted = true;
+        DeletedAt = DateTimeOffset.UtcNow;
+    }
 }

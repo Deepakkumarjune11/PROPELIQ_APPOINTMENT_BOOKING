@@ -309,10 +309,10 @@ dotnet test --filter "Category=Unit"
 
 ## Implementation Checklist
 
-- [ ] Add `UglyToad.PdfPig` and `SharpToken` NuGet packages to `ClinicalIntelligence.Application`
-- [ ] Create `DocumentChunk` record with 4 fields: `DocumentId`, `ChunkIndex`, `ChunkText`, `TokenCount`
-- [ ] Implement `PdfTextExtractor.ExtractTextAsync` using `PdfDocument.Open(stream).GetPages()` with `GetWords()` for reading-order text
-- [ ] Implement `DocumentChunker.ChunkAsync` with `cl100k_base` encoding, window=512, step=384; yield `IAsyncEnumerable<DocumentChunk>`
-- [ ] Replace `DocumentExtractionJob` stub body: `Queued→Processing` update → PDF extract → empty-text guard (→`ManualReview` + AuditLog) → chunk loop → stage `DocumentChunkEmbedding` rows (null embedding) → `SaveChangesAsync` → enqueue `EmbeddingGenerationJob`
-- [ ] Register `PdfTextExtractor` and `DocumentChunker` as scoped services in `ServiceCollectionExtensions.cs`
-- [ ] Verify `[AutomaticRetry(Attempts = 3)]` and `[Queue("document-extraction")]` attributes on `DocumentExtractionJob`
+- [x] Add `UglyToad.PdfPig` and `SharpToken` NuGet packages to `ClinicalIntelligence.Application`
+- [x] Create `DocumentChunk` record with 4 fields: `DocumentId`, `ChunkIndex`, `ChunkText`, `TokenCount`
+- [x] Implement `PdfTextExtractor.ExtractTextAsync` using `PdfDocument.Open(stream).GetPages()` with `GetWords()` for reading-order text
+- [x] Implement `DocumentChunker.ChunkAsync` with `cl100k_base` encoding, window=512, step=384; yield `IAsyncEnumerable<DocumentChunk>`
+- [x] Replace `DocumentExtractionJob` stub body: `Queued→Processing` update → PDF extract → empty-text guard (→`ManualReview` + AuditLog) → chunk loop → stage chunks via `IChunkStagingService` → enqueue `EmbeddingGenerationJob`
+- [x] Register `PdfTextExtractor`, `DocumentChunker`, `IChunkStagingService` (→`NullChunkStagingService` stub), and `EmbeddingGenerationJob` in `ServiceCollectionExtensions.cs`
+- [x] Verify `[AutomaticRetry(Attempts = 3)]` and `[Queue("document-extraction")]` attributes on `DocumentExtractionJob`

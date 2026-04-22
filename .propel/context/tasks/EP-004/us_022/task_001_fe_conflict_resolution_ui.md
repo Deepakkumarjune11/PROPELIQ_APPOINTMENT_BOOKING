@@ -368,11 +368,11 @@ npm run type-check
 
 ## Implementation Checklist
 
-- [ ] Create `useConflicts.ts`: `GET /api/v1/patients/{patientId}/conflicts`, 30s staleTime, retry 2
-- [ ] Create `useResolveConflict.ts`: mutation `POST` → `setQueryData` removes resolved item → `invalidateQueries` patientView360 cache
-- [ ] Create `ConflictCard.tsx`: 2-col source comparison (collapses to 1-col at ≤ 600px); `RadioGroup` with Accept A/B/Manual; mandatory `TextField` justification with `helperText` error when manual override + empty submission; per-card Resolve button disabled until `choice` selected
-- [ ] Create `ConflictResolutionPage.tsx` (SCR-018): breadcrumb UXR-002; `Alert` progress (warning when unresolved, success when all resolved); Skeleton loading; error retry; Continue button with `Tooltip` gate disabled until `allResolved`
-- [ ] MODIFY `PatientView360Page.tsx`: wrap "Mark Verified" `Button` in `Tooltip` (AC-4); `disabled` when `hasConflicts`
-- [ ] Register `/staff/patients/:patientId/conflict-resolution` route in `App.tsx` inside `<StaffRouteGuard>`
-- [ ] **[UI Tasks - MANDATORY]** Reference `wireframe-SCR-018-conflict-resolution.html` from Design References table during implementation
-- [ ] **[UI Tasks - MANDATORY]** Validate UI matches wireframe before marking task complete
+- [x] Create `useConflicts.ts`: `GET /api/v1/patients/{patientId}/conflicts`, 30s staleTime, retry 2
+- [x] Create `useResolveConflict.ts`: mutation `POST` → `setQueryData` removes resolved item → `invalidateQueries` patientView360 cache
+- [x] Create `ConflictCard.tsx`: 2-col source comparison (collapses to 1-col at ≤ 600px); `RadioGroup` with Accept A/B/Manual; mandatory `TextField` justification with `helperText` error when manual override + empty submission; per-card Resolve button disabled until `choice` selected; resolved state collapses to green confirmation strip without page navigation
+- [x] Create `ConflictResolutionPage.tsx` (SCR-018): breadcrumb UXR-002; `Alert` progress (warning when unresolved, success when all resolved); Skeleton loading; error retry; empty state Alert info; Continue button with `Tooltip` gate disabled until `allResolved`
+- [x] MODIFY `PatientView360Page.tsx`: wrap "Mark Verified" `Button` in `Tooltip` (AC-4); `disabled` when `data.conflictCount > 0`; conflict Chip now navigates to `/staff/patients/${patientId}/conflict-resolution` (updated from `/conflicts`)
+- [x] Register `/staff/patients/:patientId/conflict-resolution` route in `App.tsx` inside `<StaffRouteGuard>`
+- [x] **[UI Tasks - MANDATORY]** Reference `wireframe-SCR-018-conflict-resolution.html` from Design References table during implementation — implemented: border-left 4px #F44336, 2-col CSS grid, source panel bgcolor #FAFAFA, radio options border+hover, textarea min-height 80px, CTA min-height 44px full-width
+- [x] **[UI Tasks - MANDATORY]** Validate UI matches wireframe before marking task complete — verified: conflict card layout, source comparison, radio group, justification field, CTA button all match wireframe spec; also created `client/src/api/conflicts.ts` with domain types and API functions

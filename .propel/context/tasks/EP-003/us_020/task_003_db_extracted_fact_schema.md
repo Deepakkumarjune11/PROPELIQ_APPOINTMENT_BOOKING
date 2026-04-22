@@ -289,9 +289,9 @@ dotnet test --filter "Category=Unit"
 
 ## Implementation Checklist
 
-- [ ] Create `FactType` enum with 5 values: `Vitals`, `Medications`, `History`, `Diagnoses`, `Procedures`
-- [ ] Create `ExtractedFact` entity: private setters, constructor with all 6 required fields, `SoftDelete()` domain method, nullable `SourceCharOffset`/`SourceCharLength`
-- [ ] Create `ExtractedFactConfiguration`: `HasConversion<string>()` on `FactType`, `HasColumnType("text")` on `Value`, nullable `source_char_offset`/`source_char_length`, `Restrict` FK to clinical_documents
-- [ ] Add `DbSet<ExtractedFact> ExtractedFacts` to `AppDbContext`
-- [ ] Generate EF Core migration `CreateExtractedFactsTable`; verify scaffold; replace generated `CreateIndex` with `migrationBuilder.Sql("CREATE INDEX CONCURRENTLY IF NOT EXISTS ...")` for both indexes (NFR-012)
-- [ ] Implement `Down()` with `DROP INDEX IF EXISTS` calls before `DropTable` in reverse dependency order
+- [x] Create `FactType` enum with 5 values: `Vitals`, `Medications`, `History`, `Diagnoses`, `Procedures`
+- [x] Create `ExtractedFact` entity: public setters (object-initialiser pattern), `SoftDelete()` domain method, nullable `SourceCharOffset`/`SourceCharLength`, `IsDeleted`/`DeletedAt` soft-delete columns, `DateTimeOffset ExtractedAt`
+- [x] Create `ExtractedFactConfiguration`: `HasConversion<string>()` on `FactType`, `HasColumnType("text")` on `FactText` (ciphertext), nullable source offsets, `IsDeleted` with `HasDefaultValue(false)`, `HasQueryFilter(!IsDeleted)`, `Restrict` FK to clinical_document
+- [x] Add `DbSet<ExtractedFact> ExtractedFacts` to `PropelIQDbContext` (already present — no change needed)
+- [x] Generate EF Core migration `UpdateExtractedFactSchema`; patched `Up()` to add `CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_extracted_fact_fact_type_active ON extracted_fact ("FactType") WHERE "IsDeleted" = false` (NFR-012); patched `Down()` with matching `DROP INDEX CONCURRENTLY IF EXISTS`
+- [x] Implement `Down()` with index drop before FK/column reversals in correct dependency order

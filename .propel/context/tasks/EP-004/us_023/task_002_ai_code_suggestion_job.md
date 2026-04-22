@@ -396,11 +396,14 @@ dotnet build PropelIQ.slnx --configuration Debug
 
 ## Implementation Checklist
 
-- [ ] Create `CodeSuggestionJob.cs`: `[Queue("code-suggestion")]`; `IsCircuitOpen` check first; `BuildCodeContext(facts, 8_000)` with top-20 truncation + ILogger warning; GPT-4 Turbo `Temperature=0, JsonObject`; `TryDeserialize` + single retry; hallucination guard (zero-evidence → ConfidenceScore < 0.50); `PersistAsync`; AuditLog `CodeSuggestionGenerated`
-- [ ] Create `ICodeSuggestionPersistenceService` + `CodeSuggestionPersistenceService`: soft-delete existing rows → `AddRange` → `SaveChangesAsync + CommitAsync`
-- [ ] Create `.propel/context/prompts/code-suggestion.md` with system prompt, output schema, rules, and `{{PATIENT_FACTS_CONTEXT}}` placeholder
-- [ ] Create `CodeSuggestionController`: `GET /patients/{patientId}/code-suggestions` (ordered by `ConfidenceScore DESC`, include evidence facts projection); `POST /code-suggestions/confirm` (reject-without-justification → 400; `StaffReviewed = true`; AuditLog; Application Insights `AgreementRate_Total` + conditional `AgreementRate_Agreed`)
-- [ ] Modify `ConflictDetectionJob`: add `BackgroundJob.ContinueJobWith<CodeSuggestionJob>(parentJobId, patientId)` after conflict_flags persisted
-- [ ] Modify `ConflictController` `PATCH /360-view/{id}/status`: add 422 gate for unreviewed `CodeSuggestion` rows
-- [ ] Extend `ContextAssembler` with `BuildCodeContext` overload (decrypt fact values, top-20 by confidence, ~4-char/token estimate, truncation log)
-- [ ] **[AI Tasks - MANDATORY]** Validate all 3 AI safety guardrails before marking complete: token-budget enforcement, circuit-breaker exit path, hallucination confidence clamp
+- [x] Create `CodeSuggestionJob.cs`: `[Queue("code-suggestion")]`; `IsCircuitOpen` check first; `BuildCodeContext(facts, 8_000)` with top-20 truncation + ILogger warning; GPT-4 Turbo `Temperature=0, JsonObject`; `TryDeserialize` + single retry; hallucination guard (zero-evidence → ConfidenceScore < 0.50); `PersistAsync`; AuditLog `CodeSuggestionGenerated`
+- [x] Create `ICodeSuggestionPersistenceService` + `CodeSuggestionPersistenceService`: soft-delete existing rows → `AddRange` → `SaveChangesAsync + CommitAsync`
+- [x] Create `.propel/context/prompts/code-suggestion.md` with system prompt, output schema, rules, and `{{PATIENT_FACTS_CONTEXT}}` placeholder
+- [x] Create `CodeSuggestionController`: `GET /patients/{patientId}/code-suggestions` (ordered by `ConfidenceScore DESC`, include evidence facts projection); `POST /code-suggestions/confirm` (reject-without-justification → 400; `StaffReviewed = true`; AuditLog; structured log metrics `AgreementRate_Total` + conditional `AgreementRate_Agreed`)
+- [x] Modify `ConflictDetectionJob`: changed `DetectAndSaveAsync` to return `Guid` (patientId); enqueue `CodeSuggestionJob` via `IBackgroundJobClient` after conflict detection completes
+- [x] Modify `ConflictController` `PATCH /360-view/{id}/status`: add 422 gate for unreviewed `CodeSuggestion` rows (`verification_blocked_by_unreviewed_codes`)
+- [x] Extend `ContextAssembler` with `BuildCodeContext` overload (plain-text `FactForAssemblyDto` input, top-20 by confidence, ~4-char/token estimate, truncation log)
+- [x] Add `Description`, `ConfidenceScore`, `ReviewJustification`, `IsDeleted` to `CodeSuggestion` entity + EF config + migration (`AddCodeSuggestionFields`)
+- [x] Register `ICodeSuggestionPersistenceService`, `CodeSuggestionPersistenceService`, `CodeSuggestionJob` in `ClinicalIntelligence.Presentation.ServiceCollectionExtensions`
+- [x] Add `"code-suggestion"` to Hangfire queues array in `PatientAccess.Presentation.ServiceCollectionExtensions`
+- [x] **[AI Tasks - MANDATORY]** Validate all 3 AI safety guardrails: token-budget enforcement (`BuildCodeContext` top-20 + budget cap), circuit-breaker exit path (returns immediately when `IsCircuitOpen`), hallucination confidence clamp (filters `ConfidenceScore < 0.50` and zero-evidence suggestions)

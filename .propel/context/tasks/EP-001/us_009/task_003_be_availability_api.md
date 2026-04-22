@@ -231,13 +231,13 @@ dotnet ef database update --project src/Modules/PatientAccess/PatientAccess.Data
 
 ## Implementation Checklist
 
-- [ ] Create `AvailabilitySlotDto.cs` record with `SlotId`, `SlotDatetime` (ISO-8601 string), `NoShowRisk` (nullable decimal)
-- [ ] Create `GetAvailabilityQuery.cs` — `IRequest<IReadOnlyList<AvailabilitySlotDto>>` with `DateOnly StartDate, EndDate`
-- [ ] Create `GetAvailabilityHandler.cs` — inject `ICacheService` + `IAvailabilityRepository`; implement cache-aside with 60s TTL
-- [ ] Ensure handler returns empty list (not throws) when `StartDate > EndDate`
-- [ ] Create `AppointmentsController.cs` — `[Authorize]`, `[Route("api/v1/appointments")]`, `GET /availability` action returning `IActionResult`
-- [ ] Add `400 Bad Request` validation when `startDate > endDate` in controller
-- [ ] Update `ServiceCollectionExtensions.cs` — register MediatR + `IAvailabilityRepository` binding
-- [ ] Verify `Program.cs` does not require additional changes (module DI already wired)
-- [ ] Add XML doc comments to controller action for Swagger
-- [ ] Confirm `ICacheService` cache key is deterministic (`availability:{startDate}:{endDate}` using `yyyy-MM-dd` format)
+- [X] Create `AvailabilitySlotDto.cs` record with `SlotId`, `SlotDatetime` (ISO-8601 string), `NoShowRisk` (nullable decimal)
+- [X] Create `GetAvailabilityQuery.cs` — `IRequest<IReadOnlyList<AvailabilitySlotDto>>` with `DateOnly StartDate, EndDate`
+- [X] Create `GetAvailabilityHandler.cs` — inject `ICacheService` + `IAvailabilityRepository`; implement cache-aside with 60s TTL
+- [X] Ensure handler returns empty list (not throws) when `StartDate > EndDate`
+- [X] Create `AppointmentsController.cs` — `[Authorize]`, `[Route("api/v1/appointments")]`, `GET /availability` action returning `IActionResult`
+- [X] Add `400 Bad Request` validation when `startDate > endDate` in controller
+- [X] Update `ServiceCollectionExtensions.cs` — register MediatR + `IAvailabilityRepository` binding
+- [X] Verify `Program.cs` does not require additional changes (module DI already wired)
+- [X] Add XML doc comments to controller action for Swagger
+- [X] Confirm `ICacheService` cache key is deterministic (`availability:{startDate}:{endDate}` using `yyyy-MM-dd` format)

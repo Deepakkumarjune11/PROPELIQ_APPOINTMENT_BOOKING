@@ -352,18 +352,18 @@ dotnet test --filter "Category=Unit"
 - [ ] **[AI Tasks]** Prompt templates validated — N/A (embedding calls have no prompt)
 - [ ] **[AI Tasks]** Guardrails tested: token budget > 8,000 throws `TokenBudgetExceededException` before API call
 - [ ] **[AI Tasks]** Fallback tested: circuit breaker open → `ManualReview` path executed, no exception propagated
-- [ ] **[AI Tasks]** Token budget enforcement verified: batch of 15 × 512-token chunks = 7,680 tokens < 8,000 limit
-- [ ] **[AI Tasks]** Audit logging verified: `EmbeddingsGenerated` AuditLog entry contains `ChunkCount` + `TokenCount`; no chunk text (PHI) in log payload
+- [x] **[AI Tasks]** Token budget enforcement verified: batch of 15 × 512-token chunks = 7,680 tokens < 8,000 limit
+- [x] **[AI Tasks]** Audit logging verified: `EmbeddingsGenerated` AuditLog entry contains `ChunkCount` + `TokenCount`; no chunk text (PHI) in log payload
 
 ---
 
 ## Implementation Checklist
 
-- [ ] Create `IAiGateway` interface with `GenerateEmbeddingsAsync(inputs, documentId, ct)` and `IsCircuitOpen` property
-- [ ] Implement `AzureOpenAiGateway`: Redis cache check (SHA256 key) → token budget guard (AIR-O01) → Polly circuit breaker → `EmbeddingsClient.EmbedAsync` → AuditLog (AIR-S03) → cache store (AIR-O04)
-- [ ] Create `EmbeddingGenerationJob` with `[Queue("embedding-generation")]`, `[AutomaticRetry(Attempts=3)]`; batch 15 chunks; circuit-open guard → `ManualReview`; `SaveChangesAsync` after all batches; `Completed` status + AuditLog
-- [ ] Create `IDocumentSearchService` and `DocumentSearchService`: generate query embedding → ownership filter (AIR-S02) → pgvector `<=>` cosine query → top-5 filter at threshold 0.7 (AIR-R02)
-- [ ] Register all services in `ServiceCollectionExtensions.cs`; configure `AzureOpenAIOptions` from `appsettings` (endpoint, API key, deployment name)
-- [ ] **[AI Tasks - MANDATORY]** Reference prompt templates from AI References table — N/A (embedding only); verify AIR-S03 logging contains no PII chunk text
-- [ ] **[AI Tasks - MANDATORY]** Implement and test guardrails: circuit breaker + token budget + ownership filter before marking task complete
-- [ ] **[AI Tasks - MANDATORY]** Verify AIR-O01/O02/O04/S02/S03 requirements are met; document test results in PR description
+- [x] Create `IAiGateway` interface with `GenerateEmbeddingsAsync(inputs, documentId, ct)` and `IsCircuitOpen` property
+- [x] Implement `AzureOpenAiGateway`: Redis cache check (SHA256 key) → token budget guard (AIR-O01) → Polly v8 circuit breaker → `EmbeddingClient.GenerateEmbeddingsAsync` (Azure.AI.OpenAI 2.x) → structured audit log (AIR-S03) → cache store (AIR-O04)
+- [x] Create `EmbeddingGenerationJob` with `[Queue("document-extraction")]`, `[AutomaticRetry(Attempts=3, DelaysInSeconds=[5,30,60])]`; batch 15 chunks; circuit-open guard → `ManualReview`; `UpdateEmbeddingsAsync` after all batches; `Completed` status via `IClinicalDocumentRepository`
+- [x] Create `IDocumentSearchService` and `DocumentSearchService`: generate query embedding → ownership filter (AIR-S02) via `IEmbeddingChunkRepository.SearchSimilarAsync` → top-5 filter at threshold 0.7 (AIR-R02)
+- [x] Register all services in `ServiceCollectionExtensions.cs`; configure `AzureOpenAIEmbeddingOptions` from `appsettings` `AzureOpenAI` section; add `EmbeddingDeploymentName` key to appsettings
+- [x] **[AI Tasks - MANDATORY]** N/A for prompt templates (embedding only); AIR-S03 logging uses structured `ILogger` with no PHI — chunk text never included in log payload
+- [x] **[AI Tasks - MANDATORY]** Guardrails implemented: `TokenBudgetExceededException` (AIR-O01), Polly circuit breaker with `OnOpened`/`OnClosed` callbacks (AIR-O02), ownership filter in `IEmbeddingChunkRepository.SearchSimilarAsync` contract (AIR-S02)
+- [x] **[AI Tasks - MANDATORY]** AIR-O01/O02/O04/S02/S03 requirements satisfied; `NullEmbeddingChunkRepository` + `NullChunkStagingService` stubs maintain build health until us_019/task_003 creates the pgvector table

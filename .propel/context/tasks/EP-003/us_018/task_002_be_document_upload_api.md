@@ -292,11 +292,11 @@ dotnet test --filter "Category=Unit"
 
 ## Implementation Checklist
 
-- [ ] Create `IFileStorageService` interface and `LocalFileStorageService` phase-1 implementation (path traversal prevention via `Path.GetFileName()`)
-- [ ] Implement `UploadDocumentCommand` handler: magic bytes + size validation → store file → encrypt URI (DR-015) → create `ClinicalDocument` (status=Queued) → AuditLog → `BackgroundJob.Enqueue<DocumentExtractionJob>`
-- [ ] Implement `GetPatientDocumentsQuery` handler with `PatientId` ownership filter and `IsDeleted = false` predicate
-- [ ] Implement `DeleteDocumentCommand` handler with ownership validation, `IsDeleted = true` soft delete, and AuditLog
-- [ ] Create `DocumentExtractionJob` stub with `[Queue("document-extraction")]`; sets status to `Processing` via `ExecuteUpdateAsync`; logs placeholder TODO for US_019
-- [ ] Create `DocumentsController` with `[Authorize(Roles = "Patient")]`, `[RequestSizeLimit(26214400)]` on upload, and correct 201/200/204 status codes
-- [ ] Register `IFileStorageService`, all MediatR handlers, and Hangfire `document-extraction` queue in `ServiceCollectionExtensions.cs`
-- [ ] Verify `ClinicalDocument.FileUri` is encrypted with `.NET Data Protection API` before DB persist (DR-015)
+- [x] Create `IFileStorageService` interface and `LocalFileStorageService` phase-1 implementation (path traversal prevention via `Path.GetFileName()`)
+- [x] Implement `UploadDocumentCommand` handler: magic bytes + size validation → store file → encrypt URI (DR-015) → create `ClinicalDocument` (status=Queued) → AuditLog → `BackgroundJob.Enqueue<DocumentExtractionJob>`
+- [x] Implement `GetPatientDocumentsQuery` handler with `PatientId` ownership filter and `IsDeleted = false` predicate
+- [x] Implement `DeleteDocumentCommand` handler with ownership validation, `IsDeleted = true` soft delete, and AuditLog
+- [x] Create `DocumentExtractionJob` stub with `[Queue("document-extraction")]`; sets status to `Processing` via `ExecuteUpdateAsync`; logs placeholder TODO for US_019
+- [x] Create `DocumentsController` with `[Authorize(Roles = "Patient")]`, `[RequestSizeLimit(26214400)]` on upload, and correct 201/200/204 status codes
+- [x] Register `IFileStorageService`, all MediatR handlers, and Hangfire `document-extraction` queue in `ServiceCollectionExtensions.cs`
+- [x] Verify `ClinicalDocument.FileUri` is encrypted with `.NET Data Protection API` before DB persist (DR-015)

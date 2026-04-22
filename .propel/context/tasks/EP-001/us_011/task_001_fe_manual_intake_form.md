@@ -268,14 +268,15 @@ npm run build
 
 ## Implementation Checklist
 
-- [ ] Create `client/src/config/intakeQuestions.ts` with 5 question definitions (reasonForVisit, chiefComplaint, currentMeds, allergies, medicalHistory) including tooltips and maxLength
-- [ ] Create `client/src/stores/intake-store.ts` — Zustand store with sessionStorage `persist` middleware; expose `answers`, `mode`, `setAnswer`, `setMode`, `clearIntake`
-- [ ] Create `client/src/api/intake.ts` — typed `submitIntake(patientId: string, answers: Record<string, string>, mode: 'manual' | 'conversational')` function
-- [ ] Create `client/src/hooks/useSubmitIntake.ts` — `useMutation` with success navigation to `/appointments/confirmation` and error surfacing
-- [ ] Create `IntakeProgressBar.tsx` — MUI `LinearProgress` determinate, label "X of Y required questions answered"
-- [ ] Create `ModeSwitchButton.tsx` — `setMode('conversational')` + navigate, answers NOT cleared
-- [ ] Create `IntakeQuestionField.tsx` — reads initial value from `intake-store`, writes back via `setAnswer`, enforces maxLength + character counter, blur validation for required fields
-- [ ] Create `ManualIntakeFormPage.tsx` — guard, stepper (step 4), progress bar, mode-switch button, question fields, submit button + mutation
-- [ ] Add `/appointments/intake/manual` + `/appointments/intake/conversational` (stub) routes to `App.tsx`
+- [x] Create `client/src/config/intakeQuestions.ts` with 5 question definitions (reasonForVisit, chiefComplaint, currentMeds, allergies, medicalHistory) including tooltips and maxLength
+- [x] Create `client/src/stores/intake-store.ts` — Zustand store with sessionStorage `persist` middleware; expose `answers`, `mode`, `setAnswer`, `setMode`, `clearIntake`
+- [x] Create `client/src/api/intake.ts` — typed `submitIntake(patientId, payload)` function targeting `POST /api/v1/patients/{patientId}/intake`
+- [x] Create `client/src/hooks/useSubmitIntake.ts` — `useMutation` with success navigation to `/appointments/confirmation` and error surfacing
+- [x] Create `IntakeProgressBar.tsx` — MUI `LinearProgress` determinate, label "X of Y required questions answered"
+- [x] Create `ModeSwitchButton.tsx` — `setMode('conversational')` + navigate, answers NOT cleared
+- [x] Create `IntakeQuestionField.tsx` — reads initial value from `intake-store`, writes back via `setAnswer`, enforces maxLength + character counter, blur validation for required fields
+- [x] Create `ManualIntakeFormPage.tsx` — guard, stepper (step 4), progress bar, mode-switch button, question fields, submit button + mutation
+- [x] Add `/appointments/intake/manual` + `/appointments/intake/conversational` (stub) routes to `App.tsx`
+- [x] TypeScript type-check: `npx tsc --noEmit` → 0 errors
 - [ ] **[UI Tasks - MANDATORY]** Reference wireframe from Design References table during implementation
 - [ ] **[UI Tasks - MANDATORY]** Validate UI matches wireframe at 375px, 768px, 1440px before marking task complete

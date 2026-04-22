@@ -348,15 +348,15 @@ dotnet ef database update \
 
 ## Implementation Checklist
 
-- [ ] Create `AiServiceUnavailableException.cs`
-- [ ] Create `AiConversationResult.cs` record
-- [ ] Create `IntakeSystemPrompt.md` as embedded resource (mark as `EmbeddedResource` in `.csproj`); define empathetic persona, 5-question list, re-prompt instruction, `__structured_answers__` JSON block format, `isComplete` flag rule
-- [ ] Create `IAiIntakeService.cs` with `SendMessageAsync(IReadOnlyList<ChatTurn>, CancellationToken)`
-- [ ] Create `AzureOpenAiIntakeService.cs` — implement in order: token budget trim → PII redaction → OpenAI call (3s timeout CTS) → exception handling (timeout/429/503/content_filter → AiServiceUnavailableException) → parse `__structured_answers__` block → sanitized `AIPromptLog` insert (NO PHI in log fields) → return `AiConversationResult`
-- [ ] Create `AIPromptLog.cs` entity (no PHI columns)
-- [ ] Create `AIPromptLogConfiguration.cs` — `ai_prompt_log` table, UUID default
-- [ ] Modify `PropelIQDbContext.cs` — add `DbSet<AIPromptLog> AiPromptLogs`
-- [ ] Modify `ServiceCollectionExtensions.cs` — register `OpenAIClient` (singleton) + `IAiIntakeService` (singleton)
-- [ ] Modify `appsettings.json` + `appsettings.Development.json` — add `AzureOpenAI` section with empty/placeholder API key
-- [ ] Run `dotnet ef migrations add AddAIPromptLog` and confirm migration file generated
-- [ ] Confirm `dotnet build` passes with zero errors
+- [x] Create `AiServiceUnavailableException.cs` (existing from task_002 at `Exceptions/`)
+- [x] Create `AiConversationResult.cs` record (as `IntakeConversationResult` from task_002 at `Infrastructure/`)
+- [x] Create `IntakeSystemPrompt.md` as embedded resource (`AI/IntakeSystemPrompt.md`; marked `EmbeddedResource` in `.csproj`); empathetic persona, 5-question list, re-prompt instruction, `__structured_answers__` JSON block format, `isComplete` flag rule
+- [x] Create `IAiIntakeService.cs` with `SendMessageAsync(IReadOnlyList<ChatTurn>, CancellationToken)` (existing from task_002 at `Infrastructure/`)
+- [x] Create `AzureOpenAiIntakeService.cs` (`AI/`) — token budget trim → PII redaction → Azure OpenAI call (3s timeout CTS) → exception handling (timeout/429/503/content_filter → AiServiceUnavailableException) → parse `__structured_answers__` block → sanitized `AIPromptLog` insert via `IAIPromptLogRepository` (NO PHI in log fields) → return `IntakeConversationResult`
+- [x] Create `AIPromptLog.cs` entity (`PatientAccess.Data/Entities/`) — no PHI columns
+- [x] Create `AIPromptLogConfiguration.cs` (`PatientAccess.Data/Configurations/`) — `ai_prompt_log` table, UUID default
+- [x] Modify `PropelIQDbContext.cs` — add `DbSet<AIPromptLog> AiPromptLogs`
+- [x] Modify `ServiceCollectionExtensions.cs` — register `AzureOpenAIOptions` (Configure<>), `IAIPromptLogRepository` (scoped), `IAiIntakeService → AzureOpenAiIntakeService` (scoped)
+- [x] Modify `appsettings.json` + `appsettings.Development.json` — add `AzureOpenAI` section with empty/placeholder API key (OWASP A02 compliant)
+- [x] Run `dotnet ef migrations add AddAIPromptLog` — migration `20260419115653_AddAIPromptLog` generated
+- [x] Confirm `dotnet build` passes with zero errors (0 Warning(s), 0 Error(s))

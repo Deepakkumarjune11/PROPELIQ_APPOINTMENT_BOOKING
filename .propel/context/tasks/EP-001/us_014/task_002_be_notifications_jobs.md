@@ -271,14 +271,16 @@ dotnet ef database update \
 
 ## Implementation Checklist
 
-- [ ] Create `CommunicationLog.cs` entity (Id, PatientId, AppointmentId, Channel, Status, AttemptCount, PdfBytes?, CreatedAt)
-- [ ] Create `CommunicationLogConfiguration.cs` — `communication_log` table, `bytea` for PdfBytes, FK Restrict
-- [ ] Modify `PropelIQDbContext.cs` — add `DbSet<CommunicationLog>`
-- [ ] Run `dotnet ef migrations add AddCommunicationLog`
-- [ ] Create `IPdfGenerationService.cs` + `PdfSharpConfirmationService.cs` — single-page PDF with appointment fields
-- [ ] Create `SendReminderSmsJob.cs` — `[AutomaticRetry(Attempts=1)]`, Twilio SMS, CommunicationLog write
-- [ ] Create `SendConfirmationEmailPdfJob.cs` — PDF generation, SendGrid attach + send, `[AutomaticRetry]` exponential backoff, CommunicationLog + PdfBytes persist
-- [ ] Modify `RegisterForAppointmentHandler.cs` — inject `IBackgroundJobClient`; enqueue confirmation email+PDF (critical) + immediate SMS (critical) + scheduled 24h reminder (default) after `SaveChangesAsync`
-- [ ] Modify `AppointmentsController.cs` — add `GET /{appointmentId:guid}/pdf` action; serve bytes or 202
-- [ ] Modify `ServiceCollectionExtensions.cs` — Hangfire (PostgreSQL storage, two queues), `IPdfGenerationService` singleton, bind Twilio/SendGrid options from IConfiguration
-- [ ] Modify `appsettings.json` + `appsettings.Development.json` — add empty-placeholder Twilio + SendGrid config sections
+- [x] Create `CommunicationLog.cs` entity (Id, PatientId, AppointmentId, Channel, Status, AttemptCount, PdfBytes?, CreatedAt)
+- [x] Create `CommunicationLogConfiguration.cs` — `communication_log` table, `bytea` for PdfBytes, FK Restrict
+- [x] Modify `PropelIQDbContext.cs` — add `DbSet<CommunicationLog>`
+- [x] Run `dotnet ef migrations add AddCommunicationLog`
+- [x] Create `IPdfGenerationService.cs` + `PdfSharpConfirmationService.cs` — single-page PDF with appointment fields
+- [x] Create `SendReminderSmsJob.cs` — `[AutomaticRetry(Attempts=1)]`, Twilio SMS, CommunicationLog write
+- [x] Create `SendConfirmationEmailPdfJob.cs` — PDF generation, SendGrid attach + send, `[AutomaticRetry]` exponential backoff, CommunicationLog + PdfBytes persist
+- [x] Modify `RegisterForAppointmentHandler.cs` — inject `IBackgroundJobClient`; enqueue confirmation email+PDF (critical) + immediate SMS (critical) + scheduled 24h reminder (default) after `SaveChangesAsync`
+- [x] Modify `RegisterForAppointmentResponse.cs` — added `AppointmentId` (Guid) so FE can use it for PDF download and calendar sync
+- [x] Modify `AppointmentsController.cs` — add `GET /{appointmentId:guid}/pdf` action; serve bytes or 202 with Retry-After: 10
+- [x] Modify `ServiceCollectionExtensions.cs` — Hangfire (PostgreSQL storage via `UseNpgsqlConnection`, two queues), `IPdfGenerationService` singleton, `ICommunicationLogRepository` scoped, bind Twilio/SendGrid options from IConfiguration
+- [x] Modify `appsettings.json` + `appsettings.Development.json` — add empty-placeholder Twilio + SendGrid config sections
+- [x] `dotnet build` passes with 0 errors, 0 warnings

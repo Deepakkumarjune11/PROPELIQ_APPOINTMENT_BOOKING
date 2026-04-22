@@ -60,6 +60,52 @@ services:
       - propeliq-net
     restart: unless-stopped
 
+  # ── Backup cron sidecar — development only (profile: backup) ─────────────────
+  # Start with: docker compose --profile backup up backup-cron
+  #
+  # Runs backup.sh on schedule:
+  #   Incremental (every 4 hours): 0 */4 * * *
+  #   Full weekly (Sunday 02:00):  0 2 * * 0
+  #
+  # WAL archiving: enable archive_mode on the db service via command override in
+  # docker-compose.override.yml, with archive_command pointing to archive_wal.sh.
+  #
+  # postgresql.conf WAL archiving settings (production — apply via ALTER SYSTEM):
+  #   wal_level = replica
+  #   archive_mode = on
+  #   archive_command = '/scripts/archive_wal.sh %p %f'
+  #   archive_timeout = 300  # force WAL segment switch every 5 minutes (RPO ~5 min)
+  backup-cron:
+    image: postgres:15-alpine
+    container_name: propeliq_backup_cron
+    entrypoint: >
+      sh -c "
+        apk add --no-cache openssl bash curl azure-cli &&
+        echo '0 */4 * * * /scripts/backup.sh >> /var/log/backup.log 2>&1' | crontab - &&
+        echo '0 2 * * 0 FULL_BACKUP=1 /scripts/backup.sh >> /var/log/backup.log 2>&1' | crontab - &&
+        crond -f -l 2
+      "
+    environment:
+      PGHOST: db
+      PGPORT: 5432
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB}
+      BACKUP_ENCRYPTION_PASSPHRASE: ${BACKUP_ENCRYPTION_PASSPHRASE}
+      LOCAL_FALLBACK_DIR: /backups
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
+    volumes:
+      - ../scripts/backup:/scripts:ro
+      - backup-data:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - propeliq-net
+    profiles:
+      - backup   # only starts when: docker compose --profile backup up
+    restart: unless-stopped
+
   # ── React 18 Vite Dev Server ─────────────────────────────────────────────────
   frontend:
     build:
@@ -82,6 +128,7 @@ volumes:
   redis-data:
   api-logs:
   node-modules:
+  backup-data:   # persistent storage for local fallback backups (backup-cron sidecar)
 
 # ── Isolated bridge network ───────────────────────────────────────────────────
 networks:

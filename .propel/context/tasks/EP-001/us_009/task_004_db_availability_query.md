@@ -257,12 +257,12 @@ dotnet ef database update \
 
 ## Implementation Checklist
 
-- [ ] Locate `PatientAccess.Domain/Enums/AppointmentStatus.cs` (or create `Enums/` folder) and add `Available = 0` value
-- [ ] Create `PatientAccess.Application/Repositories/IAvailabilityRepository.cs` — interface with `GetAvailableSlotsAsync(DateOnly, DateOnly, CancellationToken)`
-- [ ] Create `PatientAccess.Data/Repositories/AvailabilityRepository.cs` — EF Core implementation with `AsNoTracking()`, `!IsDeleted`, `Status == Available`, date range filter, `OrderBy(SlotDatetime)`
-- [ ] Modify `AppointmentConfiguration.cs` — add `HasIndex(slot_datetime, status).HasFilter("is_deleted = false").HasDatabaseName("ix_appointments_slot_datetime_status_active")`
-- [ ] Run `dotnet ef migrations add AddAvailabilityIndex` — verify generated migration is correct
-- [ ] Update generated migration `Up()` to use `CREATE INDEX CONCURRENTLY IF NOT EXISTS` with `suppressTransaction: true` (DR-014)
-- [ ] Run `dotnet ef database update` in development environment
-- [ ] Verify index exists in PostgreSQL via `\d appointments` or `pg_indexes` system view
-- [ ] Register `AvailabilityRepository` → `IAvailabilityRepository` in `PatientAccess.Presentation/ServiceCollectionExtensions.cs` (used by task_003)
+- [X] Locate `PatientAccess.Domain/Enums/AppointmentStatus.cs` (or create `Enums/` folder) and add `Available = 0` value
+- [X] Create `PatientAccess.Application/Repositories/IAvailabilityRepository.cs` — interface with `GetAvailableSlotsAsync(DateOnly, DateOnly, CancellationToken)`
+- [X] Create `PatientAccess.Data/Repositories/AvailabilityRepository.cs` — EF Core implementation with `AsNoTracking()`, `!IsDeleted`, `Status == Available`, date range filter, `OrderBy(SlotDatetime)`
+- [X] Modify `AppointmentConfiguration.cs` — add `HasIndex(slot_datetime, status).HasFilter("is_deleted = false").HasDatabaseName("ix_appointments_slot_datetime_status_active")`
+- [X] Run `dotnet ef migrations add AddAvailabilityIndex` — verify generated migration is correct
+- [X] Update generated migration `Up()` to use `CREATE INDEX CONCURRENTLY IF NOT EXISTS` with `suppressTransaction: true` (DR-014)
+- [X] Run `dotnet ef database update` in development environment
+- [X] Verify index exists in PostgreSQL via `\d appointments` or `pg_indexes` system view
+- [X] Register `AvailabilityRepository` → `IAvailabilityRepository` in `PatientAccess.Presentation/ServiceCollectionExtensions.cs` (used by task_003)

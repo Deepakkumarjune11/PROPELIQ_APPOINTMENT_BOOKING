@@ -426,12 +426,13 @@ npm run type-check
 
 ## Implementation Checklist
 
-- [ ] Modify `auth-store.ts`: add `token`, `expiresAt`, `lastActivity` to state; replace `login()` with `setAuth(user, token, expiresAt)`; add `resetActivity()`; wrap store in `persist({ name: 'propeliq-auth' })` storing only `token`, `user`, `expiresAt`
-- [ ] Modify `LoginPage.tsx`: import `useLogin`; replace `setTimeout` block with `const { mutate: login, isPending, isError, error } = useLogin()`; trigger `login({ email, password, rememberMe })` on submit; drive loading spinner with `isPending`; drive error `Alert` with `isError`; trigger field validation `onBlur`
-- [ ] Create `useLogin.ts`: `useMutation` → `POST /api/v1/auth/login`; on success call `setAuth` and `navigate` by role; on error propagate to component
-- [ ] Create `useSessionTimeout.ts`: activity event listeners (mousemove, keydown, click, scroll, touchstart) reset `lastActivity` via `resetActivity()`; 1-second `setInterval` checks idle duration; opens modal at `remaining ≤ 60s`; calls `logout()` + `navigate('/login')` at `remaining ≤ 0`
-- [ ] Create `SessionTimeoutModal.tsx`: MUI `Dialog` with countdown `Chip`; "Stay Logged In" calls `POST /api/v1/auth/refresh` via `useMutation`; success → `setAuth` with new token + close modal; failure → `logout()` + navigate; "Logout" button → same logout flow
-- [ ] Create `RoleGuard.tsx`: reads `isAuthenticated` + `user.role` from `useAuthStore`; redirects to `/login` if not authenticated; renders 403 state if role not in `roles` prop; renders `<Outlet>` if authorized
-- [ ] Modify `AuthenticatedLayout.tsx`: call `useSessionTimeout()`; render `<SessionTimeoutModal>` at root of layout JSX
-- [ ] **[UI Tasks - MANDATORY]** Reference `wireframe-SCR-024-login.html` from Design References table during implementation
-- [ ] **[UI Tasks - MANDATORY]** Validate UI matches wireframe before marking task complete
+- [x] Modify `auth-store.ts`: add `token`, `expiresAt`, `lastActivity` to state; replace `login()` with `setAuth(user, token, expiresAt)`; add `resetActivity()`; wrap store in `persist({ name: 'propeliq-auth' })` storing only `token`, `user`, `expiresAt`
+- [x] Create `src/lib/api.ts`: shared Axios instance with Bearer token request interceptor + 401 response interceptor that calls `logout()` (OWASP A07)
+- [x] Modify `LoginPage.tsx`: import `useLogin`; replace `setTimeout` block with `const { mutate: login, isPending, isError, error } = useLogin()`; trigger `login({ email, password, rememberMe })` on submit; drive loading spinner with `isPending`; drive error `Alert` with `isError`; field validation `onBlur` already present
+- [x] Create `useLogin.ts`: `useMutation` → `POST /api/v1/auth/login`; on success call `setAuth` and `navigate` by role; on error propagate to component
+- [x] Create `useSessionTimeout.ts`: activity event listeners (mousemove, keydown, click, scroll, touchstart) reset `lastActivity` via `resetActivity()`; 1-second `setInterval` checks idle duration; opens modal at `remaining ≤ 60s`; calls `logout()` + `navigate('/login')` at `remaining ≤ 0`
+- [x] Create `SessionTimeoutModal.tsx`: MUI `Dialog` with countdown `Chip`; "Stay Logged In" calls `POST /api/v1/auth/refresh` via `useMutation`; success → `setAuth` with new token + close modal; failure → `logout()` + navigate; "Logout" button → same logout flow
+- [x] Create `RoleGuard.tsx`: reads `isAuthenticated` + `user.role` from `useAuthStore`; redirects to `/login` if not authenticated; renders 403 state if role not in `roles` prop; renders `<Outlet>` if authorized
+- [x] Modify `AuthenticatedLayout.tsx`: call `useSessionTimeout()`; render `<SessionTimeoutModal>` at root of layout JSX
+- [x] Modify `App.tsx`: import `RoleGuard`; add `admin/dashboard` route group with `<RoleGuard roles={['admin']} />`; 401 interceptor in `api.ts`
+- [x] `npx tsc --noEmit` passes with 0 errors

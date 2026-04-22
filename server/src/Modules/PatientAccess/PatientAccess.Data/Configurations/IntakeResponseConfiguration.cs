@@ -1,11 +1,22 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using PatientAccess.Data.Converters;
 using PatientAccess.Data.Entities;
 
 namespace PatientAccess.Data.Configurations;
 
 internal sealed class IntakeResponseConfiguration : IEntityTypeConfiguration<IntakeResponse>
 {
+    private readonly PhiEncryptedConverter? _enc;
+
+    /// <summary>EF tooling constructor — no encryption (schema-only).</summary>
+    public IntakeResponseConfiguration() { }
+
+    /// <summary>
+    /// Runtime constructor — <paramref name="enc"/> enables PHI encryption at rest (DR-015).
+    /// </summary>
+    public IntakeResponseConfiguration(PhiEncryptedConverter? enc) => _enc = enc;
+
     public void Configure(EntityTypeBuilder<IntakeResponse> builder)
     {
         builder.ToTable("intake_response");
@@ -19,12 +30,15 @@ internal sealed class IntakeResponseConfiguration : IEntityTypeConfiguration<Int
             .HasMaxLength(20)
             .IsRequired();
 
-        // PHI column: JSONB type per DR-013.
-        // Application-layer ValueConverter applies .NET Data Protection API
-        // encryption before write and decryption after read per DR-015.
-        builder.Property(i => i.Answers)
-            .HasColumnType("jsonb")
+        // PHI column: changed from jsonb to text to store variable-length AES ciphertext (DR-015, AC-1).
+        // Ciphertext is raw base64 — not valid JSON — so jsonb is not suitable after encryption.
+        // When _enc is null (EF tooling), no conversion is applied and schema is inspected as-is.
+        var answersProperty = builder.Property(i => i.Answers)
+            .HasColumnType("text")
             .IsRequired();
+
+        if (_enc is not null)
+            answersProperty.HasConversion(_enc);
 
         builder.Property(i => i.CreatedAt)
             .HasDefaultValueSql("NOW()")

@@ -22,3 +22,11 @@ services:
   frontend:
     ports:
       - "3000:3000"
+
+  # backup-cron: mount scripts/backup into the container at /scripts (read-only)
+  # Exposes the local scripts directory without baking them into the image.
+  backup-cron:
+    env_file:
+      - .env
+    volumes:
+      - ../scripts/backup:/scripts:ro

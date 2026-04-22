@@ -267,22 +267,22 @@ dotnet test --filter "Category=Unit"
 
 ## Implementation Validation Strategy
 
-- [ ] `dotnet ef migrations add` generates correct `Up()` with `CREATE EXTENSION IF NOT EXISTS vector` before table creation
+- [x] `dotnet ef migrations add` generates correct `Up()` with `CREATE EXTENSION IF NOT EXISTS vector` before table creation
 - [ ] `dotnet ef database update` applies cleanly to PostgreSQL 15 with pgvector 0.5.x installed
 - [ ] `embedding` column type in DB is `vector(1536)` (verify with `\d document_chunk_embeddings`)
 - [ ] Inserting a row with `embedding = null` succeeds; inserting with a 1536-dim `Vector` succeeds
-- [ ] `ivfflat` index created with `lists = 100` and `vector_cosine_ops` (verify with `\d+ document_chunk_embeddings`)
-- [ ] `Down()` drops all 3 indexes before `DropTable` without errors
+- [x] `ivfflat` index created with `lists = 100` and `vector_cosine_ops` (verify with `\d+ document_chunk_embeddings`)
+- [x] `Down()` drops all 3 indexes before `DropTable` without errors
 - [ ] `EXPLAIN ANALYZE` on cosine distance query uses `ix_dce_embedding_cosine` index and returns within <10ms on test data
 
 ---
 
 ## Implementation Checklist
 
-- [ ] Add `Pgvector.EntityFrameworkCore` NuGet to `PropelIQ.Api`; verify `Vector` type available in C# project
-- [ ] Create `DocumentChunkEmbedding` entity: `Vector?` nullable embedding, `SetEmbedding(Vector)` method, cascade FK constructor
-- [ ] Create `DocumentChunkEmbeddingConfiguration`: `HasColumnType("vector(1536)")` on `Embedding`, `IsRequired(false)`, `OnDelete(DeleteBehavior.Cascade)` FK
-- [ ] Add `DbSet<DocumentChunkEmbedding>` and `modelBuilder.HasPostgresExtension("vector")` to `AppDbContext`
-- [ ] Generate EF migration; verify scaffold; replace default index calls with `migrationBuilder.Sql()` for `ivfflat` and composite unique indexes
-- [ ] Implement `Down()`: drop all 3 indexes in reverse dependency order before `DropTable`; do NOT drop `vector` extension
-- [ ] Validate `(document_id, chunk_index)` unique constraint prevents duplicate chunk staging on re-processed documents
+- [x] Add `Pgvector.EntityFrameworkCore` NuGet to `PropelIQ.Api`; verify `Vector` type available in C# project
+- [x] Create `DocumentChunkEmbedding` entity: `Vector?` nullable embedding, `SetEmbedding(Vector)` method, cascade FK constructor
+- [x] Create `DocumentChunkEmbeddingConfiguration`: `HasColumnType("vector(1536)")` on `Embedding`, `IsRequired(false)`, `OnDelete(DeleteBehavior.Cascade)` FK
+- [x] Add `DbSet<DocumentChunkEmbedding>` and `modelBuilder.HasPostgresExtension("vector")` to `AppDbContext`
+- [x] Generate EF migration; verify scaffold; replace default index calls with `migrationBuilder.Sql()` for `ivfflat` and composite unique indexes
+- [x] Implement `Down()`: drop all 3 indexes in reverse dependency order before `DropTable`; do NOT drop `vector` extension
+- [x] Validate `(document_id, chunk_index)` unique constraint prevents duplicate chunk staging on re-processed documents

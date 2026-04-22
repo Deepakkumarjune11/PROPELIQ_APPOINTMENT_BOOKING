@@ -11,10 +11,88 @@ on:
 
 jobs:
 
+  # ── Apply EF Core Migrations (must succeed before artifact is deployed) ────────
+  migrate:
+    name: Apply EF Core Migrations
+    runs-on: ubuntu-latest
+    environment: production    # gates on production environment approval; uses production secrets
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Restore dependencies
+        run: dotnet restore server/PropelIQ.slnx
+
+      # Restore local tools — dotnet-ef 8.0.0 pinned in .config/dotnet-tools.json
+      - name: Restore .NET local tools
+        run: dotnet tool restore
+
+      # AC-4 / DR-014: Apply all pending migrations before the new binary is deployed.
+      # No-op if schema is already at latest — exits 0 safely.
+      # DataProtection__KeysPath points to /tmp — ephemeral; no PHI keys needed for DDL.
+      - name: Apply EF Core migrations
+        id: migrate
+        env:
+          ConnectionStrings__DefaultConnection: ${{ secrets.PROD_DB_CONNECTION_STRING }}
+          DataProtection__KeysPath: /tmp/keys/phi
+        run: |
+          dotnet ef database update \
+            --project server/src/Modules/PatientAccess/PatientAccess.Data \
+            --startup-project server/src/PropelIQ.Api \
+            --connection "${{ secrets.PROD_DB_CONNECTION_STRING }}"
+
+      # AC-5: On migration failure, roll back to the previous applied migration
+      # and keep the old binary serving traffic (zero-downtime per NFR-012).
+      - name: Rollback migration on failure
+        if: failure() && steps.migrate.outcome == 'failure'
+        env:
+          ConnectionStrings__DefaultConnection: ${{ secrets.PROD_DB_CONNECTION_STRING }}
+          DataProtection__KeysPath: /tmp/keys/phi
+        run: |
+          PREV=$(dotnet ef migrations list \
+            --project server/src/Modules/PatientAccess/PatientAccess.Data \
+            --startup-project server/src/PropelIQ.Api \
+            --connection "${{ secrets.PROD_DB_CONNECTION_STRING }}" \
+            --json | jq -r '.[-2].name')
+
+          echo "Rolling back to: $PREV"
+          dotnet ef database update "$PREV" \
+            --project server/src/Modules/PatientAccess/PatientAccess.Data \
+            --startup-project server/src/PropelIQ.Api \
+            --connection "${{ secrets.PROD_DB_CONNECTION_STRING }}"
+
+      # AC-5: Alert DevOps on any failure in this job (non-blocking — alert failure
+      # must not mask the real failure; || true ensures exit 0 even if curl fails).
+      # SECURITY: PROD_DB_CONNECTION_STRING and SLACK_WEBHOOK_URL are GitHub Encrypted
+      # Secrets stored in the production environment — never echoed to logs.
+      - name: Alert on migration failure
+        if: failure()
+        run: |
+          curl -s -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+            -H 'Content-type: application/json' \
+            --data '{
+              "text": ":rotating_light: *PropelIQ* EF Core migration failed on `${{ github.ref_name }}` (run #${{ github.run_number }}). Schema rolled back. Application NOT deployed. <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View run>"
+            }' || true
+
   # ── Build & Package IIS Web Deploy Artifact ──────────────────────────────────
   build-and-package:
     name: Publish & Package for IIS
     runs-on: ubuntu-latest
+    needs: migrate    # DR-014: schema must be updated before the new binary is deployed
 
     steps:
       - name: Checkout
@@ -48,7 +126,10 @@ jobs:
           cd publish
           zip -r ../PropelIQ-${{ github.run_number }}.zip propeliq/
 
+      # AC-5: Only upload artifact if migrate job succeeded.
+      # Old binary continues serving traffic if migration failed (NFR-012 zero-downtime).
       - name: Upload IIS web deploy package
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: iis-web-deploy-pkg-${{ github.run_number }}

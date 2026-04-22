@@ -351,11 +351,11 @@ dotnet test --filter "Category=Unit"
 
 ## Implementation Checklist
 
-- [ ] MODIFY `PatientView360UpdateJob.ExecuteAsync`: resolve `patientId` from `documentId` → gather all patient's non-deleted `ExtractedFact` records (AIR-S02 ownership) → call `PatientView360Assembler.DeduplicateAsync` → serialize + encrypt consolidated facts → call `UpsertWithRetryAsync` → AuditLog `PatientView360AssemblyCompleted`
-- [ ] Implement `PatientView360Assembler.DeduplicateAsync`: group by FactType; for multi-document groups, batch-embed values via `IAiGateway.GenerateEmbeddingsAsync` (≤15 per batch, AIR-O04 cache); union-find merge on cosine ≥ 0.85; fallback to `OrdinalIgnoreCase` equality when `IsCircuitOpen` (AIR-O02); keep higher `ConfidenceScore` in merged entry
-- [ ] Implement `UpsertWithRetryAsync`: 3-retry loop on `DbUpdateConcurrencyException`; reload row before each retry; log warning on final give-up; never rethrow (DR-018)
-- [ ] Create `PatientView360Controller` with `GET patients/{patientId}/360-view` (decrypt + deserialize → `PatientView360Dto`) and `GET facts/{factId}/source` (return `SourceCitationDto`); both `[Authorize(Roles="Staff")]`; AuditLog `PatientView360Viewed` on GET
-- [ ] Register `PatientView360Assembler` in `ServiceCollectionExtensions.cs`
-- [ ] **[AI Tasks - MANDATORY]** Reference prompt templates from AI References table during implementation
-- [ ] **[AI Tasks - MANDATORY]** Implement and test guardrails (circuit breaker fallback) before marking task complete
-- [ ] **[AI Tasks - MANDATORY]** Verify AIR-003/AIR-O02/AIR-O04/AIR-S02/AIR-S03 requirements met; no PHI values in audit log payloads
+- [x] MODIFY `PatientView360UpdateJob.ExecuteAsync`: resolve `patientId` from `documentId` → gather all patient's non-deleted `ExtractedFact` records (AIR-S02 ownership) → call `PatientView360Assembler.DeduplicateAsync` → serialize + encrypt consolidated facts → call `UpsertWithRetryAsync` → AuditLog `PatientView360AssemblyCompleted`
+- [x] Implement `PatientView360Assembler.DeduplicateAsync`: group by FactType; for multi-document groups, batch-embed values via `IAiGateway.GenerateEmbeddingsAsync` (≤15 per batch, AIR-O04 cache); union-find merge on cosine ≥ 0.85; fallback to `OrdinalIgnoreCase` equality when `IsCircuitOpen` (AIR-O02); keep higher `ConfidenceScore` in merged entry
+- [x] Implement `UpsertWithRetryAsync`: 3-retry loop on `DbUpdateConcurrencyException`; reload row before each retry; log warning on final give-up; never rethrow (DR-018)
+- [x] Create `PatientView360Controller` with `GET patients/{patientId}/360-view` (decrypt + deserialize → `PatientView360Dto`) and `GET facts/{factId}/source` (return `SourceCitationDto`); both `[Authorize(Roles="Staff")]`; AuditLog `PatientView360Viewed` on GET
+- [x] Register `PatientView360Assembler` in `ServiceCollectionExtensions.cs`
+- [x] **[AI Tasks - MANDATORY]** Reference prompt templates from AI References table during implementation
+- [x] **[AI Tasks - MANDATORY]** Implement and test guardrails (circuit breaker fallback) before marking task complete
+- [x] **[AI Tasks - MANDATORY]** Verify AIR-003/AIR-O02/AIR-O04/AIR-S02/AIR-S03 requirements met; no PHI values in audit log payloads

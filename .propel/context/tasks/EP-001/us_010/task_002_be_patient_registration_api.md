@@ -264,10 +264,10 @@ dotnet run --project src/PropelIQ.Api/PropelIQ.Api.csproj
 
 ## Implementation Checklist
 
-- [ ] Create `RegisterForAppointmentCommand.cs` — record with `SlotId, Email, Name, Dob, Phone, InsuranceProvider?, InsuranceMemberId?`
-- [ ] Create `RegisterForAppointmentResponse.cs` — record with `PatientId, InsuranceStatus`
-- [ ] Create `RegisterForAppointmentHandler.cs` — inject `PropelIQDbContext` + `IInsuranceValidationService`; implement patient upsert, slot booking, insurance validation, audit log — all within one DB transaction
-- [ ] Catch `IInsuranceValidationService` exception → set `InsuranceStatus = "pending"` without re-throwing (non-blocking per edge case)
-- [ ] Add `POST /{slotId:guid}/register` action to `AppointmentsController` with `[Authorize]`, `[HttpPost]`, XML doc, and `201 Created` return
-- [ ] Confirm `ConflictException` → `409` and `NotFoundException` → `404` mapping exists in global exception middleware or add problem-details filter
-- [ ] Confirm MediatR already scans `PatientAccess.Application` assembly (no change needed to `ServiceCollectionExtensions`)
+- [X] Create `RegisterForAppointmentCommand.cs` — record with `SlotId, Email, Name, Dob, Phone, InsuranceProvider?, InsuranceMemberId?`
+- [X] Create `RegisterForAppointmentResponse.cs` — record with `PatientId, InsuranceStatus`
+- [X] Create `RegisterForAppointmentHandler.cs` — inject `IAppointmentRegistrationRepository` + `IInsuranceValidationService`; call insurance validation (non-blocking), delegate transactional upsert to repository
+- [X] Catch `IInsuranceValidationService` exception → set `InsuranceStatus = "pending"` without re-throwing (non-blocking per edge case)
+- [X] Add `POST /{slotId:guid}/register` action to `AppointmentsController` with `[Authorize]`, `[HttpPost]`, XML doc, and `201 Created` return
+- [X] Confirm `ConflictException` → `409` and `NotFoundException` → `404` mapping exists in global exception middleware or add problem-details filter
+- [X] Confirm MediatR already scans `PatientAccess.Application` assembly (no change needed to `ServiceCollectionExtensions`)

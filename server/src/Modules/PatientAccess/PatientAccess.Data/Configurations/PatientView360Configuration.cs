@@ -1,11 +1,20 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using PatientAccess.Data.Converters;
 using PatientAccess.Data.Entities;
 
 namespace PatientAccess.Data.Configurations;
 
 internal sealed class PatientView360Configuration : IEntityTypeConfiguration<PatientView360>
 {
+    private readonly PhiEncryptedConverter? _enc;
+
+    /// <summary>EF tooling constructor — no encryption (schema-only).</summary>
+    public PatientView360Configuration() { }
+
+    /// <summary>Runtime constructor — encrypts DR-015 PHI columns at rest (AC-1).</summary>
+    public PatientView360Configuration(PhiEncryptedConverter? enc) => _enc = enc;
+
     public void Configure(EntityTypeBuilder<PatientView360> builder)
     {
         builder.ToTable("patient_view_360");
@@ -14,9 +23,13 @@ internal sealed class PatientView360Configuration : IEntityTypeConfiguration<Pat
             .HasDefaultValueSql("gen_random_uuid()");
 
         // PHI column: JSONB consolidated clinical summary per DR-015
+        // Stored as text (ciphertext from .NET Data Protection API) — NOT jsonb.
+        // Storing as jsonb would cause PostgreSQL to reject encrypted ciphertext as invalid JSON.
         builder.Property(v => v.ConsolidatedFacts)
-            .HasColumnType("jsonb")
+            .HasColumnType("text")
             .IsRequired();
+        if (_enc is not null)
+            builder.Property(v => v.ConsolidatedFacts).HasConversion(_enc);
 
         // PostgreSQL text[] array: conflict flag descriptions from AIR-004
         builder.Property(v => v.ConflictFlags)

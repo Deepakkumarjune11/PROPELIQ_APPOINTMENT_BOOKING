@@ -279,11 +279,15 @@ dotnet run --project src/PropelIQ.Api/PropelIQ.Api.csproj
 
 ## Implementation Checklist
 
-- [ ] Check `AuditActionType.cs` — add `IntakeSubmitted` value if absent
-- [ ] Create `SubmitIntakeCommand.cs` — record with `PatientId`, `Mode` (string), `Answers` (`Dictionary<string, string>`)
-- [ ] Create `SubmitIntakeResponse.cs` — record with `IntakeResponseId`
-- [ ] Create `SubmitIntakeHandler.cs` — patient existence check via `AnyAsync`, `IntakeMode` parse, serialize answers, insert `IntakeResponse`, append `AuditLog` with PHI-safe payload, `SaveChangesAsync`
-- [ ] Modify `IntakeResponseConfiguration.cs` — add `HasConversion` `ValueConverter` using `IDataProtector` (Protect on write, Unprotect on read) for `Answers` column (DR-015)
-- [ ] Update `ServiceCollectionExtensions.cs` — add `services.AddDataProtection().SetApplicationName("PropelIQ")` and wire `IDataProtector` into `IntakeResponseConfiguration` registration
-- [ ] Create `PatientsController.cs` — `[Authorize]`, `[Route("api/v1/patients")]`, `POST /{patientId:guid}/intake` action, 201/404 responses, XML doc for Swagger
-- [ ] Confirm `dotnet build` passes with zero errors after all changes
+- [x] Check `AuditActionType.cs` — `IntakeSubmission` already present, no change needed
+- [x] Create `SubmitIntakeCommand.cs` — record with `PatientId`, `Mode` (string), `Answers` (`Dictionary<string, string>`)
+- [x] Create `SubmitIntakeResponse.cs` — record with `IntakeResponseId`
+- [x] Create `IIntakeSubmissionRepository.cs` in Application — `PatientExistsAsync` + `SubmitIntakeAsync` (follows established architectural pattern; Application cannot reference Data's DbContext directly)
+- [x] Create `SubmitIntakeHandler.cs` — patient existence check via `IIntakeSubmissionRepository.PatientExistsAsync`, `IntakeMode` parse, serialize answers, delegate to `SubmitIntakeAsync`; PHI guard: only `mode` + `questionCount` logged, never raw answers (DR-015)
+- [x] Create `IntakeSubmissionRepository.cs` in Data — implements `IIntakeSubmissionRepository`; inserts `IntakeResponse` + `AuditLog` (`IntakeSubmission`) in single `SaveChangesAsync`
+- [x] Modify `IntakeResponseConfiguration.cs` — add `HasConversion` `ValueConverter` using `IDataProtector` (JSON-wrapped ciphertext on write, strip+unprotect on read); null-safe for design-time (DR-015)
+- [x] Add `Microsoft.AspNetCore.DataProtection.Abstractions 8.*` to `PatientAccess.Data.csproj`
+- [x] Modify `PropelIQDbContext.cs` — inject `IDataProtectionProvider?`, create purpose-scoped protector, pass to `IntakeResponseConfiguration`
+- [x] Update `ServiceCollectionExtensions.cs` — register `IIntakeSubmissionRepository → IntakeSubmissionRepository`; add `services.AddDataProtection().SetApplicationName("PropelIQ")`
+- [x] Create `PatientsController.cs` — `[Authorize]`, `[Route("api/v1/patients")]`, `POST /{patientId:guid}/intake` action, 201/404 responses, XML doc for Swagger
+- [x] `dotnet build PropelIQ.slnx` → 0 errors
