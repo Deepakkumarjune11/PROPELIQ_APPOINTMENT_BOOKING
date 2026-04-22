@@ -400,11 +400,11 @@ dotnet build PropelIQ.slnx --configuration Debug
 
 ## Implementation Checklist
 
-- [ ] Modify `Program.cs`: add `AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(...)` with `ClockSkew = TimeSpan.Zero`; add `OnTokenValidated` event that checks Redis `blacklist:{token}` key; add `UseAuthentication()` before `UseAuthorization()`; register `IAuthService`; add `AddRateLimiter` fixed-window policy (5 req/60s per IP) on `/api/v1/auth/login`
-- [ ] Modify `appsettings.json`: add `"Jwt"` section with `Issuer`, `Audience`, `ExpiryMinutes: 15`; add `"Jwt:Key"` comment referencing environment variable `PROPELIQ_JWT_KEY`
-- [ ] Modify `ConfigurationValidator.cs`: add `"Jwt:Key"` to required keys list so missing key throws at startup
-- [ ] Create `IAuthService` + `AuthService`: `ResolveCredentialAsync` queries Staff → Admin → Patient by email; `GenerateJwt` creates 15-min signed JWT with `NameIdentifier`, `Role`, `Email` claims; `LogoutAsync` blacklists token in Redis with remaining TTL (catch Redis failure → log warning, continue); `LoginAsync` audit-logs success/failure; `RefreshAsync` validates current token + atomic Redis blacklist old + issues new JWT
-- [ ] Create `AuthController`: `[AllowAnonymous]` on Login; `[Authorize]` on Refresh and Logout; extract token from `Authorization` header for Refresh/Logout; return 401 with `{ message = "Invalid credentials" }` (never distinguish not-found from wrong-password per OWASP A07)
-- [ ] Create `LoginRequest` + `AuthResponse` records in `PatientAccess.Application/DTOs/`
-- [ ] Add Swagger Bearer security definition and `AddSecurityRequirement` in `SwaggerGen` options
-- [ ] Verify `[Authorize(Roles="Staff")]` on existing staff endpoints returns 403 for patient-role JWT (no code change needed — built-in middleware behaviour)
+- [x] Modify `Program.cs`: add `AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(...)` with `ClockSkew = TimeSpan.Zero`; add `OnTokenValidated` event that checks Redis `blacklist:{token}` key; add `UseAuthentication()` before `UseAuthorization()`; register `IAuthService`; add `AddRateLimiter` fixed-window policy (5 req/60s per IP) on `/api/v1/auth/login`
+- [x] Modify `appsettings.json`: add `"Jwt"` section with `Issuer`, `Audience`, `ExpiryMinutes: 15`; add `"Jwt:Key"` comment referencing environment variable `PROPELIQ_JWT_KEY`
+- [x] Modify `ConfigurationValidator.cs`: add `"Jwt:Key"` to required keys list so missing key throws at startup
+- [x] Create `IAuthService` + `AuthService`: `ResolveCredentialAsync` queries Staff → Admin by Username (Patient auth deferred — no AuthCredentials field on Patient entity); `GenerateJwt` creates 15-min signed JWT with `NameIdentifier`, `Role`, `Email` claims; `LogoutAsync` blacklists token in Redis with remaining TTL (catch Redis failure → log warning, continue); `LoginAsync` audit-logs success/failure; `RefreshAsync` validates current token + atomic Redis blacklist old + issues new JWT
+- [x] Create `AuthController`: `[AllowAnonymous]` on Login; `[Authorize]` on Refresh and Logout; extract token from `Authorization` header for Refresh/Logout; return 401 with `{ message = "Invalid credentials" }` (never distinguish not-found from wrong-password per OWASP A07)
+- [x] Create `LoginRequest` + `AuthResponse` records in `PatientAccess.Application/DTOs/`
+- [x] Add Swagger Bearer security definition and `AddSecurityRequirement` in `SwaggerGen` options
+- [x] Verify `[Authorize(Roles="Staff")]` on existing staff endpoints returns 403 for patient-role JWT (no code change needed — built-in middleware behaviour)

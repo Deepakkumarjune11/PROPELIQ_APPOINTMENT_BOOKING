@@ -284,10 +284,12 @@ dotnet ef database update \
 
 ## Implementation Checklist
 
-- [ ] Modify `AppointmentConfiguration.cs` — add `builder.UseXminAsConcurrencyToken()` at end of `Configure` method
-- [ ] Run `dotnet ef migrations add AddAppointmentConcurrencyToken` — confirm migration file generated (even if DDL body is empty)
-- [ ] Create `SlotAlreadyBookedException.cs` in `PatientAccess.Application/Exceptions/`
-- [ ] Modify `RegisterForAppointmentResponse.cs` — add `NoShowRiskScore (decimal?)`, `IsHighRisk (bool)`, `ContributingFactors (IReadOnlyList<string>)` to the record
-- [ ] Modify `RegisterForAppointmentHandler.cs` — inject `INoShowRiskScoringService`; call `CalculateFullRisk` after insurance validation; set `appointment.NoShowRiskScore`; log `[PartialScoring]` warning when `IsPartialScoring`; wrap `SaveChangesAsync` in `DbUpdateConcurrencyException` → `SlotAlreadyBookedException` catch; return enriched response
-- [ ] Modify `AppointmentsController.cs` — add `catch (SlotAlreadyBookedException)` → `return Conflict(new ProblemDetails { ... Status = 409 })`
-- [ ] Confirm `dotnet build` passes with zero errors
+- [x] Modify `AppointmentConfiguration.cs` — added `builder.Property<uint>("xmin").HasColumnType("xid").IsRowVersion()` (non-obsolete Npgsql 8.x approach; `UseXminAsConcurrencyToken()` is obsolete and `TreatWarningsAsErrors=true`)
+- [x] Run `dotnet ef migrations add AddAppointmentConcurrencyToken` — migration `20260419151325_AddAppointmentConcurrencyToken` generated; adds xmin shadow property to EF model snapshot
+- [x] Create `SlotAlreadyBookedException.cs` in `PatientAccess.Application/Exceptions/` — contains `SlotId` property
+- [x] Modify `IAppointmentRegistrationRepository.cs` — added `GetSlotDatetimeAsync(Guid, ct)` + `noShowRiskScore: decimal?` param to `RegisterAsync`; documented `SlotAlreadyBookedException` on interface
+- [x] Modify `AppointmentRegistrationRepository.cs` (Data) — implemented `GetSlotDatetimeAsync`; `RegisterAsync` sets `slot.NoShowRiskScore = noShowRiskScore`; wraps `SaveChangesAsync` in `DbUpdateConcurrencyException` → `SlotAlreadyBookedException` catch (consistent with existing pattern)
+- [x] Modify `RegisterForAppointmentResponse.cs` — added `NoShowRiskScore (decimal?)`, `IsHighRisk (bool)`, `ContributingFactors (IReadOnlyList<string>)` positional fields
+- [x] Modify `RegisterForAppointmentHandler.cs` — injected `INoShowRiskScoringService`; calls `GetSlotDatetimeAsync` → `CalculateFullRisk(slotDatetime, validationResult, intakeCompleted: false)`; logs `[PartialScoring]` warning (slot ID only — no PHI); passes score to `RegisterAsync`; returns enriched response
+- [x] Modify `AppointmentsController.cs` — added `using PatientAccess.Application.Exceptions` + `try/catch (SlotAlreadyBookedException)` → `Conflict(new ProblemDetails { Status = 409 })`
+- [x] `dotnet build PropelIQ.slnx` → Build succeeded, 0 Error(s)

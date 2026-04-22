@@ -266,11 +266,11 @@ dotnet test --filter "Category=Unit"
 
 ## Implementation Checklist
 
-- [ ] Create `AppointmentDto` and `SlotAvailabilityDto` response types
-- [ ] Implement `GetPatientAppointmentsQuery` handler with `PreferredSlot` include and DTO projection
-- [ ] Implement `GetSlotAvailabilityQuery` handler returning availability matrix for provider/month
-- [ ] Implement `RegisterPreferredSlotCommand` handler with 5-step eligibility validation chain (ownership → status → slot availability → future date → persist)
-- [ ] Create `IPatientOwnershipValidator` interface + EF Core implementation for reusable RBAC check
-- [ ] Implement `AppointmentsController` (GET + POST preferred-slot) with `[Authorize(Roles = "Patient")]`
-- [ ] Implement `SlotsController` (GET availability) with `[Authorize(Roles = "Patient")]`
-- [ ] Register all services in `ServiceCollectionExtensions.cs` and write AuditLog entry on successful `RegisterPreferredSlotCommand` execution
+- [X] Create `AppointmentDto` and `SlotAvailabilityDto` response types
+- [X] Implement `GetPatientAppointmentsQuery` handler with `PreferredSlot` include and DTO projection
+- [X] Implement `GetSlotAvailabilityQuery` handler returning availability matrix for provider/month
+- [X] Implement `RegisterPreferredSlotCommand` handler with 5-step eligibility validation chain (ownership → status → slot availability → future date → persist)
+- [X] Create `IPatientOwnershipValidator` interface + EF Core implementation for reusable RBAC check
+- [X] Implement `AppointmentsController` (GET + POST preferred-slot) with `[Authorize(Roles = "Patient")]`
+- [X] Implement `SlotsController` (GET availability) with `[Authorize(Roles = "Patient")]`
+- [X] Register all services in `ServiceCollectionExtensions.cs` and write AuditLog entry on successful `RegisterPreferredSlotCommand` execution

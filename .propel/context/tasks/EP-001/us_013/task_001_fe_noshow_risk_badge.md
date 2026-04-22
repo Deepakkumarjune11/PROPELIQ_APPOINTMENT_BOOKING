@@ -240,10 +240,10 @@ npm run build
 
 ## Implementation Checklist
 
-- [ ] Modify `SlotDto` in `api/availability.ts` — add `riskContributingFactors: string[]`, `isPartialScoring: boolean`
-- [ ] Modify `NoShowRiskBadge.tsx` — add `riskContributingFactors: string[]` and `isPartialScoring: boolean` props; wrap chip in MUI `Tooltip` with rich content (factors list + partial scoring note)
-- [ ] Modify `useRegisterPatient.ts` — add `onError` 409 handler: clear `selectedSlot`, navigate to slot selection, show `SlotConflictToast`
-- [ ] Modify `booking-store.ts` — add `clearSelectedSlot` action if missing
-- [ ] Confirm `SlotConflictToast` mechanism from US_009 is reusable (no duplication); adapt call site if needed
-- [ ] **[UI Tasks - MANDATORY]** Reference wireframe from Design References table during implementation
-- [ ] **[UI Tasks - MANDATORY]** Validate UI matches wireframe at 375px, 768px, 1440px before marking task complete
+- [x] Modify `SlotDto` in `api/availability.ts` — added `riskContributingFactors?: string[]`, `isPartialScoring?: boolean` to `AvailabilitySlot`
+- [x] Modify `NoShowRiskBadge.tsx` — added `riskContributingFactors` and `isPartialScoring` props; wrapped chip in MUI `Tooltip` with rich content (factors list + partial scoring italic footer note); label updated to "High no-show risk detected"
+- [x] Modify `useRegisterPatient.ts` — added 409 slot-conflict branch: `clearSelectedSlot()` + `setConflictError(true)` + navigate to `/appointments/slot-selection`; email-conflict 409 now distinguished by presence of `emailConflictMessage`
+- [x] Modify `booking-store.ts` — added `clearSelectedSlot` action (sets `selectedSlot: null`, preserves rest of booking state)
+- [x] Confirmed `SlotConflictToast` in `SlotSelectionPage` consumes `hasConflictError` from store — no duplication; call site unchanged
+- [x] `SelectableSlotCard.tsx` updated to pass `riskContributingFactors` and `isPartialScoring` to `NoShowRiskBadge`
+- [x] `npx tsc --noEmit` passes with zero errors

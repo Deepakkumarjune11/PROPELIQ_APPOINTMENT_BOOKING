@@ -323,11 +323,11 @@ npm run type-check
 
 ## Implementation Checklist
 
-- [ ] Create `client/src/lib/permissions.ts` with 5 bitmask constants (ViewPatientCharts=1, VerifyClinicalData=2, ManageAppointments=4, UploadDocuments=8, ViewMetrics=16)
-- [ ] Create `useAdminUsers.ts` (30s staleTime) and four mutation hooks (`useCreateUser`, `useUpdateUser`, `useAssignRole`, `useToggleUserStatus`) each calling `invalidateQueries(['adminUsers'])` on success
-- [ ] Create `UserManagementPage.tsx` (SCR-021): `<RoleGuard>` enforced at route level; debounced search (300ms); Loading/Empty/Error states; role `Chip` colour-coded (primary=staff, success=admin); Disable button disabled + `Tooltip` when `u.id === currentUser.id`; confirmation `Dialog` before disable/enable
-- [ ] Create `CreateEditUserModal.tsx` (SCR-022): MUI `Dialog` max-width 500px; Full name/Email/Role/Department fields; blur validation (UXR-502); 422 conflict → `Alert severity="error"` with API message; create vs edit mode title/button label
-- [ ] Create `RoleAssignmentModal.tsx` (SCR-023): role `Select` pre-populated; bitmask `FormGroup` using `permissionItems` array with `Tooltip` on each; `togglePermission` flips correct bit; 422 conflict `Alert`
-- [ ] Register `/admin/users` route in `App.tsx` under admin `<RoleGuard>`
+- [x] Create `client/src/lib/permissions.ts` with 5 bitmask constants (ViewPatientCharts=1, VerifyClinicalData=2, ManageAppointments=4, UploadDocuments=8, ViewMetrics=16)
+- [x] Create `useAdminUsers.ts` (30s staleTime) and four mutation hooks (`useCreateUser`, `useUpdateUser`, `useAssignRole`, `useToggleUserStatus`) each calling `invalidateQueries(['adminUsers'])` on success
+- [x] Create `UserManagementPage.tsx` (SCR-021): `<RoleGuard>` enforced at route level; debounced search (300ms); Loading/Empty/Error states; role `Chip` colour-coded (primary=staff, success=admin); Disable button disabled + `Tooltip` when `u.id === currentUser.id`; confirmation `Dialog` before disable/enable
+- [x] Create `CreateEditUserModal.tsx` (SCR-022): MUI `Dialog` max-width 500px; Full name/Email/Role/Department fields; blur validation (UXR-502); 422 conflict → `Alert severity="error"` with API message; create vs edit mode title/button label
+- [x] Create `RoleAssignmentModal.tsx` (SCR-023): role `Select` pre-populated; bitmask `FormGroup` using `permissionItems` array with `Tooltip` on each; `togglePermission` flips correct bit; 422 conflict `Alert`
+- [x] Register `/admin/users` route in `App.tsx` under admin `<RoleGuard>`
 - [ ] **[UI Tasks - MANDATORY]** Reference all three wireframe files from Design References during implementation
 - [ ] **[UI Tasks - MANDATORY]** Validate all three screens match wireframes before marking complete

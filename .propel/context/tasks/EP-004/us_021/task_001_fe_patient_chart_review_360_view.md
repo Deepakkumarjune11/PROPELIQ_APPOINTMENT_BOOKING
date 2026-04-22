@@ -329,11 +329,11 @@ npm run type-check
 
 ## Implementation Checklist
 
-- [ ] Export `FACT_CATEGORY_COLORS` from `healthcare-theme.ts` mapping `Vitals`, `Medications`, `History`, `Diagnoses`, `Procedures` to respective hex tokens from `designsystem.md#clinical` (UXR-303)
-- [ ] Create `FactCard.tsx`: left `4px` border per `FACT_CATEGORY_COLORS`; blue badge for confidence ≥ 70%, orange for < 70%; citation `IconButton` visible only when `sourceCharOffset != null`
-- [ ] Create `SourceCitationDrawer.tsx`: right-slide MUI `Drawer` (500px / 100% mobile); XSS-safe `buildHighlightedText` with `Math.min/max` guard; monospace `<pre>` with `<mark>` highlight; Skeleton on `isFetching`
-- [ ] Create `usePatientView360.ts` + `useFactSource.ts` React Query hooks; staleTime 60s / 300s respectively; `useFactSource` uses `enabled: false`
-- [ ] Create `PatientChartReviewPage.tsx` (SCR-016): MUI `Table` with 6 columns; Conflict (error) and Pending (warning) `Chip`; `Skeleton` on loading; "No patients pending review" empty state
-- [ ] Create `PatientView360Page.tsx` (SCR-017): patient identity header; conflict badge that will navigate to SCR-018; 5 MUI `Tabs`; `FactCard` grid per active category; wire `handleCiteClick` → `useFactSource.refetch()` → open `SourceCitationDrawer`
-- [ ] **[UI Tasks - MANDATORY]** Reference wireframe (`wireframe-SCR-016-*.html`, `wireframe-SCR-017-*.html`) from Design References table during implementation
-- [ ] **[UI Tasks - MANDATORY]** Validate UI matches wireframe at 375px, 768px, 1440px before marking task complete
+- [x] Export `FACT_CATEGORY_COLORS` from `healthcare-theme.ts` mapping `Vitals`, `Medications`, `History`, `Diagnoses`, `Procedures` to respective hex tokens from `designsystem.md#clinical` (UXR-303)
+- [x] Create `FactCard.tsx`: left `4px` border per `FACT_CATEGORY_COLORS`; blue badge for confidence ≥ 70%, orange for < 70%; citation `IconButton` visible only when `sourceCharOffset != null`
+- [x] Create `SourceCitationDrawer.tsx`: right-slide MUI `Drawer` (500px / 100% mobile); XSS-safe `buildHighlightedText` with `Math.min/max` guard; monospace `<pre>` with `<mark>` highlight; Skeleton on `isFetching`
+- [x] Create `usePatientView360.ts` + `useFactSource.ts` React Query hooks; staleTime 60s / 300s respectively; `useFactSource` uses `enabled: false`
+- [x] Create `PatientChartReviewPage.tsx` (SCR-016): MUI `Table` with 6 columns; Conflict (error) and Pending (warning) `Chip`; `Skeleton` on loading; "No patients pending review" empty state
+- [x] Create `PatientView360Page.tsx` (SCR-017): patient identity header; conflict badge that will navigate to SCR-018; 5 MUI `Tabs`; `FactCard` grid per active category; wire `handleCiteClick` → `useFactSource.refetch()` → open `SourceCitationDrawer`
+- [x] **[UI Tasks - MANDATORY]** Reference wireframe (`wireframe-SCR-016-*.html`, `wireframe-SCR-017-*.html`) from Design References table during implementation
+- [x] **[UI Tasks - MANDATORY]** Validate UI matches wireframe at 375px, 768px, 1440px before marking task complete

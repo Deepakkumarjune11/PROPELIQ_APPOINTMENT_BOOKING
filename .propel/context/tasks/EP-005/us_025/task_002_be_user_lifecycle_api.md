@@ -438,12 +438,12 @@ dotnet build PropelIQ.slnx --configuration Debug
 
 ## Implementation Checklist
 
-- [ ] Create `PermissionValidator.cs` with conflict rules table (FrontDesk × VerifyClinicalData, CallCenter × ViewPatientCharts) and static `Validate(StaffRole, int)` method
-- [ ] Create `ISessionInvalidator` + `RedisSessionInvalidator`: `InvalidateSessionAsync` writes `session_invalidated:{userId}` to Redis with 15-min TTL; `IsUserInvalidatedAsync` reads and returns non-null check
-- [ ] Create `IUserManagementService` + `UserManagementService`: `CreateUserAsync` hashes initial password via `IPasswordHasher`; validates role/permission conflict before DB write; `AssignRoleAsync` validates conflict + `InvalidateSessionAsync` + AuditLog; `DisableUserAsync` sets `IsActive=false` + `InvalidateSessionAsync` + AuditLog; `UpdateUserAsync` skips password field; `GetAllUsersAsync` projects Staff + Admin to `AdminUserDto[]`
-- [ ] Create `AdminController` with 6 endpoints all under `[Authorize(Roles="Admin")]`; `DisableUser` adds self-disable guard (`id == ActorId → 400`); catch `PermissionConflictException` → 422; catch `UserNotFoundException` → 404
-- [ ] Create DTOs: `AdminUserDto` (no `AuthCredentials` field), `CreateUserRequest`, `UpdateUserRequest`, `AssignRoleRequest`; create `PermissionConflictException` + `UserNotFoundException`
-- [ ] Modify `ServiceCollectionExtensions.cs`: register `IUserManagementService` + `ISessionInvalidator`
-- [ ] Modify `Program.cs` `OnTokenValidated`: after token blacklist check, call `IsUserInvalidatedAsync` using `NameIdentifier` claim; fail context if true
-- [ ] Security: verify no DTO exposes `AuthCredentials`; AuditLog payloads contain no PHI (no passwords, no raw permission details beyond role name)
-- [ ] Verify `AuthService.LoginAsync` (US_024/task_002) checks `IsActive` on resolved entity before issuing JWT (self-disabling detection at login boundary)
+- [x] Create `PermissionValidator.cs` with conflict rules table (FrontDesk × VerifyClinicalData, CallCenter × ViewPatientCharts) and static `Validate(StaffRole, int)` method
+- [x] Create `ISessionInvalidator` + `RedisSessionInvalidator`: `InvalidateSessionAsync` writes `session_invalidated:{userId}` to Redis with 15-min TTL; `IsUserInvalidatedAsync` reads and returns non-null check
+- [x] Create `IUserManagementService` + `UserManagementService`: `CreateUserAsync` hashes initial password via `IPasswordHasher`; validates role/permission conflict before DB write; `AssignRoleAsync` validates conflict + `InvalidateSessionAsync` + AuditLog; `DisableUserAsync` sets `IsActive=false` + `InvalidateSessionAsync` + AuditLog; `UpdateUserAsync` skips password field; `GetAllUsersAsync` projects Staff + Admin to `AdminUserDto[]`
+- [x] Create `AdminController` with 6 endpoints all under `[Authorize(Roles="Admin")]`; `DisableUser` adds self-disable guard (`id == ActorId → 400`); catch `PermissionConflictException` → 422; catch `UserNotFoundException` → 404
+- [x] Create DTOs: `AdminUserDto` (no `AuthCredentials` field), `CreateUserRequest`, `UpdateUserRequest`, `AssignRoleRequest`; create `PermissionConflictException` + `UserNotFoundException`
+- [x] Modify `ServiceCollectionExtensions.cs`: register `IUserManagementService` + `ISessionInvalidator`
+- [x] Modify `Program.cs` `OnTokenValidated`: after token blacklist check, call `IsUserInvalidatedAsync` using `NameIdentifier` claim; fail context if true
+- [x] Security: verify no DTO exposes `AuthCredentials`; AuditLog payloads contain no PHI (no passwords, no raw permission details beyond role name)
+- [x] Verify `AuthService.LoginAsync` (US_024/task_002) checks `IsActive` on resolved entity before issuing JWT (self-disabling detection at login boundary)

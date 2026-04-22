@@ -9,6 +9,7 @@ public enum AuditActionType
 {
     PatientDataAccess,
     AppointmentChange,
+    AppointmentBooked,
     ClinicalDataModification,
     CodeConfirmation,
     DocumentUpload,

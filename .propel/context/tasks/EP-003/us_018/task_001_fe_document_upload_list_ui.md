@@ -285,12 +285,12 @@ npm run build
 
 ## Implementation Checklist
 
-- [ ] Create `client/src/api/documents.ts` with `DocumentRecord` type, `uploadDocument` (multipart + progress), `getDocuments`, `deleteDocument`
-- [ ] Create `useDocumentUpload.ts` managing `FileUploadEntry[]` queue with per-file Axios upload and progress callbacks
-- [ ] Implement PDF client-side validation (magic bytes + 25MB size limit) before adding files to upload queue
-- [ ] Create `DocumentUploadPage.tsx` (SCR-014): drag-drop Box, stacked `LinearProgress`, validation `Alert`, all 4 states (Default/Loading/Error/Validation)
-- [ ] Create `useDocuments.ts` React Query hook with `refetchInterval` conditional 5s polling on queued/processing statuses
-- [ ] Create `DocumentListPage.tsx` (SCR-015): `Table` with status `Chip` colour mapping, `Skeleton` loading, Empty state CTA, delete `IconButton` + `Dialog`
-- [ ] Add `/documents` and `/documents/upload` routes to `App.tsx` inside `<AuthenticatedLayout>`
-- [ ] **[UI Tasks - MANDATORY]** Reference wireframes from Design References table during implementation
-- [ ] **[UI Tasks - MANDATORY]** Validate UI matches wireframes before marking task complete
+- [x] Create `client/src/api/documents.ts` with `DocumentRecord` type, `uploadDocument` (multipart + progress), `getDocuments`, `deleteDocument`
+- [x] Create `useDocumentUpload.ts` managing `FileUploadEntry[]` queue with per-file Axios upload and progress callbacks
+- [x] Implement PDF client-side validation (magic bytes + 25MB size limit) before adding files to upload queue
+- [x] Create `DocumentUploadPage.tsx` (SCR-014): drag-drop Box, stacked `LinearProgress`, validation `Alert`, all 4 states (Default/Loading/Error/Validation)
+- [x] Create `useDocuments.ts` React Query hook with `refetchInterval` conditional 5s polling on queued/processing statuses
+- [x] Create `DocumentListPage.tsx` (SCR-015): `Table` with status `Chip` colour mapping, `Skeleton` loading, Empty state CTA, delete `IconButton` + `Dialog`
+- [x] Add `/documents` and `/documents/upload` routes to `App.tsx` inside `<AuthenticatedLayout>`
+- [x] **[UI Tasks - MANDATORY]** Reference wireframes from Design References table during implementation
+- [x] **[UI Tasks - MANDATORY]** Validate UI matches wireframes before marking task complete

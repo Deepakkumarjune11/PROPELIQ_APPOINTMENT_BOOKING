@@ -47,6 +47,33 @@ jobs:
       - name: Format check
         run: dotnet format server/PropelIQ.slnx --verify-no-changes
 
+      # Restore local tools (dotnet-ef pinned to 8.0.0 in .config/dotnet-tools.json)
+      - name: Restore .NET local tools
+        run: dotnet tool restore
+
+      # AC-4: Fail the PR if the EF Core model has changes not captured in a migration.
+      # Introduced in EF Core 8.0 — exits 1 on schema drift.
+      - name: Check for pending EF Core migrations
+        run: |
+          dotnet ef migrations has-pending-model-changes \
+            --project server/src/Modules/PatientAccess/PatientAccess.Data \
+            --startup-project server/src/PropelIQ.Api
+
+      # AC-4 / convention: reject any migration that uses CREATE INDEX CONCURRENTLY
+      # without suppressTransaction: true — would deadlock inside EF's implicit transaction.
+      - name: Lint migration CONCURRENTLY usage
+        run: |
+          if grep -rn "CONCURRENTLY" server/src/Modules/PatientAccess/PatientAccess.Data/Migrations/ \
+             | grep -v "suppressTransaction: true" \
+             | grep -v "\.Designer\.cs" \
+             | grep -v "Snapshot\.cs" \
+             | grep -q .; then
+            echo "ERROR: Found CONCURRENTLY index in migration without suppressTransaction: true."
+            echo "Add second parameter: migrationBuilder.Sql(\"...\", suppressTransaction: true)"
+            exit 1
+          fi
+          echo "Migration CONCURRENTLY lint: OK"
+
       # Retry once before failing — handles transient flaky-test failures (edge case spec)
       - name: Test with retry
         uses: nick-fields/retry@v3

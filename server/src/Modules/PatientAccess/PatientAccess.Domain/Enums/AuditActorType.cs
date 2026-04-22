@@ -7,6 +7,7 @@ namespace PatientAccess.Domain.Enums;
 /// </summary>
 public enum AuditActorType
 {
+    Patient,
     Staff,
     Admin,
     System

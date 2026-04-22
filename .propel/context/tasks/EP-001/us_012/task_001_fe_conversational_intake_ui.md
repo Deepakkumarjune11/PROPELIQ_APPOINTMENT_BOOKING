@@ -277,14 +277,16 @@ npm run build
 
 ## Implementation Checklist
 
-- [ ] Create `client/src/api/intakeChat.ts` — `ChatMessage`, `SendChatMessageRequest`, `SendChatMessageResponse` types; `sendIntakeChatMessage(patientId, payload)` function
-- [ ] Create `client/src/hooks/useIntakeChat.ts` — `messages`, `isTyping`, `isComplete`, `isFallback` state; `useMutation` send; handle `mergeAnswers` on completion; handle `fallbackToManual` with timed navigation
-- [ ] Create `ChatMessageItem.tsx` — AI (primary.500 Avatar, left-aligned card) vs patient (secondary Avatar, right-aligned card) with timestamp
-- [ ] Create `ChatMessageList.tsx` — scrollable container, `useRef` + `useEffect` auto-scroll to bottom
-- [ ] Create `AiTypingIndicator.tsx` — three-dot animated typing indicator card (matches AI message style)
-- [ ] Create `ChatInputBar.tsx` — TextField + Send IconButton; Enter handler; disabled state when `isTyping || isComplete`
-- [ ] Create `IntakeFallbackBanner.tsx` — MUI Alert warning + 2s auto-navigate to `/appointments/intake/manual`
-- [ ] Create `ConversationalIntakePage.tsx` — guard, stepper (step 4), mode-switch button, message list, input bar, submit/fallback logic; fire greeting on mount
-- [ ] Modify `App.tsx` — replace `/appointments/intake/conversational` stub with `<ConversationalIntakePage />`
+- [x] Create `client/src/api/intakeChat.ts` — `ChatMessage`, `SendChatMessageRequest`, `SendChatMessageResponse` types; `sendIntakeChatMessage(patientId, payload)` function
+- [x] Create `client/src/hooks/useIntakeChat.ts` — `messages`, `isTyping`, `isComplete`, `isFallback`, `showInactivityWarning` state; `useMutation` send; handle `mergeAnswers` on completion; handle `fallbackToManual` with 2s timed navigation; 4-min inactivity timer
+- [x] Add `mergeAnswers(incoming: Record<string, string>)` to `client/src/stores/intake-store.ts` (shallow-merge over existing answers — AC-3)
+- [x] Create `ChatMessageItem.tsx` — AI (primary.500 Avatar, left-aligned card, rounded `0 8px 8px 8px`) vs patient (secondary Avatar, right-aligned card, `8px 0 8px 8px`) with timestamp
+- [x] Create `ChatMessageList.tsx` — scrollable container with `role="log"` + `aria-live="polite"`, `useRef` + `useEffect` auto-scroll to bottom; renders `AiTypingIndicator` when `isTyping`
+- [x] Create `AiTypingIndicator.tsx` — three-dot CSS bounce animation in an AI-style card with `role="status"` aria label
+- [x] Create `ChatInputBar.tsx` — MUI TextField (pill-shaped border-radius 20px) + Send `IconButton` 44px; Enter handler; disabled state when `isTyping || isComplete`
+- [x] Create `IntakeFallbackBanner.tsx` — MUI Alert severity="warning" with "Switch now" action button; navigate handled by parent hook (AC-5)
+- [x] Create `ConversationalIntakePage.tsx` — guard, stepper (step 4), mode-switch button (preserves answers AC-3), ChatMessageList, ChatInputBar, submit/fallback logic; fire greeting on mount (AC-1)
+- [x] `App.tsx` already imports `ConversationalIntakePage` — no route changes needed (stub file was replaced)
+- [x] TypeScript type-check: `npx tsc --noEmit` → 0 errors
 - [ ] **[UI Tasks - MANDATORY]** Reference wireframe from Design References table during implementation
 - [ ] **[UI Tasks - MANDATORY]** Validate UI matches wireframe at 375px, 768px, 1440px before marking task complete

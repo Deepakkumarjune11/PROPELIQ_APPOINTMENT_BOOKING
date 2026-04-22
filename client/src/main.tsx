@@ -16,6 +16,16 @@ if (!rootElement) {
   );
 }
 
+// Development-only: @axe-core/react reports WCAG violations to the browser console.
+// Dynamic import + import.meta.env.DEV guard ensures zero production bundle impact
+// (Vite tree-shakes this branch entirely in production builds).
+if (import.meta.env.DEV) {
+  const React = await import('react');
+  const ReactDOM = await import('react-dom');
+  const axe = await import('@axe-core/react');
+  axe.default(React.default, ReactDOM.default, 1000);
+}
+
 createRoot(rootElement).render(
   <StrictMode>
     <App />

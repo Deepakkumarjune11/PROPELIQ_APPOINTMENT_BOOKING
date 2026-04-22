@@ -6,7 +6,11 @@
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
     /* Enable Node built-in types for __dirname, path, etc. in vite.config.ts */
-    "types": ["node"]
+    "types": ["node"],
+    /* Route compiled output away from the source root so Vite never picks
+       a stale vite.config.js over the canonical vite.config.ts (Vite resolves
+       .js before .ts, causing proxy misconfiguration when they diverge). */
+    "outDir": ".tsc-node-out"
   },
   "include": ["vite.config.ts"]
 }

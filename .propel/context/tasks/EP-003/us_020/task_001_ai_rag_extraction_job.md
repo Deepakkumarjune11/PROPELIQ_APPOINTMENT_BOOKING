@@ -347,12 +347,12 @@ dotnet test --filter "Category=Unit"
 
 ## Implementation Checklist
 
-- [ ] Create `ExtractedFactResult` record matching GPT-4 JSON output schema with 5 fields
-- [ ] Create `.propel/context/prompts/clinical-fact-extraction.md` prompt template with versioned system + user messages; `{context}` placeholder; explicit JSON output schema in system message
-- [ ] Implement `ContextAssembler.Assemble`: re-rank by `cosine × (token_count / 512f)` then greedy 3,000-token window accumulation; return `(context string, used chunks list)` for source citation mapping
-- [ ] Extend `AzureOpenAiGateway` with `ChatCompletionAsync`: token budget check → Polly pipeline → `ChatCompletionsClient.CompleteAsync` (Temperature=0, JsonObject mode) → AIR-S03 AuditLog
-- [ ] Implement `FactExtractionJob`: retrieve (cosine ≥ 0.7) → low-relevance guard → re-rank + assemble → GPT-4 call → JSON schema validate (retry-once) → call `IFactPersistenceService.PersistAsync`
-- [ ] Register `ContextAssembler` as scoped; add `fact-extraction` Hangfire queue in `ServiceCollectionExtensions.cs`
-- [ ] **[AI Tasks - MANDATORY]** Reference prompt templates from AI References table during implementation
-- [ ] **[AI Tasks - MANDATORY]** Implement and test guardrails (circuit breaker + token budget + schema validation) before marking task complete
-- [ ] **[AI Tasks - MANDATORY]** Verify AIR-O01/O02/Q03/Q04/S03/S04 requirements met; verify no PHI in audit log payloads
+- [x] Create `ExtractedFactResult` record matching GPT-4 JSON output schema with 5 fields
+- [x] Create `.propel/context/prompts/clinical-fact-extraction.md` prompt template with versioned system + user messages; `{context}` placeholder; explicit JSON output schema in system message
+- [x] Implement `ContextAssembler.Assemble`: re-rank by `cosine × (token_count / 512f)` then greedy 3,000-token window accumulation; return `(context string, used chunks list)` for source citation mapping
+- [x] Extend `AzureOpenAiGateway` with `ChatCompletionAsync`: token budget check → Polly pipeline → `ChatClient.CompleteChatAsync` (Temperature=0, JsonObject mode) → AIR-S03 AuditLog
+- [x] Implement `FactExtractionJob`: retrieve (cosine ≥ 0.7) → low-relevance guard → re-rank + assemble → GPT-4 call → JSON schema validate (retry-once) → call `IFactPersistenceService.PersistAsync`
+- [x] Register `ContextAssembler` as scoped; add `fact-extraction` Hangfire queue in `ServiceCollectionExtensions.cs`
+- [x] **[AI Tasks - MANDATORY]** Reference prompt templates from AI References table during implementation
+- [x] **[AI Tasks - MANDATORY]** Implement and test guardrails (circuit breaker + token budget + schema validation) before marking task complete
+- [x] **[AI Tasks - MANDATORY]** Verify AIR-O01/O02/Q03/Q04/S03/S04 requirements met; verify no PHI in audit log payloads

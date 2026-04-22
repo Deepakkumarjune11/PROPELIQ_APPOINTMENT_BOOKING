@@ -22,15 +22,51 @@ public class AuditLog
 
     /// <summary>
     /// Polymorphic target identifier (Patient.Id, Appointment.Id, etc.).
-    /// Entity type is identified by the ActionType.
     /// </summary>
     public Guid TargetEntityId { get; set; }
 
     /// <summary>
-    /// Optional detailed metadata describing the action (e.g., before/after field values).
-    /// Stored as JSONB; application layer deserialises to the appropriate audit detail shape.
+    /// Fully-qualified entity type name (e.g., "Patient", "Appointment").
+    /// varchar(100) per ModelSnapshot.
+    /// </summary>
+    public string TargetEntityType { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Optional detailed metadata (legacy column). Structured data is in OldValues/NewValues.
+    /// Stored as JSONB; must not contain AuthCredentials per NFR-007.
     /// </summary>
     public string? Details { get; set; }
 
     public DateTime OccurredAt { get; set; }
+
+    // ── Compliance fields added in US_026 ────────────────────────────────────
+
+    /// <summary>
+    /// Client IP address of the actor. Set to "system" for background-job actions.
+    /// varchar(45) accommodates IPv4 (15) and IPv6 (39) plus mapped IPv4 (45).
+    /// </summary>
+    public string? IpAddress { get; set; }
+
+    /// <summary>
+    /// JSONB snapshot of entity state before the operation. Null for CREATE actions.
+    /// Must not contain AuthCredentials or raw passwords (NFR-007, OWASP A02).
+    /// </summary>
+    public string? OldValues { get; set; }
+
+    /// <summary>
+    /// JSONB snapshot of entity state after the operation. Null for DELETE actions.
+    /// </summary>
+    public string? NewValues { get; set; }
+
+    /// <summary>
+    /// ChainHash of the immediately preceding AuditLog row.
+    /// Null only for the genesis entry (first row ever inserted).
+    /// </summary>
+    public string? PreviousHash { get; set; }
+
+    /// <summary>
+    /// SHA-256 of "{Id}|{ActorId}|{ActionType}|{TargetEntityType}|{TargetEntityId}|{OccurredAt:O}|{PreviousHash ?? "GENESIS"}".
+    /// Enables tamper detection per TR-018.
+    /// </summary>
+    public string ChainHash { get; set; } = string.Empty;
 }

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PatientAccess.Data;
+using Pgvector;
 
 #nullable disable
 
@@ -22,6 +23,46 @@ namespace PatientAccess.Data.Migrations
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "vector");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("PatientAccess.Data.Entities.AIPromptLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<string>("DeploymentName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsComplete")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ModelProvider")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("RequestSummary")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("ResponseSummary")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ai_prompt_log", (string)null);
+                });
 
             modelBuilder.Entity("PatientAccess.Data.Entities.Admin", b =>
                 {
@@ -77,6 +118,11 @@ namespace PatientAccess.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsWalkIn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<decimal?>("NoShowRiskScore")
                         .HasPrecision(5, 4)
                         .HasColumnType("numeric(5,4)");
@@ -86,6 +132,9 @@ namespace PatientAccess.Data.Migrations
 
                     b.Property<Guid?>("PreferredSlotId")
                         .HasColumnType("uuid");
+
+                    b.Property<int?>("QueuePosition")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("SlotDatetime")
                         .HasColumnType("timestamp with time zone");
@@ -100,11 +149,27 @@ namespace PatientAccess.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW()");
 
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PatientId");
 
-                    b.HasIndex("PreferredSlotId");
+                    b.HasIndex("PreferredSlotId")
+                        .HasDatabaseName("ix_appointments_preferred_slot_id")
+                        .HasFilter("\"PreferredSlotId\" IS NOT NULL");
+
+                    b.HasIndex("QueuePosition")
+                        .HasDatabaseName("ix_appointments_queue_position")
+                        .HasFilter("\"QueuePosition\" IS NOT NULL");
+
+                    b.HasIndex("SlotDatetime", "Status")
+                        .HasDatabaseName("ix_appointments_slot_datetime_status_active")
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("appointment", (string)null);
                 });
@@ -129,32 +194,58 @@ namespace PatientAccess.Data.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<string>("ChainHash")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("")
+                        .HasColumnName("chain_hash");
+
+                    b.Property<string>("Details")
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(45)
+                        .HasColumnType("character varying(45)")
+                        .HasColumnName("ip_address");
+
+                    b.Property<string>("NewValues")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("new_values");
+
+                    b.Property<DateTime>("OccurredAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW()");
 
-                    b.Property<string>("Payload")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
+                    b.Property<string>("OldValues")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("old_values");
+
+                    b.Property<string>("PreviousHash")
+                        .HasColumnType("text")
+                        .HasColumnName("previous_hash");
 
                     b.Property<Guid>("TargetEntityId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("TargetEntityType")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasDefaultValue("")
+                        .HasColumnName("target_entity_type");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ActorId")
                         .HasDatabaseName("ix_audit_log_actor_id");
 
-                    b.HasIndex("CreatedAt")
-                        .HasDatabaseName("ix_audit_log_created_at");
+                    b.HasIndex("OccurredAt")
+                        .HasDatabaseName("ix_audit_log_occurred_at");
 
-                    b.HasIndex("TargetEntityType", "TargetEntityId")
+                    b.HasIndex("TargetEntityId")
                         .HasDatabaseName("ix_audit_log_target");
 
                     b.ToTable("audit_log", (string)null);
@@ -167,6 +258,9 @@ namespace PatientAccess.Data.Migrations
                         .HasColumnType("uuid")
                         .HasDefaultValueSql("gen_random_uuid()");
 
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid?>("EncounterId")
                         .HasColumnType("uuid");
 
@@ -177,13 +271,28 @@ namespace PatientAccess.Data.Migrations
 
                     b.Property<string>("FileReference")
                         .IsRequired()
-                        .HasMaxLength(2048)
-                        .HasColumnType("character varying(2048)");
+                        .HasColumnType("text");
+
+                    b.Property<long>("FileSizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
 
                     b.Property<Guid>("PatientId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("ProcessedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("UploadedAt")
@@ -196,7 +305,8 @@ namespace PatientAccess.Data.Migrations
                     b.HasIndex("EncounterId")
                         .HasDatabaseName("ix_clinical_document_encounter_id");
 
-                    b.HasIndex("PatientId");
+                    b.HasIndex("PatientId")
+                        .HasDatabaseName("ix_clinical_document_patient_id");
 
                     b.ToTable("clinical_document", (string)null);
                 });
@@ -218,21 +328,38 @@ namespace PatientAccess.Data.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<float>("ConfidenceScore")
+                        .HasColumnType("real");
+
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW()");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<Guid[]>("EvidenceFactIds")
                         .IsRequired()
                         .HasColumnType("uuid[]");
 
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<Guid>("PatientId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("ReviewJustification")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
                     b.Property<string>("ReviewOutcome")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<DateTime?>("ReviewedAt")
                         .HasColumnType("timestamp with time zone");
@@ -247,7 +374,136 @@ namespace PatientAccess.Data.Migrations
                     b.HasIndex("PatientId")
                         .HasDatabaseName("ix_code_suggestion_patient_id");
 
+                    b.HasIndex("PatientId", "StaffReviewed")
+                        .HasDatabaseName("ix_code_suggestion_staff_reviewed")
+                        .HasFilter("is_deleted = false AND staff_reviewed = false");
+
                     b.ToTable("code_suggestion", (string)null);
+                });
+
+            modelBuilder.Entity("PatientAccess.Data.Entities.CommunicationLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<Guid>("AppointmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AttemptCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("PdfBytes")
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("communication_log", (string)null);
+                });
+
+            modelBuilder.Entity("PatientAccess.Data.Entities.DocumentAccessGrant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("document_id");
+
+                    b.Property<DateTimeOffset>("GrantedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("granted_at")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<Guid>("GranteeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("grantee_id");
+
+                    b.Property<string>("GranteeType")
+                        .IsRequired()
+                        .HasColumnType("varchar(10)")
+                        .HasColumnName("grantee_type");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("document_access_grants", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_document_access_grants_grantee_type", "grantee_type IN ('staff', 'dept')");
+                        });
+                });
+
+            modelBuilder.Entity("PatientAccess.Data.Entities.DocumentChunkEmbedding", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<int>("ChunkIndex")
+                        .HasColumnType("integer")
+                        .HasColumnName("chunk_index");
+
+                    b.Property<string>("ChunkText")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("chunk_text");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("document_id");
+
+                    b.Property<Vector>("Embedding")
+                        .HasColumnType("vector(1536)")
+                        .HasColumnName("embedding");
+
+                    b.Property<int>("TokenCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("token_count");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentId")
+                        .HasDatabaseName("ix_dce_document_id");
+
+                    b.HasIndex("DocumentId", "ChunkIndex")
+                        .IsUnique()
+                        .HasDatabaseName("ix_dce_document_chunk_unique");
+
+                    b.ToTable("document_chunk_embeddings", (string)null);
                 });
 
             modelBuilder.Entity("PatientAccess.Data.Entities.ExtractedFact", b =>
@@ -260,29 +516,36 @@ namespace PatientAccess.Data.Migrations
                     b.Property<float>("ConfidenceScore")
                         .HasColumnType("real");
 
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("DocumentId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("ExtractedAt")
+                    b.Property<DateTimeOffset>("ExtractedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW()");
 
+                    b.Property<string>("FactText")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("FactType")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
-                    b.Property<int>("SourceCharLength")
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<int?>("SourceCharLength")
                         .HasColumnType("integer");
 
-                    b.Property<int>("SourceCharOffset")
+                    b.Property<int?>("SourceCharOffset")
                         .HasColumnType("integer");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
 
                     b.HasKey("Id");
 
@@ -301,7 +564,7 @@ namespace PatientAccess.Data.Migrations
 
                     b.Property<string>("Answers")
                         .IsRequired()
-                        .HasColumnType("jsonb");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -335,6 +598,10 @@ namespace PatientAccess.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW()");
 
+                    b.Property<string>("Department")
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("department");
+
                     b.Property<DateOnly>("Dob")
                         .HasColumnType("date");
 
@@ -344,12 +611,10 @@ namespace PatientAccess.Data.Migrations
                         .HasColumnType("character varying(320)");
 
                     b.Property<string>("InsuranceMemberId")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<string>("InsuranceProvider")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("text");
 
                     b.Property<string>("InsuranceStatus")
                         .HasMaxLength(50)
@@ -360,13 +625,11 @@ namespace PatientAccess.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Phone")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
@@ -395,7 +658,7 @@ namespace PatientAccess.Data.Migrations
 
                     b.Property<string>("ConsolidatedFacts")
                         .IsRequired()
-                        .HasColumnType("jsonb");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("LastUpdated")
                         .ValueGeneratedOnAddOrUpdate()
@@ -509,12 +772,43 @@ namespace PatientAccess.Data.Migrations
                     b.Navigation("Patient");
                 });
 
+            modelBuilder.Entity("PatientAccess.Data.Entities.CommunicationLog", b =>
+                {
+                    b.HasOne("PatientAccess.Data.Entities.Appointment", "Appointment")
+                        .WithMany()
+                        .HasForeignKey("AppointmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PatientAccess.Data.Entities.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Appointment");
+
+                    b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("PatientAccess.Data.Entities.DocumentChunkEmbedding", b =>
+                {
+                    b.HasOne("PatientAccess.Data.Entities.ClinicalDocument", "Document")
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_dce_document_id");
+
+                    b.Navigation("Document");
+                });
+
             modelBuilder.Entity("PatientAccess.Data.Entities.ExtractedFact", b =>
                 {
                     b.HasOne("PatientAccess.Data.Entities.ClinicalDocument", "Document")
                         .WithMany("ExtractedFacts")
                         .HasForeignKey("DocumentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Document");
@@ -534,7 +828,7 @@ namespace PatientAccess.Data.Migrations
             modelBuilder.Entity("PatientAccess.Data.Entities.PatientView360", b =>
                 {
                     b.HasOne("PatientAccess.Data.Entities.Patient", "Patient")
-                        .WithOne("View360")
+                        .WithOne("PatientView360")
                         .HasForeignKey("PatientAccess.Data.Entities.PatientView360", "PatientId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -557,7 +851,7 @@ namespace PatientAccess.Data.Migrations
 
                     b.Navigation("IntakeResponses");
 
-                    b.Navigation("View360");
+                    b.Navigation("PatientView360");
                 });
 #pragma warning restore 612, 618
         }

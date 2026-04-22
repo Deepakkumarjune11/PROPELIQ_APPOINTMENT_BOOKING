@@ -302,11 +302,12 @@ dotnet build PropelIQ.slnx
 
 ## Implementation Checklist
 
-- [ ] Create `NoShowRiskOptions.cs` — 4 weight properties with defaults summing to 1.0, `SectionName = "NoShowRisk"`
-- [ ] Create `NoShowRiskResult.cs` — immutable record with Score, ContributingFactors, IsPartialScoring
-- [ ] Create `INoShowRiskScoringService.cs` — `CalculateSchedulingRisk(DateTime)` + `CalculateFullRisk(DateTime, InsuranceValidationStatus, bool)`
-- [ ] Create `NoShowRiskScoringService.cs` — implement both overloads; private helpers for each signal; build human-readable `ContributingFactors` strings; `Math.Round(decimal, 4)` on score
-- [ ] Modify `GetAvailabilityResponse.cs` (`SlotDto`) — add `RiskContributingFactors: IReadOnlyList<string>` + `IsPartialScoring: bool`
-- [ ] Modify `GetAvailabilityHandler.cs` — inject `INoShowRiskScoringService`; call `CalculateSchedulingRisk` per slot projection; map result fields to updated `SlotDto`
-- [ ] Modify `ServiceCollectionExtensions.cs` — add `services.Configure<NoShowRiskOptions>(...)` + `services.AddSingleton<INoShowRiskScoringService, NoShowRiskScoringService>()`
-- [ ] Modify `appsettings.json` — add `NoShowRisk` section with default weights matching code defaults
+- [x] Create `NoShowRiskOptions.cs` (`Configuration/`) — 4 weight properties with defaults summing to 1.0, `SectionName = "NoShowRisk"`
+- [x] Create `NoShowRiskResult.cs` (`Services/`) — immutable record with Score, ContributingFactors, IsPartialScoring
+- [x] Create `INoShowRiskScoringService.cs` (`Services/`) — `CalculateSchedulingRisk(DateTime)` + `CalculateFullRisk(DateTime, InsuranceValidationResult, bool)` (uses `InsuranceValidationResult` — the actual enum in the codebase)
+- [x] Create `NoShowRiskScoringService.cs` (`Services/`) — implements both overloads; private helpers for each signal; builds human-readable `ContributingFactors` strings; `Math.Round(decimal, 4)` on score
+- [x] Modify `AvailabilitySlotDto.cs` — added `RiskContributingFactors: IReadOnlyList<string>` + `IsPartialScoring: bool` positional parameters
+- [x] Modify `GetAvailabilityHandler.cs` — injected `INoShowRiskScoringService`; calls `CalculateSchedulingRisk` per slot projection; coalesces stored `NoShowRiskScore ?? risk.Score`; maps ContributingFactors and IsPartialScoring to DTO
+- [x] Modify `ServiceCollectionExtensions.cs` — added `Configure<NoShowRiskOptions>` + `AddSingleton<INoShowRiskScoringService, NoShowRiskScoringService>()`
+- [x] Modify `appsettings.json` — added `NoShowRisk` section with default weights matching code defaults (sum = 1.0)
+- [x] `dotnet build PropelIQ.slnx` → Build succeeded, 0 Error(s)

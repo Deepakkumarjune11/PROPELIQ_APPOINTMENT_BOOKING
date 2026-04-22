@@ -258,10 +258,10 @@ dotnet ef migrations script \
 
 ## Implementation Checklist
 
-- [ ] Inspect `Appointment.cs` entity — add `PreferredSlotId` (Guid?), `PreferredSlot` (Appointment?), and `SetPreferredSlot(Guid?)` if not already present from EP-DATA
-- [ ] Create `AppointmentConfiguration.cs` with self-referencing optional FK (`OnDelete = SetNull`) and partial index (`HasFilter("preferred_slot_id IS NOT NULL")`)
-- [ ] Generate EF Core migration `AddPreferredSlotWatchlist` using `dotnet ef migrations add`
-- [ ] Manually edit migration `Up()` to use `CREATE INDEX CONCURRENTLY IF NOT EXISTS` for zero-downtime compliance (NFR-012)
-- [ ] Verify `Down()` rollback: drops index, FK, and column in correct order
-- [ ] Apply migration to local development PostgreSQL and confirm schema via `\d appointments` in psql
-- [ ] Write Testcontainers integration test asserting column, FK, and index existence post-migration
+- [x] Inspect `Appointment.cs` entity — add `PreferredSlotId` (Guid?), `PreferredSlot` (Appointment?), and `SetPreferredSlot(Guid?)` if not already present from EP-DATA
+- [x] Create `AppointmentConfiguration.cs` with self-referencing optional FK (`OnDelete = SetNull`) and partial index (`HasFilter("preferred_slot_id IS NOT NULL")`)
+- [x] Generate EF Core migration `AddPreferredSlotWatchlist` using `dotnet ef migrations add`
+- [x] Manually edit migration `Up()` to use `CREATE INDEX CONCURRENTLY IF NOT EXISTS` for zero-downtime compliance (NFR-012)
+- [x] Verify `Down()` rollback: drops index, FK, and column in correct order
+- [x] Apply migration to local development PostgreSQL and confirm schema via `\d appointments` in psql
+- [x] Write Testcontainers integration test asserting column, FK, and index existence post-migration

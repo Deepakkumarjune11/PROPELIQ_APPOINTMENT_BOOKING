@@ -13,6 +13,8 @@ public static class ConfigurationValidator
     [
         "ConnectionStrings:DefaultConnection",
         "Redis:ConnectionString",
+        "Jwt:Key",
+        "DataProtection:KeysPath",
     ];
 
     /// <summary>

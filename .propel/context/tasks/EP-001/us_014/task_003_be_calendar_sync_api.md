@@ -327,11 +327,14 @@ dotnet build PropelIQ.slnx
 
 ## Implementation Checklist
 
-- [ ] Create `CalendarOptions.cs` — `GoogleCalendarConfig` + `OutlookCalendarConfig` + `ClinicLocation`; `SectionName = "Calendar"`
-- [ ] Create `ICalendarService.cs` — `GetAuthorizationUrl(Guid appointmentId)` + `CreateEventAsync(string code, Guid appointmentId, CancellationToken ct)`
-- [ ] Create `GoogleCalendarService.cs` — `GetAuthorizationUrl`: build Google OAuth URL with fixed scope + state=appointmentId; `CreateEventAsync`: exchange code via `HttpClient.PostAsync`, load appointment from DB, create Google Calendar event via API v3
-- [ ] Create `OutlookCalendarService.cs` — `GetAuthorizationUrl`: build Microsoft Identity URL; `CreateEventAsync`: exchange code via `HttpClient.PostAsync`, load appointment, create event via Microsoft Graph `POST /me/events`
-- [ ] Create `CalendarController.cs` — `GET /{provider}/init` with `[Authorize]`; `GET /{provider}/callback` (no auth); resolve keyed service by provider; hardcoded redirect targets; error catch → redirect with `calendarError=true`
-- [ ] Modify `ServiceCollectionExtensions.cs` — `Configure<CalendarOptions>`, `AddHttpClient<GoogleCalendarService>`, `AddHttpClient<OutlookCalendarService>`, keyed scoped DI
-- [ ] Modify `appsettings.json` + `appsettings.Development.json` — add `Calendar` config section with empty credential placeholders
-- [ ] Confirm `dotnet build` passes with zero errors
+- [x] Create `CalendarOptions.cs` — `GoogleCalendarConfig` + `OutlookCalendarConfig` + `ClinicLocation`; `SectionName = "Calendar"`
+- [x] Create `ICalendarService.cs` — `GetAuthorizationUrl(Guid appointmentId)` + `CreateEventAsync(string code, Guid appointmentId, CancellationToken ct)`
+- [x] Create `ICalendarAppointmentRepository.cs` + `AppointmentCalendarData` record — layered access to SlotDatetime without Application→Data circular dependency
+- [x] Create `CalendarAppointmentRepository.cs` (Data) — EF Core projection of SlotDatetime only (no PHI)
+- [x] Create `GoogleCalendarService.cs` — `GetAuthorizationUrl`: Google OAuth URL with state=appointmentId; `CreateEventAsync`: FormUrlEncoded token exchange, load appointment via repository, POST event to Google Calendar API v3
+- [x] Create `OutlookCalendarService.cs` — `GetAuthorizationUrl`: Microsoft Identity URL; `CreateEventAsync`: token exchange, appointment lookup, POST to Microsoft Graph `/me/events`
+- [x] Create `CalendarController.cs` — `GET /{provider}/init` with `[Authorize]` returns `{ authUrl }`; `GET /{provider}/callback` (no auth) exchanges code, creates event, redirects to hardcoded FE paths (OWASP A01); provider allowlist validation (OWASP A03); errors caught → redirect with `calendarError=true`
+- [x] Add `Microsoft.Extensions.Http 8.*` to `PatientAccess.Application.csproj` for `IHttpClientFactory`
+- [x] Modify `ServiceCollectionExtensions.cs` — `Configure<CalendarOptions>`, `AddHttpClient()`, `AddScoped<ICalendarAppointmentRepository>`, keyed scoped `ICalendarService` registrations
+- [x] Modify `appsettings.json` + `appsettings.Development.json` — add `Calendar` section with empty credential placeholders (OWASP A02)
+- [x] `dotnet build` passes with 0 errors, 0 warnings

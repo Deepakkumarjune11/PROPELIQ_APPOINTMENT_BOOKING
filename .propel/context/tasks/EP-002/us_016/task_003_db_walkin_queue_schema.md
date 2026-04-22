@@ -247,10 +247,10 @@ dotnet ef database update \
 
 ## Implementation Checklist
 
-- [ ] Add `IsWalkIn` (bool, default false) and `QueuePosition` (int?) to `Appointment.cs` entity with `SetAsWalkIn(int)` and `SetWaitQueuePosition(int)` domain methods
-- [ ] Extend `AppointmentConfiguration.cs` with `HasDefaultValue(false)` for `is_walk_in` and partial `HasIndex` for `queue_position`
-- [ ] Generate EF Core migration `AddWalkInQueueColumns` via `dotnet ef migrations add`
-- [ ] Edit migration `Up()` to use `CREATE INDEX CONCURRENTLY IF NOT EXISTS` for zero-downtime (NFR-012)
-- [ ] Verify `Down()` drops index before columns (correct dependency order)
-- [ ] Apply migration to local development PostgreSQL and confirm via `\d appointments`
-- [ ] Write Testcontainers integration test asserting column types and partial index existence post-migration
+- [x] Add `IsWalkIn` (bool, default false) and `QueuePosition` (int?) to `Appointment.cs` entity with `SetAsWalkIn(int)` and `SetWaitQueuePosition(int)` domain methods
+- [x] Extend `AppointmentConfiguration.cs` with `HasDefaultValue(false)` for `is_walk_in` and partial `HasIndex` for `queue_position`
+- [x] Generate EF Core migration `AddWalkInQueueColumns` via `dotnet ef migrations add`
+- [x] Edit migration `Up()` to use `CREATE INDEX CONCURRENTLY IF NOT EXISTS` for zero-downtime (NFR-012)
+- [x] Verify `Down()` drops index before columns (correct dependency order)
+- [x] Apply migration to local development PostgreSQL and confirm via `\d appointments`
+- [x] Write Testcontainers integration test asserting column types and partial index existence post-migration

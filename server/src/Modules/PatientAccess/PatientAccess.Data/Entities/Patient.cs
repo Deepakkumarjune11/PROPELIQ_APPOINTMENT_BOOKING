@@ -14,6 +14,14 @@ public class Patient
     public DateTime UpdatedAt { get; set; }
     public bool IsDeleted { get; set; }
 
+    /// <summary>Administrative department assignment for RAG access scoping (AIR-S02). NOT PHI.</summary>
+    public string? Department { get; private set; }
+
+    public void SetDepartment(string? department)
+        => Department = department is { Length: > 100 }
+            ? throw new ArgumentException("Department name exceeds 100 characters.", nameof(department))
+            : department;
+
     // Navigation
     public ICollection<Appointment> Appointments { get; set; } = [];
     public ICollection<IntakeResponse> IntakeResponses { get; set; } = [];

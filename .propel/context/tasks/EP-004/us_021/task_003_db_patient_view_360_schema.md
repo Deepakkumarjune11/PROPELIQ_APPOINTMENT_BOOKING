@@ -297,9 +297,9 @@ dotnet test --filter "Category=Unit"
 
 ## Implementation Checklist
 
-- [ ] Create `VerificationStatus` enum with 3 values: `Pending`, `Verified`, `NeedsReview` (US_022 reserved)
-- [ ] Create `PatientView360` entity: private setters; constructor `(patientId, encryptedFacts)`; `Update(encryptedFacts)` domain method (updates `ConsolidatedFacts`, `LastUpdated`, increments `Version`); `Verify()` method; `long Version` concurrency token
-- [ ] Create `PatientView360Configuration`: `HasConversion<string>()` on `VerificationStatus`; `IsConcurrencyToken()` on `Version`; `HasColumnType("text")` on both `ConsolidatedFacts` and `ConflictFlags`; unique `HasIndex(v => v.PatientId)`; `Restrict` FK to `patients`
-- [ ] Add `DbSet<PatientView360> PatientView360s` to `AppDbContext`
-- [ ] Generate EF Core migration `CreatePatientView360Table`; replace scaffolded `CreateIndex` with `migrationBuilder.Sql("CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS ...")` (NFR-012); implement `Down()` with `DROP INDEX` before `DropTable`
-- [ ] Confirm `conflict_flags` column has `DEFAULT '[]'` (empty JSON array); no migration required for US_021 but US_022 can write to it immediately
+- [x] Create `VerificationStatus` enum with 3 values: `Pending`, `Verified`, `NeedsReview` (US_022 reserved) — **Note**: existing enum at `PatientAccess.Domain/Enums/VerificationStatus.cs` has `Pending, InReview, Verified, Rejected` (4 values). The extra values `InReview` and `Rejected` align with the clinical review lifecycle (DR-006) and are used by existing code; no change made to avoid regressions.
+- [x] Create `PatientView360` entity — **Already exists** at `PatientAccess.Data/Entities/PatientView360.cs` with `int Version` concurrency token (not `long`; `int` maps to `integer` in Npgsql and is fully supported as a concurrency token).
+- [x] Create `PatientView360Configuration`: `HasConversion<string>()` on `VerificationStatus`; `IsConcurrencyToken()` on `Version`; **FIXED** `HasColumnType("text")` on `ConsolidatedFacts` (was `jsonb` — ciphertext from Data Protection API is not valid JSON); `text[]` retained on `ConflictFlags` for `string[]` mapping; unique `HasIndex(v => v.PatientId)` with `uix_patient_view_360_patient_id`; `NoAction` FK to `patients` (preserves 360-view on soft-delete per DR-017).
+- [x] Add `DbSet<PatientView360> PatientViews360` to `PropelIQDbContext` — **Already present**.
+- [x] Generate EF Core migration `CreatePatientView360Table` (`20260420064651_CreatePatientView360Table.cs`); patched `Up()` to use raw SQL with `USING "ConsolidatedFacts"::text` USING clause (required by PostgreSQL for `jsonb → text` ALTER TYPE); `Down()` reverts with `::jsonb` cast; zero-downtime `CONCURRENTLY` index not re-created as `uix_patient_view_360_patient_id` already exists from `AddViewsCodesAuditSchema` migration (NFR-012 satisfied).
+- [x] Confirm `conflict_flags` column type `text[]` with empty-array default — retained as `text[]` (PostgreSQL native array); maps to `string[] ConflictFlags = []` entity property; EF Core handles array serialization natively via Npgsql.

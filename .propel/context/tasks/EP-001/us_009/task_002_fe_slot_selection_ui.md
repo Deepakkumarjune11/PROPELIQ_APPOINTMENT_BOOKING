@@ -225,12 +225,12 @@ npm run build
 
 ## Implementation Checklist
 
-- [ ] Add `/appointments/slot-selection` route to `App.tsx` authenticated children
-- [ ] Create `client/src/stores/booking-store.ts` — Zustand store with `selectedSlot`, `setSelectedSlot`, `clearBooking`
-- [ ] Create `NoShowRiskBadge.tsx` — MUI Chip `color="warning"` + Tooltip, rendered when `noShowRisk > 0.7`
-- [ ] Create `SelectableSlotCard.tsx` — extends slot card, `isSelected` toggles `primary.500` border via `sx`, ARIA role + aria-pressed
-- [ ] Create `SlotConflictToast.tsx` — MUI Snackbar bottom-center, 5s auto-hide, severity error message
-- [ ] Create `SlotSelectionPage.tsx` — grid of `SelectableSlotCard`, stepper step 2, Back + Continue buttons, booking-store integration
-- [ ] Implement 409 Conflict path: revert selection in booking-store, open `SlotConflictToast`
-- [ ] **[UI Tasks - MANDATORY]** Reference wireframe from Design References table during implementation
-- [ ] **[UI Tasks - MANDATORY]** Validate UI matches wireframe at 375px, 768px, 1440px before marking task complete
+- [X] Add `/appointments/slot-selection` route to `App.tsx` authenticated children
+- [X] Create `client/src/stores/booking-store.ts` — Zustand store with `selectedSlot`, `setSelectedSlot`, `clearBooking`
+- [X] Create `NoShowRiskBadge.tsx` — MUI Chip `color="warning"` + Tooltip, rendered when `noShowRisk > 0.7`
+- [X] Create `SelectableSlotCard.tsx` — extends slot card, `isSelected` toggles `primary.500` border via `sx`, ARIA role + aria-pressed
+- [X] Create `SlotConflictToast.tsx` — MUI Snackbar bottom-center, 5s auto-hide, severity error message
+- [X] Create `SlotSelectionPage.tsx` — grid of `SelectableSlotCard`, stepper step 2, Back + Continue buttons, booking-store integration
+- [X] Implement 409 Conflict path: revert selection in booking-store, open `SlotConflictToast`
+- [X] **[UI Tasks - MANDATORY]** Reference wireframe from Design References table during implementation
+- [X] **[UI Tasks - MANDATORY]** Validate UI matches wireframe at 375px, 768px, 1440px before marking task complete

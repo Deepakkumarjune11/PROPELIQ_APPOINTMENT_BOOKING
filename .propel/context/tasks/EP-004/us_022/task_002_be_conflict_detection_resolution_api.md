@@ -358,11 +358,11 @@ dotnet test --filter "Category=Unit"
 
 ## Implementation Checklist
 
-- [ ] Create `ConflictFlag` record with `ConflictId`, `FactType`, `Sources` list (document name, value, confidence, char offset)
-- [ ] Implement `ConflictDetectionJob`: decrypt `consolidated_facts` → group by FactType → batch-embed values via `IAiGateway` (≤15 per batch, AIR-O04 cache) → pairwise cosine < 0.70 = conflict; fallback to string-inequality when `IsCircuitOpen` (AIR-O02) → encrypt + `ExecuteUpdateAsync` `conflict_flags` + `VerificationStatus` → AuditLog (no PHI values)
-- [ ] Create `ConflictController`: `GET /patients/{patientId}/conflicts` (decrypt + deserialize `conflict_flags`; ownership guard AIR-S02); `POST /360-view/{id}/resolve-conflict` (apply resolution to `consolidated_facts`, remove flag, `SaveChangesAsync` with DR-018 concurrency retry, AuditLog with justification); `PATCH /360-view/{id}/status` (verification gate: 422 if conflicts remain AC-4)
-- [ ] MODIFY `PatientView360UpdateJob`: chain `ConflictDetectionJob` after successful upsert via `BackgroundJob.ContinueJobWith`
-- [ ] Register `ConflictDetectionJob` and `conflict-detection` Hangfire queue in `ServiceCollectionExtensions.cs`
-- [ ] **[AI Tasks - MANDATORY]** Reference prompt templates from AI References table during implementation
-- [ ] **[AI Tasks - MANDATORY]** Implement and test guardrails before marking task complete
-- [ ] **[AI Tasks - MANDATORY]** Verify AIR-004/AIR-O02/AIR-S02/AIR-S03 requirements met; no PHI in audit log payloads
+- [x] Create `ConflictFlag` record with `ConflictId`, `FactType`, `Sources` list (document name, value, confidence, char offset)
+- [x] Implement `ConflictDetectionJob`: decrypt `consolidated_facts` → group by FactType → batch-embed values via `IAiGateway` (≤15 per batch, AIR-O04 cache) → pairwise cosine < 0.70 = conflict; fallback to string-inequality when `IsCircuitOpen` (AIR-O02) → encrypt + `ExecuteUpdateAsync` `conflict_flags` + `VerificationStatus` → AuditLog (no PHI values)
+- [x] Create `ConflictController`: `GET /patients/{patientId}/conflicts` (decrypt + deserialize `conflict_flags`; ownership guard AIR-S02); `POST /360-view/{id}/resolve-conflict` (apply resolution to `consolidated_facts`, remove flag, `SaveChangesAsync` with DR-018 concurrency retry, AuditLog with justification); `PATCH /360-view/{id}/status` (verification gate: 422 if conflicts remain AC-4)
+- [x] MODIFY `PatientView360UpdateJob`: chain `ConflictDetectionJob` after successful upsert via `IBackgroundJobClient.Enqueue` (not `ContinueJobWith` — enqueued at end of `ExecuteAsync` after upsert succeeds)
+- [x] Register `ConflictDetectionJob` and `conflict-detection` Hangfire queue in `ServiceCollectionExtensions.cs` (queue added to `PatientAccess.Presentation`; job registered in `ClinicalIntelligence.Presentation`)
+- [x] **[AI Tasks - MANDATORY]** Reference prompt templates from AI References table during implementation — N/A for this task (embeddings-only; no LLM generation prompt templates)
+- [x] **[AI Tasks - MANDATORY]** Implement and test guardrails before marking task complete — `ConflictDetectionService` checks `_aiGateway.IsCircuitOpen` before embedding call; string-inequality fallback logs warning with `AIR-O02` tag; exception catch also falls back to string-inequality
+- [x] **[AI Tasks - MANDATORY]** Verify AIR-004/AIR-O02/AIR-S02/AIR-S03 requirements met; no PHI in audit log payloads — confirmed: AuditLog entries contain `{PatientId, FactTypeGroupsChecked, ConflictsFound}` (conflict detection) and `{ConflictId, FactType, Resolution, Justification}` (resolution) — no fact values logged

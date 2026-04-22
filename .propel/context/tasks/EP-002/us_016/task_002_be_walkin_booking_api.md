@@ -282,11 +282,11 @@ dotnet test --filter "Category=Unit"
 
 ## Implementation Checklist
 
-- [ ] Create `PatientSearchResultDto` and `WalkInBookingResultDto` and `DashboardSummaryDto` response types
-- [ ] Implement `SearchPatientsQuery` handler with `EF.Functions.ILike` for case-insensitive partial match on email and phone
-- [ ] Implement `CreatePatientByStaffCommand` handler with email uniqueness check (409 on duplicate)
-- [ ] Implement `BookWalkInCommand` handler with SERIALIZABLE transaction, duplicate same-day 409 guard, queue position increment, and Redis cache invalidation
-- [ ] Implement `GetDashboardSummaryQuery` handler with 4 aggregate count queries
-- [ ] Create `PatientsController` (GET search + POST create) with `[Authorize(Roles = "Staff")]`
-- [ ] Create `StaffController` (POST walk-in + GET summary) with `[Authorize(Roles = "Staff")]`
-- [ ] Register all handlers in `ServiceCollectionExtensions.cs`
+- [x] Create `PatientSearchResultDto` and `WalkInBookingResultDto` and `DashboardSummaryDto` response types
+- [x] Implement `SearchPatientsQuery` handler with `EF.Functions.ILike` for case-insensitive partial match on email and phone
+- [x] Implement `CreatePatientByStaffCommand` handler with email uniqueness check (409 on duplicate)
+- [x] Implement `BookWalkInCommand` handler with SERIALIZABLE transaction, duplicate same-day 409 guard, queue position increment, and Redis cache invalidation
+- [x] Implement `GetDashboardSummaryQuery` handler with 4 aggregate count queries
+- [x] Create `PatientsController` (GET search + POST create) with `[Authorize(Roles = "Staff")]`
+- [x] Create `StaffController` (POST walk-in + GET summary) with `[Authorize(Roles = "Staff")]`
+- [x] Register all handlers in `ServiceCollectionExtensions.cs`

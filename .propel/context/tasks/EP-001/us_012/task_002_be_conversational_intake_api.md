@@ -285,9 +285,11 @@ dotnet build PropelIQ.slnx
 
 ## Implementation Checklist
 
-- [ ] Create `ChatTurn.cs`, `IntakeChatRequest.cs`, `IntakeChatResponse.cs` records in `PatientAccess.Application/Models/`
-- [ ] Create `IConversationalIntakeService.cs` with `SendMessageAsync(Guid patientId, IntakeChatRequest, CancellationToken)`
-- [ ] Create `ConversationalIntakeService.cs` — patient existence check, Redis history load/save (TTL 10min), `IAiIntakeService` call, `AiServiceUnavailableException` catch returning `fallbackToManual: true`, `IntakeResponse` + `AuditLog` persistence on completion, Redis key removal after persist
-- [ ] Modify `PatientsController.cs` — inject `IConversationalIntakeService`; add `[HttpPost("{patientId:guid}/intake/chat")]` action with XML doc comments and `[Authorize]`
-- [ ] Modify `ServiceCollectionExtensions.cs` — register `IConversationalIntakeService` as scoped
-- [ ] Confirm `dotnet build` passes with zero errors
+- [x] Create `ChatTurn.cs`, `IntakeChatRequest.cs`, `IntakeChatResponse.cs` records in `PatientAccess.Application/Models/`
+- [x] Create `AiServiceUnavailableException.cs` in `PatientAccess.Application/Exceptions/` — thrown by AI layer, caught by `ConversationalIntakeService`
+- [x] Create `IAiIntakeService.cs` + `IntakeConversationResult.cs` in `PatientAccess.Application/Infrastructure/` — stub interface implemented in task_003; defined here so `ConversationalIntakeService` compiles independently
+- [x] Create `IConversationalIntakeService.cs` with `SendMessageAsync(Guid patientId, IntakeChatRequest, CancellationToken)`
+- [x] Create `ConversationalIntakeService.cs` — uses `IIntakeSubmissionRepository` (not `PropelIQDbContext` directly, following Application-layer architecture to avoid circular dep); patient existence check, Redis history load/save (TTL 10min), `IAiIntakeService` call, `AiServiceUnavailableException` catch returning `fallbackToManual: true`, persistence on completion via `IIntakeSubmissionRepository.SubmitIntakeAsync`, Redis key removal
+- [x] Modify `PatientsController.cs` — inject `IConversationalIntakeService`; add `[HttpPost("{patientId:guid}/intake/chat")]` action with XML doc comments and `[Authorize]`; returns `200 OK` (chat turns are not resource creation)
+- [x] Modify `ServiceCollectionExtensions.cs` — register `IConversationalIntakeService` as scoped
+- [x] `dotnet build PropelIQ.slnx` → 0 errors

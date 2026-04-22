@@ -308,13 +308,13 @@ npm run build
 
 ## Implementation Checklist
 
-- [ ] Install `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`, `@microsoft/signalr` packages
-- [ ] Extend `client/src/api/staff.ts` with `QueueEntry` type, `getSameDayQueue`, `reorderQueue`, `updateAppointmentStatus`
-- [ ] Create `useSameDayQueue.ts` React Query hook with 30s staleTime
-- [ ] Create `useUpdateAppointmentStatus.ts` optimistic mutation with `onMutate`/`onError` rollback
-- [ ] Create `useQueueSignalR.ts` with `withAutomaticReconnect` and `QueueUpdated` → `invalidateQueries`
-- [ ] Create `QueueRow.tsx` with `useSortable`, status `Chip`, "Mark Arrived" and "Mark Left" buttons
-- [ ] Create `SameDayQueuePage.tsx` with `DndContext`, `SortableContext`, bulk checkbox selection, all 4 SCR-012 states, breadcrumb
-- [ ] Modify `App.tsx` to add `/staff/queue` route inside `<StaffRouteGuard>`
-- [ ] **[UI Tasks - MANDATORY]** Reference wireframes from Design References table during implementation
-- [ ] **[UI Tasks - MANDATORY]** Validate UI matches wireframes before marking task complete
+- [x] Install `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`, `@microsoft/signalr` packages
+- [x] Extend `client/src/api/staff.ts` with `QueueEntry` type, `getSameDayQueue`, `reorderQueue`, `updateAppointmentStatus`
+- [x] Create `useSameDayQueue.ts` React Query hook with 30s staleTime
+- [x] Create `useUpdateAppointmentStatus.ts` optimistic mutation with `onMutate`/`onError` rollback
+- [x] Create `useQueueSignalR.ts` with `withAutomaticReconnect` and `QueueUpdated` → `invalidateQueries`
+- [x] Create `QueueRow.tsx` with `useSortable`, status `Chip`, "Mark Arrived" and "Mark Left" buttons
+- [x] Create `SameDayQueuePage.tsx` with `DndContext`, `SortableContext`, bulk checkbox selection, all 4 SCR-012 states, breadcrumb
+- [x] Modify `App.tsx` to add `/staff/queue` route inside `<StaffRouteGuard>`
+- [x] **[UI Tasks - MANDATORY]** Reference wireframes from Design References table during implementation
+- [x] **[UI Tasks - MANDATORY]** Validate UI matches wireframes before marking task complete

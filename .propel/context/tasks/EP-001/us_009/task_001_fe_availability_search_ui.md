@@ -223,14 +223,14 @@ npm run build
 
 ## Implementation Checklist
 
-- [ ] Add `/appointments/search` route to `App.tsx` `AuthenticatedLayout` children
-- [ ] Create `client/src/api/availability.ts` with `fetchAvailability(startDate, endDate)` typed function
-- [ ] Create `client/src/hooks/useAvailability.ts` with React Query `useQuery` (staleTime=60s, enabled guard)
-- [ ] Create `DateRangeFilter.tsx` — MUI DatePicker pair, controlled, default today → today+7, endDate≥startDate validation
-- [ ] Create `SlotCard.tsx` — MUI Card with time, label, outlined "Select" button, onClick navigate to slot-selection
-- [ ] Create `SlotGrid.tsx` — MUI Grid responsive (xs=12, sm=6, md=4) with result count heading
-- [ ] Create `SlotGridSkeleton.tsx` — 8 MUI Skeleton cards wave animation
-- [ ] Create `AvailabilityEmptyState.tsx` — calendar icon, heading, body, reset CTA per AC-4
-- [ ] Create `AvailabilitySearchPage.tsx` — compose all sub-components with conditional state rendering
-- [ ] **[UI Tasks - MANDATORY]** Reference wireframe from Design References table during implementation
-- [ ] **[UI Tasks - MANDATORY]** Validate UI matches wireframe at 375px, 768px, 1440px before marking task complete
+- [X] Add `/appointments/search` route to `App.tsx` `AuthenticatedLayout` children
+- [X] Create `client/src/api/availability.ts` with `fetchAvailability(startDate, endDate)` typed function
+- [X] Create `client/src/hooks/useAvailability.ts` with React Query `useQuery` (staleTime=60s, enabled guard)
+- [X] Create `DateRangeFilter.tsx` — MUI DatePicker pair, controlled, default today → today+7, endDate≥startDate validation
+- [X] Create `SlotCard.tsx` — MUI Card with time, label, outlined "Select" button, onClick navigate to slot-selection
+- [X] Create `SlotGrid.tsx` — MUI Grid responsive (xs=12, sm=6, md=4) with result count heading
+- [X] Create `SlotGridSkeleton.tsx` — 8 MUI Skeleton cards wave animation
+- [X] Create `AvailabilityEmptyState.tsx` — calendar icon, heading, body, reset CTA per AC-4
+- [X] Create `AvailabilitySearchPage.tsx` — compose all sub-components with conditional state rendering
+- [X] **[UI Tasks - MANDATORY]** Reference wireframe from Design References table during implementation
+- [X] **[UI Tasks - MANDATORY]** Validate UI matches wireframe at 375px, 768px, 1440px before marking task complete

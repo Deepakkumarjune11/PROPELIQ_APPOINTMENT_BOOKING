@@ -300,11 +300,11 @@ dotnet test --filter "Category=Unit"
 
 ## Implementation Checklist
 
-- [ ] Create `SlotSwapResult` outcome enum
-- [ ] Create `SlotSwapService` with SERIALIZABLE transaction, pessimistic row lock, 4-step swap logic, and AuditLog writes
-- [ ] Create `SlotSwapJob` with `[DisableConcurrentExecution]`, watchlist poll, and per-entry `TrySwapAsync` dispatch
-- [ ] Create `SwapNotificationJob` with `[AutomaticRetry(Attempts = 3)]` reusing `INotificationService`
-- [ ] Create `WatchlistExpiredNotificationJob` for expired slot scenarios
-- [ ] Register `SlotSwapJob` recurring job in `Program.cs` with 5-minute cron
-- [ ] Register `SlotSwapService` in `ServiceCollectionExtensions.cs`
-- [ ] Write unit tests covering all `SlotSwapService` outcome branches including concurrency scenario
+- [x] Create `SlotSwapResult` outcome enum
+- [x] Create `SlotSwapService` with SERIALIZABLE transaction, pessimistic row lock, 4-step swap logic, and AuditLog writes
+- [x] Create `SlotSwapJob` with `[DisableConcurrentExecution]`, watchlist poll, and per-entry `TrySwapAsync` dispatch
+- [x] Create `SwapNotificationJob` with `[AutomaticRetry(Attempts = 3)]` reusing `INotificationService`
+- [x] Create `WatchlistExpiredNotificationJob` for expired slot scenarios
+- [x] Register `SlotSwapJob` recurring job in `Program.cs` with 5-minute cron
+- [x] Register `SlotSwapService` in `ServiceCollectionExtensions.cs`
+- [x] Write unit tests covering all `SlotSwapService` outcome branches including concurrency scenario

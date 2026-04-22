@@ -268,12 +268,12 @@ dotnet run --project src/PropelIQ.Api/PropelIQ.Api.csproj
 
 ## Implementation Checklist
 
-- [ ] Create `InsuranceValidationStatus.cs` enum in `PatientAccess.Domain/Enums/` with `Pass, PartialMatch, Fail, Pending`
-- [ ] Create `InsuranceReferenceEntry.cs` POCO with `ProviderName` + `KnownMemberIdPrefixes` list
-- [ ] Create `InsuranceReferenceOptions.cs` with `SectionName = "InsuranceReference"` and `Providers` list
-- [ ] Create `IInsuranceValidationService.cs` interface in `PatientAccess.Application/Services/`
-- [ ] Create `InsuranceValidationService.cs` — implement `ValidateAsync` with `Pass/PartialMatch/Fail/Pending` logic; log provider + result only (never log memberId)
-- [ ] Add dummy reference data to `appsettings.Development.json` under `InsuranceReference.Providers`
-- [ ] Update `ServiceCollectionExtensions.cs` to accept `IConfiguration`, bind `InsuranceReferenceOptions`, and register `IInsuranceValidationService` → `InsuranceValidationService` as scoped
-- [ ] Update `Program.cs` call to `AddPatientAccessModule()` to pass `builder.Configuration` (if signature changes)
-- [ ] Confirm `dotnet build` passes with zero errors after all files created
+- [X] Create `InsuranceValidationStatus.cs` enum in `PatientAccess.Domain/Enums/` with `Pass, PartialMatch, Fail, Pending`
+- [X] Create `InsuranceReferenceEntry.cs` POCO with `ProviderName` + `KnownMemberIdPrefixes` list
+- [X] Create `InsuranceReferenceOptions.cs` with `SectionName = "InsuranceReference"` and `Providers` list
+- [X] Create `IInsuranceValidationService.cs` interface in `PatientAccess.Application/Services/`
+- [X] Create `InsuranceValidationService.cs` — implement `ValidateAsync` with `Pass/PartialMatch/Fail/Pending` logic; log provider + result only (never log memberId)
+- [X] Add dummy reference data to `appsettings.Development.json` under `InsuranceReference.Providers`
+- [X] Update `ServiceCollectionExtensions.cs` to accept `IConfiguration`, bind `InsuranceReferenceOptions`, and register `IInsuranceValidationService` → `InsuranceValidationService` as scoped
+- [X] Update `Program.cs` call to `AddPatientAccessModule()` to pass `builder.Configuration` (if signature changes)
+- [X] Confirm `dotnet build` passes with zero errors after all files created
