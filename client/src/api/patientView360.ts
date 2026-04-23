@@ -61,7 +61,7 @@ export interface VerificationQueueEntry {
   patientId: string;
   patientName: string;
   mrn: string;
-  appointmentDatetime: string;  // ISO-8601
+  appointmentDatetime: string | null;  // null when patient has no upcoming appointment
   documentCount: number;
   conflictCount: number;
   priority: 'conflict' | 'pending';

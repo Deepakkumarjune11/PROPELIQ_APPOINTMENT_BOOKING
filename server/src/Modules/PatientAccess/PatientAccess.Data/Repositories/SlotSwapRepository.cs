@@ -35,13 +35,13 @@ public sealed class SlotSwapRepository : ISlotSwapRepository
             .Include(a => a.Patient)
             .Select(a => new WatchlistEntry(
                 a.Id,
-                a.PatientId,
+                a.PatientId ?? Guid.Empty,
                 a.SlotDatetime,
                 a.PreferredSlotId!.Value,
                 a.PreferredSlot!.SlotDatetime,
-                a.Patient.Phone,
-                a.Patient.Email,
-                a.Patient.Name))
+                a.Patient != null ? a.Patient.Phone : string.Empty,
+                a.Patient != null ? a.Patient.Email : string.Empty,
+                a.Patient != null ? a.Patient.Name : string.Empty))
             .ToListAsync(ct);
     }
 

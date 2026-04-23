@@ -4,6 +4,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import DescriptionIcon from '@mui/icons-material/Description';
 import EventIcon from '@mui/icons-material/Event';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
+import GroupIcon from '@mui/icons-material/Group';
 import ListIcon from '@mui/icons-material/List';
 import PersonIcon from '@mui/icons-material/Person';
 import { BottomNavigation, BottomNavigationAction, Paper } from '@mui/material';
@@ -25,13 +26,22 @@ const STAFF_ITEMS = [
   { label: 'Metrics',  icon: <BarChartIcon />,  path: '/metrics',        navId: undefined as string | undefined },
 ];
 
+// BRD §6: Admin bottom nav — user management focus, no clinical tools
+const ADMIN_ITEMS = [
+  { label: 'Dashboard', icon: <DashboardIcon />, path: '/admin/dashboard', navId: undefined as string | undefined },
+  { label: 'Users',     icon: <GroupIcon />,     path: '/admin/users',     navId: undefined as string | undefined },
+  { label: 'Metrics',  icon: <BarChartIcon />,  path: '/metrics',         navId: undefined as string | undefined },
+];
+
 // SCR-025: Mobile bottom navigation (<900px breakpoint) — role-aware tab set
 export default function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuthStore();
 
-  const items = user?.role === 'patient' ? PATIENT_ITEMS : STAFF_ITEMS;
+  const items = user?.role === 'patient' ? PATIENT_ITEMS
+             : user?.role === 'admin'   ? ADMIN_ITEMS
+             : STAFF_ITEMS;
   const selectedIndex = items.findIndex((item) => item.path === location.pathname);
 
   return (

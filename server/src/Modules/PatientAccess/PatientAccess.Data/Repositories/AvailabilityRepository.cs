@@ -40,7 +40,14 @@ public sealed class AvailabilityRepository : IAvailabilityRepository
                 a.SlotDatetime <= endUtc &&
                 !a.IsDeleted)
             .OrderBy(a => a.SlotDatetime)
-            .Select(a => new AvailabilitySlotData(a.Id, a.SlotDatetime, a.NoShowRiskScore))
+            .Select(a => new AvailabilitySlotData(
+                a.Id,
+                a.SlotDatetime,
+                a.NoShowRiskScore,
+                a.Provider,
+                a.VisitType,
+                a.Location,
+                a.DurationMinutes))
             .ToListAsync(ct);
     }
 }

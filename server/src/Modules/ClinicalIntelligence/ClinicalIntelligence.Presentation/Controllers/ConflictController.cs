@@ -27,7 +27,7 @@ namespace ClinicalIntelligence.Presentation.Controllers;
 /// AuditLog entries do not include PHI values (AIR-S03).
 /// </summary>
 [ApiController]
-[Authorize(Roles = "Staff")]
+[Authorize(Roles = "Staff,Admin")]
 [Route("api/v1")]
 public sealed class ConflictController(
     PropelIQDbContext               db,

@@ -73,6 +73,22 @@ internal sealed class AppointmentConfiguration : IEntityTypeConfiguration<Appoin
             .HasDefaultValue(false)
             .IsRequired();
 
+        // Slot metadata — optional on pre-allocated Available slots; populated at booking time.
+        builder.Property(a => a.Provider)
+            .HasMaxLength(200);
+        builder.Property(a => a.VisitType)
+            .HasMaxLength(20);
+        builder.Property(a => a.Location)
+            .HasMaxLength(300);
+
+        // PatientId is optional: null for Available slots, populated on booking (Status: Available → Booked).
+        // Explicit config avoids EF creating a shadow FK column 'PatientId1'.
+        builder.HasOne(a => a.Patient)
+            .WithMany(p => p.Appointments)
+            .HasForeignKey(a => a.PatientId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // Partial index for today's ordered queue reads (US_016, NFR-012).
         // Covers: SELECT ... WHERE QueuePosition IS NOT NULL ORDER BY QueuePosition
         // Actual CREATE INDEX uses CONCURRENTLY in the migration for zero-downtime (NFR-012).

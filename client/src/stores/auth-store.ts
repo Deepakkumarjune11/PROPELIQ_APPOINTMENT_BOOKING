@@ -46,6 +46,13 @@ export const useAuthStore = create<AuthState>()(
       // Only persist the fields required to restore session on page reload (OWASP A02).
       // lastActivity is intentionally excluded — resets per-session as expected.
       partialize: (s) => ({ token: s.token, user: s.user, expiresAt: s.expiresAt }),
+      // Recompute isAuthenticated from the rehydrated token/expiresAt so that a page
+      // reload restores the authenticated state correctly (token present + not expired).
+      onRehydrateStorage: () => (state) => {
+        if (state && state.token && state.expiresAt && Date.now() < state.expiresAt) {
+          state.isAuthenticated = true;
+        }
+      },
     },
   ),
 );

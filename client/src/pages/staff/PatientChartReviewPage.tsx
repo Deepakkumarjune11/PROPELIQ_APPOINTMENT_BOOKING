@@ -23,7 +23,8 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
 import { useVerificationQueue } from '@/hooks/useVerificationQueue';
 
-function formatAppointmentDatetime(iso: string): string {
+function formatAppointmentDatetime(iso: string | null): string {
+  if (!iso) return '—';
   const d = new Date(iso);
   const today = new Date();
   const isToday =

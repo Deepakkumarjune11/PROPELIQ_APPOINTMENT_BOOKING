@@ -73,6 +73,11 @@ public sealed class GetAvailabilityHandler
                 return new AvailabilitySlotDto(
                     s.Id,
                     s.SlotDatetime.ToString("o"),
+                    // Fall back to generic provider label when the slot has no assigned clinician.
+                    s.Provider ?? "General Practice",
+                    s.VisitType ?? "in-person",
+                    s.Location,
+                    s.DurationMinutes,
                     // Prefer a pre-stored score on the entity; fall back to the live calculation.
                     s.NoShowRiskScore ?? risk.Score,
                     risk.ContributingFactors,

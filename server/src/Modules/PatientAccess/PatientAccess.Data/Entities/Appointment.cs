@@ -5,11 +5,24 @@ namespace PatientAccess.Data.Entities;
 public class Appointment
 {
     public Guid Id { get; set; }
-    public Guid PatientId { get; set; }
+    /// <summary>
+    /// Null for pre-allocated Available slots that have not yet been claimed by a patient.
+    /// Populated when the slot is booked (Status transitions from Available to Booked).
+    /// </summary>
+    public Guid? PatientId { get; set; }
     public DateTime SlotDatetime { get; set; }
     public AppointmentStatus Status { get; set; }
     public Guid? PreferredSlotId { get; set; }
     public decimal? NoShowRiskScore { get; set; }
+
+    /// <summary>Clinician or practitioner name shown on the slot card (e.g. "Dr. Sarah Chen").</summary>
+    public string? Provider { get; set; }
+    /// <summary>"in-person" or "telehealth" — drives the visit-type icon on the slot card.</summary>
+    public string? VisitType { get; set; }
+    /// <summary>Free-form location string (clinic address or "Telehealth").</summary>
+    public string? Location { get; set; }
+    /// <summary>Appointment duration in minutes (e.g. 30).</summary>
+    public int? DurationMinutes { get; set; }
 
     /// <summary>True when this appointment was booked as a same-day walk-in by staff (US_016).</summary>
     public bool IsWalkIn { get; set; }
@@ -25,7 +38,7 @@ public class Appointment
     public bool IsDeleted { get; set; }
 
     // Navigation
-    public Patient Patient { get; set; } = null!;
+    public Patient? Patient { get; set; }
     public Appointment? PreferredSlot { get; set; }
 
     /// <summary>

@@ -11,10 +11,11 @@ import { RoleGuard } from '@/components/auth/RoleGuard';
 import { StaffRouteGuard } from '@/components/guards/StaffRouteGuard';
 import { useAuthStore } from '@/stores/auth-store';
 
-/** Redirects to the role-appropriate home page. Staff → /staff/dashboard, patient → /appointments. */
+/** Redirects to the role-appropriate home page per BRD §6 roles. */
 function RoleHomeRedirect() {
   const role = useAuthStore((s) => s.user?.role);
   if (role === 'patient') return <Navigate to="/appointments" replace />;
+  if (role === 'admin')   return <Navigate to="/admin/dashboard" replace />;
   return <Navigate to="/staff/dashboard" replace />;
 }
 import LoginPage from '@/pages/LoginPage';
@@ -38,6 +39,7 @@ import VerificationCompletePage from '@/pages/staff/VerificationCompletePage';
 import DocumentListPage from '@/pages/documents/DocumentListPage';
 import DocumentUploadPage from '@/pages/documents/DocumentUploadPage';
 import UserManagementPage from '@/pages/admin/UserManagementPage';
+import AdminDashboardPage from '@/pages/admin/AdminDashboardPage';
 import AnalyticsDashboardPage from '@/pages/AnalyticsDashboardPage';
 import PatientProfilePage from '@/pages/profile/PatientProfilePage';
 import { healthcareTheme } from '@/theme/healthcare-theme';
@@ -184,14 +186,15 @@ const router = createBrowserRouter([
       // SCR-P01: Patient Profile — account details + logout
       { path: 'profile', element: <PatientProfilePage />, handle: { crumb: 'Profile' } },
 
-      // Admin routes — US_024 AC-3: only 'admin' role permitted (RoleGuard renders 403 for others)
+      // Admin routes — BRD §6: Admin role is scoped to user management.
+      // RoleGuard renders a 403 alert for non-admin callers (OWASP A01).
       {
         path: 'admin',
         element: <RoleGuard roles={['admin']} />,
         handle: { crumb: 'Admin' },
         children: [
-          // Placeholder — dedicated AdminDashboard component added in admin epic tasks
-          { path: 'dashboard', element: <Navigate to="/" replace /> },
+          // SCR-A01: Admin Dashboard — user summary cards + quick actions
+          { path: 'dashboard', element: <AdminDashboardPage />, handle: { crumb: 'Admin Dashboard' } },
           // SCR-021: User Management (US_025)
           { path: 'users', element: <UserManagementPage />, handle: { crumb: 'User Management' } },
         ],

@@ -118,34 +118,111 @@ public sealed class DevelopmentDataSeeder : IDataSeeder
 
     private async Task SeedAppointmentsAsync(CancellationToken ct)
     {
-        if (await _db.Appointments.AnyAsync(ct))
+        // Only seed booked/completed appointments when none exist yet
+        if (await _db.Appointments.AnyAsync(a => a.Status != AppointmentStatus.Available, ct))
+        {
+            // Even when booked rows exist, always ensure Available slots are present
+            // so the availability search returns results.
+        }
+
+        // Seed Available slots for the next 14 days if none exist.
+        if (await _db.Appointments.AnyAsync(a => a.Status == AppointmentStatus.Available, ct))
             return;
 
-        // Retrieve the seeded patients inside the same UoW so navigation resolves
+        var providers = new[]
+        {
+            (Name: "Dr. Sarah Chen",      Specialty: "Family Medicine"),
+            (Name: "Dr. Marcus Rivera",   Specialty: "Internal Medicine"),
+            (Name: "Dr. Priya Nair",      Specialty: "General Practice"),
+        };
+
+        var visitTypes = new[] { "in-person", "telehealth" };
+
+        var baseDate = DateTime.UtcNow.Date;
+
+        for (int dayOffset = 1; dayOffset <= 14; dayOffset++)
+        {
+            var slotDate = baseDate.AddDays(dayOffset);
+
+            // Morning block: 09:00 – 12:00 in 30-min increments
+            for (int h = 9; h < 12; h++)
+            {
+                foreach (var (providerName, _) in providers)
+                {
+                    var visitType = (h % 2 == 0) ? "in-person" : "telehealth";
+                    _db.Appointments.Add(new Appointment
+                    {
+                        Id              = Guid.NewGuid(),
+                        SlotDatetime    = slotDate.AddHours(h).AddMinutes(30 * (h % 2)),
+                        Status          = AppointmentStatus.Available,
+                        Provider        = providerName,
+                        VisitType       = visitType,
+                        Location        = visitType == "telehealth" ? "Telehealth" : "PropelIQ Clinic — Suite 200",
+                        DurationMinutes = 30,
+                        CreatedAt       = DateTime.UtcNow,
+                        UpdatedAt       = DateTime.UtcNow,
+                    });
+                }
+            }
+
+            // Afternoon block: 14:00 – 17:00
+            for (int h = 14; h < 17; h++)
+            {
+                foreach (var (providerName, _) in providers)
+                {
+                    var visitType = (h % 2 == 0) ? "telehealth" : "in-person";
+                    _db.Appointments.Add(new Appointment
+                    {
+                        Id              = Guid.NewGuid(),
+                        SlotDatetime    = slotDate.AddHours(h),
+                        Status          = AppointmentStatus.Available,
+                        Provider        = providerName,
+                        VisitType       = visitType,
+                        Location        = visitType == "telehealth" ? "Telehealth" : "PropelIQ Clinic — Suite 200",
+                        DurationMinutes = 30,
+                        CreatedAt       = DateTime.UtcNow,
+                        UpdatedAt       = DateTime.UtcNow,
+                    });
+                }
+            }
+        }
+
+        // Keep the existing booked/completed appointments for seeded patients
         var patients = await _db.Patients
             .Where(p => p.Email.StartsWith("seed-patient-"))
             .ToListAsync(ct);
 
-        foreach (var patient in patients)
+        if (!await _db.Appointments.AnyAsync(a => a.PatientId != null, ct))
         {
-            _db.Appointments.Add(new Appointment
+            foreach (var patient in patients)
             {
-                Id = Guid.NewGuid(),
-                PatientId = patient.Id,
-                SlotDatetime = DateTime.UtcNow.AddDays(7),
-                Status = AppointmentStatus.Booked,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            });
-            _db.Appointments.Add(new Appointment
-            {
-                Id = Guid.NewGuid(),
-                PatientId = patient.Id,
-                SlotDatetime = DateTime.UtcNow.AddDays(-14),
-                Status = AppointmentStatus.Completed,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            });
+                _db.Appointments.Add(new Appointment
+                {
+                    Id           = Guid.NewGuid(),
+                    PatientId    = patient.Id,
+                    SlotDatetime = DateTime.UtcNow.AddDays(7),
+                    Status       = AppointmentStatus.Booked,
+                    Provider     = "Dr. Sarah Chen",
+                    VisitType    = "in-person",
+                    Location     = "PropelIQ Clinic — Suite 200",
+                    DurationMinutes = 30,
+                    CreatedAt    = DateTime.UtcNow,
+                    UpdatedAt    = DateTime.UtcNow,
+                });
+                _db.Appointments.Add(new Appointment
+                {
+                    Id           = Guid.NewGuid(),
+                    PatientId    = patient.Id,
+                    SlotDatetime = DateTime.UtcNow.AddDays(-14),
+                    Status       = AppointmentStatus.Completed,
+                    Provider     = "Dr. Marcus Rivera",
+                    VisitType    = "in-person",
+                    Location     = "PropelIQ Clinic — Suite 200",
+                    DurationMinutes = 30,
+                    CreatedAt    = DateTime.UtcNow,
+                    UpdatedAt    = DateTime.UtcNow,
+                });
+            }
         }
     }
 }

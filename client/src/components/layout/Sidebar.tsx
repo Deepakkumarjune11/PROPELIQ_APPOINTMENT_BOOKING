@@ -1,7 +1,9 @@
 import BarChartIcon from '@mui/icons-material/BarChart';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
+import GroupIcon from '@mui/icons-material/Group';
 import ListIcon from '@mui/icons-material/List';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import {
   Box,
@@ -20,12 +22,20 @@ export const SIDEBAR_WIDTH = 240;
 /** Icon-rail width (tablet / 900–1199px). Used by AuthenticatedLayout for margin calc. */
 export const ICON_RAIL_WIDTH = 64;
 
-const NAV_ITEMS = [
+// BRD §6: Staff (front desk/call center) nav items
+const STAFF_NAV_ITEMS = [
   { label: 'Dashboard', icon: <DashboardIcon />, path: '/staff/dashboard', navId: undefined },
   { label: 'Walk-in',   icon: <PersonAddIcon />,  path: '/staff/walk-in',  navId: 'nav-book' },
   { label: 'Queue',     icon: <ListIcon />,        path: '/staff/queue',    navId: undefined },
   { label: 'Verify',    icon: <FactCheckIcon />,   path: '/staff/patients', navId: undefined },
   { label: 'Metrics',   icon: <BarChartIcon />,    path: '/metrics',        navId: 'nav-documents' },
+] as const;
+
+// BRD §6: Admin (user management) nav items — no clinical tools, no walk-in/queue
+const ADMIN_NAV_ITEMS = [
+  { label: 'Dashboard', icon: <DashboardIcon />,       path: '/admin/dashboard', navId: undefined },
+  { label: 'Users',     icon: <GroupIcon />,            path: '/admin/users',     navId: undefined },
+  { label: 'Metrics',   icon: <BarChartIcon />,         path: '/metrics',         navId: undefined },
 ] as const;
 
 interface SidebarProps {
@@ -34,14 +44,18 @@ interface SidebarProps {
    * Icons are visible; labels are hidden and exposed via `Tooltip` for pointer/keyboard users.
    */
   iconRail?: boolean;
+  /** Current user role — drives which nav item set is rendered (BRD §6 role separation). */
+  role?: string;
 }
 
 // SCR-025: Persistent sidebar for staff/admin roles.
 // Full-width (240px) on desktop (lg+); icon-rail (64px) on tablet (md–lg).
-export default function Sidebar({ iconRail = false }: SidebarProps) {
+// Admin role gets a separate nav set per BRD §6 (user management focus, no clinical tools).
+export default function Sidebar({ iconRail = false, role }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const NAV_ITEMS = role === 'admin' ? ADMIN_NAV_ITEMS : STAFF_NAV_ITEMS;
   const drawerWidth = iconRail ? ICON_RAIL_WIDTH : SIDEBAR_WIDTH;
 
   return (

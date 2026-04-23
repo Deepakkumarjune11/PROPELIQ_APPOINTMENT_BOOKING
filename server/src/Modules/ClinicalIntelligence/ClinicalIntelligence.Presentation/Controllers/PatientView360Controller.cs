@@ -26,7 +26,7 @@ namespace ClinicalIntelligence.Presentation.Controllers;
 /// AuditLog entries are written without PHI values (AIR-S03).
 /// </summary>
 [ApiController]
-[Authorize(Roles = "Staff")]
+[Authorize(Roles = "Staff,Admin")]
 [Route("api/v1")]
 public sealed class PatientView360Controller(
     PropelIQDbContext           db,
@@ -57,8 +57,38 @@ public sealed class PatientView360Controller(
             .Include(v => v.Patient)
             .FirstOrDefaultAsync(v => v.PatientId == patientId, ct);
 
+        // When no 360-view record exists yet (AI pipeline still running or unconfigured),
+        // return a pending-assembly response instead of 404 so the frontend can display
+        // "Summary is being assembled…" rather than an error state (BUG-011).
         if (view360 is null)
-            return NotFound(new { message = "360-view not yet assembled for this patient." });
+        {
+            // Confirm the patient actually exists — genuine 404 if not.
+            var pendingPatient = await _db.Patients
+                .Where(p => p.Id == patientId)
+                .Select(p => new { p.Id, p.Email, p.Dob, p.InsuranceMemberId, p.InsuranceProvider })
+                .FirstOrDefaultAsync(ct);
+
+            if (pendingPatient is null)
+                return NotFound(new { message = "Patient not found." });
+
+            var docCount = await _db.ClinicalDocuments
+                .CountAsync(d => d.PatientId == patientId && !d.IsDeleted, ct);
+
+            var pendingResponse = new PatientView360ResponseDto(
+                patientId,
+                new PatientIdentityDto(
+                    pendingPatient.Email,
+                    pendingPatient.Dob.ToString("yyyy-MM-dd"),
+                    pendingPatient.InsuranceMemberId,
+                    pendingPatient.InsuranceProvider),
+                0,
+                new Dictionary<string, List<ConsolidatedFactEntry>>(),
+                "pending",
+                docCount,
+                DateTime.UtcNow);
+
+            return Ok(pendingResponse);
+        }
 
         var patient = view360.Patient;
 
@@ -186,47 +216,80 @@ public sealed class PatientView360Controller(
     [ProducesResponseType(typeof(IReadOnlyList<VerificationQueueEntryDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetVerificationQueue(CancellationToken ct)
     {
-        // Fetch pending/in-review views with patient + appointments
-        var views = await _db.PatientViews360
-            .Where(v => v.VerificationStatus == VerificationStatus.Pending
-                     || v.VerificationStatus == VerificationStatus.InReview)
-            .Include(v => v.Patient)
-                .ThenInclude(p => p.Appointments)
-            .ToListAsync(ct);
-
-        if (views.Count == 0)
-            return Ok(Array.Empty<VerificationQueueEntryDto>());
-
-        // Batch document counts — single DB query avoids N+1 per patient (AIR-P01)
-        var patientIds = views.Select(v => v.PatientId).ToList();
-        var docCounts  = await _db.ClinicalDocuments
-            .Where(d => patientIds.Contains(d.PatientId) && !d.IsDeleted)
-            .GroupBy(d => d.PatientId)
-            .Select(g => new { PatientId = g.Key, Count = g.Count() })
-            .ToDictionaryAsync(x => x.PatientId, x => x.Count, ct);
-
         var now = DateTime.UtcNow;
 
-        var entries = views
-            .Select(v =>
+        // ── Track 1: patients with an assembled PatientView360 (Pending or InReview) ─
+        // Project to non-PHI columns only — avoids materialising Patient.Name / Phone /
+        // InsuranceMemberId which are encrypted at rest.  PhiEncryptedConverter.Unprotect
+        // throws for rows written by the dev seeder (stored as plaintext), crashing the
+        // entire queue endpoint (BUG-010).  Email is intentionally NOT encrypted (DR-015
+        // edge case — it is the login key and has a unique index).
+        var assembledRows = await _db.PatientViews360
+            .Where(v => v.VerificationStatus == VerificationStatus.Pending
+                     || v.VerificationStatus == VerificationStatus.InReview)
+            .Select(v => new
             {
-                var nextAppt = v.Patient.Appointments
-                    .Where(a => a.SlotDatetime >= now)
-                    .Min(a => (DateTime?)a.SlotDatetime);
-                docCounts.TryGetValue(v.PatientId, out var docCount);
-                return new VerificationQueueEntryDto(
-                    v.PatientId,
-                    v.Patient.Name,
-                    v.Patient.InsuranceMemberId ?? string.Empty,
-                    nextAppt,
-                    docCount,
-                    v.ConflictFlags.Length,
-                    v.VerificationStatus.ToString());
+                v.PatientId,
+                PatientEmail    = v.Patient.Email,
+                ConflictCount   = v.ConflictFlags.Length,
+                NextAppointment = v.Patient.Appointments
+                    .Where(a => a.SlotDatetime >= now && !a.IsDeleted)
+                    .Min(a => (DateTime?)a.SlotDatetime),
+                DocumentCount   = _db.ClinicalDocuments
+                    .Count(d => d.PatientId == v.PatientId && !d.IsDeleted),
+                HasConflict     = v.ConflictFlags.Length > 0,
             })
-            .OrderBy(e => e.NextAppointment ?? DateTime.MaxValue)
+            .ToListAsync(ct);
+
+        var assembledPatientIds = assembledRows.Select(r => r.PatientId).ToHashSet();
+
+        // ── Track 2: patients whose documents hit ManualReview but have NO PatientView360 yet.
+        // This happens when Azure OpenAI is unconfigured or the AI pipeline is unavailable —
+        // the job chain short-circuits to ManualReview without ever creating a 360-view record,
+        // leaving these patients invisible to staff (BUG-011 — AI pipeline gap).
+        var manualReviewRows = await _db.ClinicalDocuments
+            .Where(d => !d.IsDeleted
+                     && (d.ExtractionStatus == ExtractionStatus.ManualReview
+                      || d.ExtractionStatus == ExtractionStatus.Processing
+                      || d.ExtractionStatus == ExtractionStatus.Queued)
+                     && !assembledPatientIds.Contains(d.PatientId))
+            .GroupBy(d => d.PatientId)
+            .Select(g => new
+            {
+                PatientId     = g.Key,
+                PatientEmail  = g.First().Patient.Email,
+                DocumentCount = g.Count(),
+                NextAppointment = g.First().Patient.Appointments
+                    .Where(a => a.SlotDatetime >= now && !a.IsDeleted)
+                    .Min(a => (DateTime?)a.SlotDatetime),
+            })
+            .ToListAsync(ct);
+
+        if (assembledRows.Count == 0 && manualReviewRows.Count == 0)
+            return Ok(Array.Empty<VerificationQueueEntryDto>());
+
+        // ── Merge both tracks into a single ordered list ──────────────────
+        var dtos = assembledRows
+            .Select(r => new VerificationQueueEntryDto(
+                r.PatientId,
+                r.PatientEmail,
+                r.PatientId.ToString()[..8].ToUpperInvariant(),
+                r.NextAppointment,
+                r.DocumentCount,
+                r.ConflictCount,
+                r.HasConflict ? "conflict" : "pending"))
+            .Concat(manualReviewRows.Select(r => new VerificationQueueEntryDto(
+                r.PatientId,
+                r.PatientEmail,
+                r.PatientId.ToString()[..8].ToUpperInvariant(),
+                r.NextAppointment,
+                r.DocumentCount,
+                0,
+                "pending")))
+            .OrderBy(d => d.AppointmentDatetime ?? DateTime.MaxValue)
             .ToList();
 
-        return Ok(entries);
+        return Ok(dtos);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────
@@ -266,11 +329,15 @@ public record SourceCitationDto(
     float   ConfidenceScore);
 
 /// <summary>Single entry in the staff verification queue.</summary>
+/// <remarks>
+/// Field names are intentionally camelCase-aligned with the frontend VerificationQueueEntry
+/// TypeScript interface: AppointmentDatetime → appointmentDatetime, Priority → priority.
+/// </remarks>
 public record VerificationQueueEntryDto(
     Guid      PatientId,
     string    PatientName,
     string    Mrn,
-    DateTime? NextAppointment,
+    DateTime? AppointmentDatetime,   // was NextAppointment — renamed to match frontend
     int       DocumentCount,
     int       ConflictCount,
-    string    VerificationStatus);
+    string    Priority);              // "conflict" | "pending" — matches frontend union type

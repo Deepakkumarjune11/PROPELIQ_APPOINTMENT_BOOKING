@@ -220,11 +220,11 @@ public static class ServiceCollectionExtensions
             });
         });
 
-        // Gateway — singleton: Polly circuit breaker state must survive across job invocations.
-        // Registered as both IAiGateway and IChatCompletionGateway (same singleton instance).
-        services.AddSingleton<AzureOpenAiGateway>();
-        services.AddSingleton<IAiGateway>(sp => sp.GetRequiredService<AzureOpenAiGateway>());
-        services.AddSingleton<IChatCompletionGateway>(sp => sp.GetRequiredService<AzureOpenAiGateway>());
+        // Gateway — no AI backend configured; NullAiGateway always reports IsCircuitOpen=true
+        // so Hangfire jobs route all documents to ManualReview without errors or external calls.
+        // Replace NullAiGateway with OllamaGateway or AzureOpenAiGateway when an AI backend is available.
+        services.AddSingleton<IChatCompletionGateway, NullAiGateway>();
+        services.AddSingleton<IAiGateway>(sp => sp.GetRequiredService<IChatCompletionGateway>());
 
         // Document similarity search (AC-3, TR-015).
         services.AddScoped<IDocumentSearchService, DocumentSearchService>();
