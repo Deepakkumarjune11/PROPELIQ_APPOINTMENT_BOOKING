@@ -44,7 +44,14 @@ public sealed class UserManagementService(
                 a.IsActive, a.AccessPrivileges, null))
             .ToListAsync(ct);
 
-        return [.. staff, .. admins];
+        var patients = await db.Patients
+            .AsNoTracking()
+            .Where(p => !p.IsDeleted)
+            .Select(p => new AdminUserDto(p.Id, p.Name, p.Email, "Patient",
+                true, 0, p.Department))
+            .ToListAsync(ct);
+
+        return [.. staff, .. admins, .. patients];
     }
 
     public async Task<AdminUserDto> CreateUserAsync(
@@ -139,6 +146,23 @@ public sealed class UserManagementService(
             return MapStaff(staff);
         }
 
+        var patient = await db.Patients.FindAsync([userId], ct);
+        if (patient is not null)
+        {
+            patient.Name      = req.Name;
+            if (!string.IsNullOrWhiteSpace(req.Email))
+                patient.Email = req.Email;
+            if (req.Department is not null)
+                patient.SetDepartment(req.Department);
+            if (!string.IsNullOrWhiteSpace(req.Password))
+                patient.AuthCredentials = patientHasher.HashPassword(patient, req.Password);
+            patient.UpdatedAt = DateTime.UtcNow;
+            await db.SaveChangesAsync(ct);
+            await WriteAuditAsync(actorId, AuditActionType.AdminAction, userId,
+                "UserUpdated|type=Patient", ct);
+            return MapPatient(patient);
+        }
+
         var admin = await db.Admins.FindAsync([userId], ct)
             ?? throw new UserNotFoundException(userId);
 
@@ -219,10 +243,19 @@ public sealed class UserManagementService(
         }
         else
         {
-            var admin = await db.Admins.FindAsync([userId], ct)
-                ?? throw new UserNotFoundException(userId);
-            admin.IsActive = false;
-            await db.SaveChangesAsync(ct);
+            var patient = await db.Patients.FindAsync([userId], ct);
+            if (patient is not null)
+            {
+                patient.IsDeleted = true;
+                await db.SaveChangesAsync(ct);
+            }
+            else
+            {
+                var admin = await db.Admins.FindAsync([userId], ct)
+                    ?? throw new UserNotFoundException(userId);
+                admin.IsActive = false;
+                await db.SaveChangesAsync(ct);
+            }
         }
 
         // Terminate active sessions immediately (UC-006 AC-4 / 5a)
@@ -241,10 +274,19 @@ public sealed class UserManagementService(
         }
         else
         {
-            var admin = await db.Admins.FindAsync([userId], ct)
-                ?? throw new UserNotFoundException(userId);
-            admin.IsActive = true;
-            await db.SaveChangesAsync(ct);
+            var patient = await db.Patients.FindAsync([userId], ct);
+            if (patient is not null)
+            {
+                patient.IsDeleted = false;
+                await db.SaveChangesAsync(ct);
+            }
+            else
+            {
+                var admin = await db.Admins.FindAsync([userId], ct)
+                    ?? throw new UserNotFoundException(userId);
+                admin.IsActive = true;
+                await db.SaveChangesAsync(ct);
+            }
         }
 
         await WriteAuditAsync(actorId, AuditActionType.AdminAction, userId, "UserEnabled", ct);
