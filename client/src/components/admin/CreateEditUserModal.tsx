@@ -105,6 +105,8 @@ export function CreateEditUserModal({ open, onClose, user }: Props) {
       staffRole: (v) => validateStaffRole(v, form.role === 'Staff'),
       password:  (v) => validatePassword(v, !isEditMode),
     };
+    // Skip role / password validation in edit mode
+    if (isEditMode && (field === 'role' || field === 'staffRole' || field === 'password')) return;
     setErrors((prev) => ({ ...prev, [field]: validate[field](form[field]) }));
   };
 
@@ -112,9 +114,9 @@ export function CreateEditUserModal({ open, onClose, user }: Props) {
     const newErrors: FormErrors = {
       name:      validateName(form.name),
       email:     validateEmail(form.email),
-      role:      validateRole(form.role),
-      staffRole: validateStaffRole(form.staffRole, form.role === 'Staff'),
-      password:  validatePassword(form.password, !isEditMode),
+      role:      isEditMode ? '' : validateRole(form.role),
+      staffRole: isEditMode ? '' : validateStaffRole(form.staffRole, form.role === 'Staff'),
+      password:  isEditMode ? '' : validatePassword(form.password, true),
     };
     setErrors(newErrors);
     if (Object.values(newErrors).some(Boolean)) return;
@@ -131,7 +133,6 @@ export function CreateEditUserModal({ open, onClose, user }: Props) {
         name:       form.name.trim(),
         email:      form.email.trim(),
         role:       form.role,
-        password:   form.password.trim() || undefined,
         department: form.department.trim() || undefined,
       };
       updateUser(payload, { onSuccess: handleClose, onError });
@@ -194,7 +195,7 @@ export function CreateEditUserModal({ open, onClose, user }: Props) {
         {/* Role select */}
         <Box sx={{ mb: 1 }}>
           <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500, color: 'text.secondary' }}>
-            Role *
+            Role {isEditMode ? '' : '*'}
           </Typography>
           <Select
             value={form.role}
@@ -202,6 +203,7 @@ export function CreateEditUserModal({ open, onClose, user }: Props) {
             onBlur={() => blurValidate('role')}
             displayEmpty
             fullWidth
+            disabled={isEditMode}
             error={Boolean(errors.role)}
             size="small"
             inputProps={{ 'aria-label': 'Role' }}
@@ -211,13 +213,16 @@ export function CreateEditUserModal({ open, onClose, user }: Props) {
             <MenuItem value="Staff">Staff</MenuItem>
             <MenuItem value="Admin">Admin</MenuItem>
           </Select>
+          {isEditMode && (
+            <FormHelperText sx={{ mx: '14px' }}>Role cannot be changed after creation</FormHelperText>
+          )}
           {errors.role && (
             <FormHelperText error sx={{ mx: '14px' }}>{errors.role}</FormHelperText>
           )}
         </Box>
 
-        {/* Staff sub-role — only when Role = Staff */}
-        {form.role === 'Staff' && (
+        {/* Staff sub-role — only when Role = Staff and in create mode */}
+        {!isEditMode && form.role === 'Staff' && (
           <Box sx={{ mb: 1 }}>
             <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500, color: 'text.secondary' }}>
               Staff role *
@@ -254,36 +259,35 @@ export function CreateEditUserModal({ open, onClose, user }: Props) {
           sx={{ mb: 1 }}
         />
 
-        {/* Password — required on create, optional on edit */}
-        <TextField
-          label="Password"
-          required={!isEditMode}
-          fullWidth
-          type={showPassword ? 'text' : 'password'}
-          value={form.password}
-          onChange={(e) => setField('password', e.target.value)}
-          onBlur={() => blurValidate('password')}
-          error={Boolean(errors.password)}
-          helperText={
-            errors.password ||
-            (isEditMode ? 'Leave blank to keep the current password' : 'Min 8 chars, 1 uppercase, 1 number or special character')
-          }
-          sx={{ mb: 1 }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  size="small"
-                  onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  edge="end"
-                >
-                  {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
+        {/* Password — required on create only, hidden on edit */}
+        {!isEditMode && (
+          <TextField
+            label="Password"
+            required
+            fullWidth
+            type={showPassword ? 'text' : 'password'}
+            value={form.password}
+            onChange={(e) => setField('password', e.target.value)}
+            onBlur={() => blurValidate('password')}
+            error={Boolean(errors.password)}
+            helperText={errors.password || 'Min 8 chars, 1 uppercase, 1 number or special character'}
+            sx={{ mb: 1 }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    size="small"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        )}
 
         {/* 422 conflict error */}
         {conflictError && (
