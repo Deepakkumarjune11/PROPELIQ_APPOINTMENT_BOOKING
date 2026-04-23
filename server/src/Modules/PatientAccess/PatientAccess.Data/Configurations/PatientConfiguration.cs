@@ -75,11 +75,7 @@ internal sealed class PatientConfiguration : IEntityTypeConfiguration<Patient>
         // Soft delete: excludes IsDeleted=true records from all default queries (DR-017)
         builder.HasQueryFilter(p => !p.IsDeleted);
 
-        // One-to-many: Patient → Appointments
-        // OnDelete(Restrict): prevent physical delete of patient with active appointments
-        builder.HasMany(p => p.Appointments)
-            .WithOne(a => a.Patient)
-            .HasForeignKey(a => a.PatientId)
-            .OnDelete(DeleteBehavior.Restrict);
+        // One-to-many: Patient → Appointments is configured in AppointmentConfiguration
+        // to co-locate the optional FK and IsRequired(false) settings (avoids shadow PatientId1).
     }
 }

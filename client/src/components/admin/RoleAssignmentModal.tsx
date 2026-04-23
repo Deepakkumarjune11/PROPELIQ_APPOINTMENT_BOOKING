@@ -67,7 +67,7 @@ const permissionItems: PermissionItem[] = [
 ];
 
 export function RoleAssignmentModal({ open, onClose, userId, currentRole, currentPermissions }: Props) {
-  const [role, setRole]                   = useState(currentRole);
+  const [role, setRole]                   = useState<string>('FrontDesk');
   const [permissionsBitfield, setBitfield] = useState(currentPermissions);
   const [conflictError, setConflictError]  = useState<string | null>(null);
 
@@ -76,7 +76,10 @@ export function RoleAssignmentModal({ open, onClose, userId, currentRole, curren
   // Reset on open with new props
   useEffect(() => {
     if (open) {
-      setRole(currentRole);
+      // Map top-level role to closest StaffRole default; Admins use FrontDesk as base
+      setRole(currentRole === 'FrontDesk' || currentRole === 'CallCenter' || currentRole === 'ClinicalReviewer'
+        ? currentRole
+        : 'FrontDesk');
       setBitfield(currentPermissions);
       setConflictError(null);
     }
@@ -95,7 +98,7 @@ export function RoleAssignmentModal({ open, onClose, userId, currentRole, curren
   const handleSave = () => {
     setConflictError(null);
     assignRole(
-      { role, permissionsBitfield },
+      { staffRole: role, permissionsBitfield },
       {
         onSuccess: handleClose,
         onError: (err) => {
@@ -133,9 +136,9 @@ export function RoleAssignmentModal({ open, onClose, userId, currentRole, curren
             size="small"
             inputProps={{ 'aria-label': 'Role' }}
           >
-            <MenuItem value="Staff">Staff</MenuItem>
-            <MenuItem value="Admin">Admin</MenuItem>
-            <MenuItem value="Patient">Patient</MenuItem>
+            <MenuItem value="FrontDesk">Front Desk</MenuItem>
+            <MenuItem value="CallCenter">Call Center</MenuItem>
+            <MenuItem value="ClinicalReviewer">Clinical Reviewer</MenuItem>
           </Select>
         </Box>
 

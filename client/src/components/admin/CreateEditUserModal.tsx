@@ -11,6 +11,7 @@ import {
   DialogTitle,
   FormHelperText,
   IconButton,
+  InputAdornment,
   MenuItem,
   Select,
   SelectChangeEvent,
@@ -18,6 +19,8 @@ import {
   Typography,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 import type { AdminUserDto, CreateUserRequest, UpdateUserRequest } from '@/api/adminUsers';
 import { useCreateUser } from '@/hooks/admin/useCreateUser';
@@ -34,27 +37,40 @@ interface FormState {
   name: string;
   email: string;
   role: string;
+  staffRole: string;
   department: string;
+  password: string;
 }
 
 interface FormErrors {
   name: string;
   email: string;
   role: string;
+  staffRole: string;
+  password: string;
 }
 
-const EMPTY_FORM: FormState = { name: '', email: '', role: '', department: '' };
-const EMPTY_ERRORS: FormErrors = { name: '', email: '', role: '' };
+const EMPTY_FORM: FormState = { name: '', email: '', role: '', staffRole: '', department: '', password: '' };
+const EMPTY_ERRORS: FormErrors = { name: '', email: '', role: '', staffRole: '', password: '' };
 
-function validateName(v: string)  { return v.trim() ? '' : 'Full name is required'; }
-function validateEmail(v: string) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? '' : 'Valid email is required'; }
-function validateRole(v: string)  { return v ? '' : 'Role is required'; }
+function validateName(v: string)     { return v.trim() ? '' : 'Full name is required'; }
+function validateEmail(v: string)    { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? '' : 'Valid email is required'; }
+function validateRole(v: string)     { return v ? '' : 'Role is required'; }
+function validateStaffRole(v: string, isStaff: boolean) { return isStaff && !v ? 'Staff role is required' : ''; }
+function validatePassword(v: string, required: boolean) {
+  if (!v && required) return 'Password is required';
+  if (v && v.length < 8) return 'Password must be at least 8 characters';
+  if (v && !/[A-Z]/.test(v)) return 'Password must contain an uppercase letter';
+  if (v && !/[0-9!@#$%^&*]/.test(v)) return 'Password must contain a number or special character';
+  return '';
+}
 
 export function CreateEditUserModal({ open, onClose, user }: Props) {
   const isEditMode = Boolean(user);
 
-  const [form, setForm]           = useState<FormState>(EMPTY_FORM);
-  const [errors, setErrors]       = useState<FormErrors>(EMPTY_ERRORS);
+  const [form, setForm]                   = useState<FormState>(EMPTY_FORM);
+  const [errors, setErrors]               = useState<FormErrors>(EMPTY_ERRORS);
+  const [showPassword, setShowPassword]   = useState(false);
   const [conflictError, setConflictError] = useState<string | null>(null);
 
   const { mutate: createUser, isPending: creating } = useCreateUser();
@@ -66,11 +82,12 @@ export function CreateEditUserModal({ open, onClose, user }: Props) {
     if (open) {
       setForm(
         user
-          ? { name: user.name, email: user.email, role: user.role, department: user.department ?? '' }
+          ? { name: user.name, email: user.email, role: user.role, staffRole: '', department: user.department ?? '', password: '' }
           : EMPTY_FORM,
       );
       setErrors(EMPTY_ERRORS);
       setConflictError(null);
+      setShowPassword(false);
     }
   }, [open, user]);
 
@@ -81,25 +98,26 @@ export function CreateEditUserModal({ open, onClose, user }: Props) {
   };
 
   const blurValidate = (field: keyof FormErrors) => {
-    const validate = { name: validateName, email: validateEmail, role: validateRole };
+    const validate: Record<keyof FormErrors, (v: string) => string> = {
+      name:      validateName,
+      email:     validateEmail,
+      role:      validateRole,
+      staffRole: (v) => validateStaffRole(v, form.role === 'Staff'),
+      password:  (v) => validatePassword(v, !isEditMode),
+    };
     setErrors((prev) => ({ ...prev, [field]: validate[field](form[field]) }));
   };
 
   const handleSubmit = () => {
     const newErrors: FormErrors = {
-      name:  validateName(form.name),
-      email: validateEmail(form.email),
-      role:  validateRole(form.role),
+      name:      validateName(form.name),
+      email:     validateEmail(form.email),
+      role:      validateRole(form.role),
+      staffRole: validateStaffRole(form.staffRole, form.role === 'Staff'),
+      password:  validatePassword(form.password, !isEditMode),
     };
     setErrors(newErrors);
     if (Object.values(newErrors).some(Boolean)) return;
-
-    const payload = {
-      name:       form.name.trim(),
-      email:      form.email.trim(),
-      role:       form.role,
-      department: form.department.trim() || undefined,
-    };
 
     const onError = (err: Error) => {
       if (axios.isAxiosError(err) && err.response?.status === 422) {
@@ -109,13 +127,29 @@ export function CreateEditUserModal({ open, onClose, user }: Props) {
     };
 
     if (isEditMode) {
-      updateUser(payload as UpdateUserRequest, { onSuccess: handleClose, onError });
+      const payload: UpdateUserRequest = {
+        name:       form.name.trim(),
+        email:      form.email.trim(),
+        role:       form.role,
+        password:   form.password.trim() || undefined,
+        department: form.department.trim() || undefined,
+      };
+      updateUser(payload, { onSuccess: handleClose, onError });
     } else {
-      createUser(payload as CreateUserRequest, { onSuccess: handleClose, onError });
+      const payload: CreateUserRequest = {
+        name:       form.name.trim(),
+        email:      form.email.trim(),
+        role:       form.role,
+        staffRole:  form.role === 'Staff' ? form.staffRole : undefined,
+        department: form.department.trim() || undefined,
+        password:   form.password.trim(),
+      };
+      createUser(payload, { onSuccess: handleClose, onError });
     }
   };
 
   return (
+    <>
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth
       PaperProps={{ sx: { borderRadius: 2 } }}>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
@@ -182,6 +216,33 @@ export function CreateEditUserModal({ open, onClose, user }: Props) {
           )}
         </Box>
 
+        {/* Staff sub-role — only when Role = Staff */}
+        {form.role === 'Staff' && (
+          <Box sx={{ mb: 1 }}>
+            <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500, color: 'text.secondary' }}>
+              Staff role *
+            </Typography>
+            <Select
+              value={form.staffRole}
+              onChange={(e: SelectChangeEvent) => setField('staffRole', e.target.value)}
+              onBlur={() => blurValidate('staffRole')}
+              displayEmpty
+              fullWidth
+              error={Boolean(errors.staffRole)}
+              size="small"
+              inputProps={{ 'aria-label': 'Staff role' }}
+            >
+              <MenuItem value="" disabled>Select staff role</MenuItem>
+              <MenuItem value="FrontDesk">Front Desk</MenuItem>
+              <MenuItem value="CallCenter">Call Center</MenuItem>
+              <MenuItem value="ClinicalReviewer">Clinical Reviewer</MenuItem>
+            </Select>
+            {errors.staffRole && (
+              <FormHelperText error sx={{ mx: '14px' }}>{errors.staffRole}</FormHelperText>
+            )}
+          </Box>
+        )}
+
         {/* Department (optional) */}
         <TextField
           label="Department"
@@ -193,7 +254,38 @@ export function CreateEditUserModal({ open, onClose, user }: Props) {
           sx={{ mb: 1 }}
         />
 
-        {/* 422 conflict error — shown above footer per wireframe SCR-022 */}
+        {/* Password — required on create, optional on edit */}
+        <TextField
+          label="Password"
+          required={!isEditMode}
+          fullWidth
+          type={showPassword ? 'text' : 'password'}
+          value={form.password}
+          onChange={(e) => setField('password', e.target.value)}
+          onBlur={() => blurValidate('password')}
+          error={Boolean(errors.password)}
+          helperText={
+            errors.password ||
+            (isEditMode ? 'Leave blank to keep the current password' : 'Min 8 chars, 1 uppercase, 1 number or special character')
+          }
+          sx={{ mb: 1 }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  size="small"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        {/* 422 conflict error */}
         {conflictError && (
           <Alert severity="error" sx={{ mt: 1 }}>
             Conflict: {conflictError}
@@ -215,5 +307,8 @@ export function CreateEditUserModal({ open, onClose, user }: Props) {
         </Button>
       </DialogActions>
     </Dialog>
+
+    {/* tempPassword dialog removed — password is now always set by the admin at create time */}
+    </>
   );
 }

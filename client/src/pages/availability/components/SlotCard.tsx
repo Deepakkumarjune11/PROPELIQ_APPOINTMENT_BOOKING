@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import { useNavigate } from 'react-router-dom';
 
 import type { AvailabilitySlot } from '@/api/availability';
+import NoShowRiskBadge from '@/pages/slot-selection/components/NoShowRiskBadge';
 
 function formatTime(datetime: string): string {
   return new Intl.DateTimeFormat('en-US', {
@@ -69,9 +70,13 @@ export default function SlotCard({ slot }: SlotCardProps) {
           {slot.provider}
         </Typography>
 
-        {slot.specialty && (
+        {slot.specialty ? (
           <Typography variant="body2" color="text.secondary" gutterBottom>
             {slot.specialty}&nbsp;•&nbsp;{isVirtual ? 'Telehealth' : 'In-person'}
+          </Typography>
+        ) : (
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            {isVirtual ? 'Telehealth' : 'In-person'}
           </Typography>
         )}
 
@@ -85,6 +90,13 @@ export default function SlotCard({ slot }: SlotCardProps) {
             {isVirtual ? 'Telehealth available' : 'Available'}
           </Typography>
         </Box>
+
+        {/* BRD: no-show risk badge — only rendered when risk > 0.7 */}
+        <NoShowRiskBadge
+          noShowRisk={slot.noShowRisk}
+          riskContributingFactors={slot.riskContributingFactors}
+          isPartialScoring={slot.isPartialScoring}
+        />
 
         <Button
           variant="outlined"

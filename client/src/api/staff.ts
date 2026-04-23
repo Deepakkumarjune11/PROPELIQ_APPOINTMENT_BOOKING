@@ -100,11 +100,15 @@ export async function bookWalkIn(data: WalkInBookingRequest): Promise<WalkInBook
 
 /**
  * Fetches the staff dashboard summary counts and same-day queue.
- * GET /api/v1/staff/dashboard/summary
+ * Calls /api/v1/staff/dashboard/summary (flat summary) and /api/v1/staff/queue in parallel,
+ * then composes them into the DashboardData shape the page expects.
  */
 export async function getDashboardData(): Promise<DashboardData> {
-  const res = await api.get<DashboardData>('/api/v1/staff/dashboard/summary');
-  return res.data;
+  const [summaryRes, queueRes] = await Promise.all([
+    api.get<DashboardSummary>('/api/v1/staff/dashboard/summary'),
+    api.get<QueueEntry[]>('/api/v1/staff/queue'),
+  ]);
+  return { summary: summaryRes.data, queue: queueRes.data };
 }
 
 /**

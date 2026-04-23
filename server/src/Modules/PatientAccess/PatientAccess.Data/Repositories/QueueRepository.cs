@@ -39,7 +39,7 @@ public sealed class QueueRepository : IQueueRepository
             .Select(a => new QueueEntryDto(
                 a.Id,
                 a.QueuePosition!.Value,
-                a.Patient.Name,
+                a.Patient != null ? a.Patient.Name : "Walk-In Patient",
                 new DateTimeOffset(a.SlotDatetime, TimeSpan.Zero),
                 a.Status.ToString(),
                 "Walk-In"))

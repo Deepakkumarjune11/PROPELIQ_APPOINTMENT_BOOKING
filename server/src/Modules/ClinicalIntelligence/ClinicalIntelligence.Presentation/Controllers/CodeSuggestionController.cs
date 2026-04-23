@@ -27,7 +27,7 @@ namespace ClinicalIntelligence.Presentation.Controllers;
 /// metric emission failures are swallowed and logged as warnings so the request is never failed.
 /// </summary>
 [ApiController]
-[Authorize(Roles = "Staff")]
+[Authorize(Roles = "Staff,Admin")]
 [Route("api/v1")]
 public sealed class CodeSuggestionController(
     PropelIQDbContext                   db,

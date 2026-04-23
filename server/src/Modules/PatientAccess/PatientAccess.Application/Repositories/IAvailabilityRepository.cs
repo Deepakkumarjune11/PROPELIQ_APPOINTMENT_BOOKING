@@ -7,10 +7,18 @@ namespace PatientAccess.Application.Repositories;
 /// <param name="Id">Appointment row identifier.</param>
 /// <param name="SlotDatetime">UTC datetime of the appointment slot.</param>
 /// <param name="NoShowRiskScore">Model-derived no-show probability (0–1), or <c>null</c> if unscored.</param>
+/// <param name="Provider">Clinician name shown on the slot card.</param>
+/// <param name="VisitType">&quot;in-person&quot; or &quot;telehealth&quot;.</param>
+/// <param name="Location">Clinic address or &quot;Telehealth&quot;.</param>
+/// <param name="DurationMinutes">Appointment duration in minutes.</param>
 public sealed record AvailabilitySlotData(
     Guid Id,
     DateTime SlotDatetime,
-    decimal? NoShowRiskScore);
+    decimal? NoShowRiskScore,
+    string? Provider,
+    string? VisitType,
+    string? Location,
+    int? DurationMinutes);
 
 /// <summary>
 /// Repository contract for availability slot queries.

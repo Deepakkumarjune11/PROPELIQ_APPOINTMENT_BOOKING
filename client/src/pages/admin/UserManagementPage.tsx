@@ -26,12 +26,14 @@ import {
 import BlockIcon from '@mui/icons-material/Block';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
+import LockResetIcon from '@mui/icons-material/LockReset';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SearchIcon from '@mui/icons-material/Search';
 
 import type { AdminUserDto } from '@/api/adminUsers';
 import { CreateEditUserModal } from '@/components/admin/CreateEditUserModal';
+import { ResetPasswordModal } from '@/components/admin/ResetPasswordModal';
 import { RoleAssignmentModal } from '@/components/admin/RoleAssignmentModal';
 import { useAdminUsers } from '@/hooks/admin/useAdminUsers';
 import { useToggleUserStatus } from '@/hooks/admin/useToggleUserStatus';
@@ -142,6 +144,7 @@ export default function UserManagementPage() {
   const [createOpen, setCreateOpen]     = useState(false);
   const [editUser, setEditUser]         = useState<AdminUserDto | null>(null);
   const [roleUser, setRoleUser]         = useState<AdminUserDto | null>(null);
+  const [resetUser, setResetUser]       = useState<AdminUserDto | null>(null);
   const [confirmState, setConfirmState] = useState<ConfirmState>(CONFIRM_INITIAL);
 
   // Client-side filter on name / email / role substring
@@ -301,6 +304,18 @@ export default function UserManagementPage() {
                       </IconButton>
                     </Tooltip>
 
+                    {/* Reset password */}
+                    <Tooltip title="Reset password">
+                      <IconButton
+                        size="small"
+                        onClick={() => setResetUser(u)}
+                        aria-label="Reset password"
+                        sx={{ color: 'text.secondary' }}
+                      >
+                        <LockResetIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+
                     {/* Disable / Enable */}
                     <span onClick={() => { if (u.id !== currentUser?.id) openConfirm(u); }}>
                       <ToggleStatusButton
@@ -330,6 +345,15 @@ export default function UserManagementPage() {
           userId={roleUser.id}
           currentRole={roleUser.role}
           currentPermissions={roleUser.permissionsBitfield}
+        />
+      )}
+
+      {resetUser && (
+        <ResetPasswordModal
+          open
+          onClose={() => setResetUser(null)}
+          userId={resetUser.id}
+          userName={resetUser.name}
         />
       )}
 

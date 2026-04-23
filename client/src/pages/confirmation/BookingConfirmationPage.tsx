@@ -41,6 +41,14 @@ export default function BookingConfirmationPage() {
   const { selectedSlot, patientDetails, appointmentId, clearIntake } = useBookingStore();
   const { clearIntake: clearIntakeStore } = useIntakeStore();
 
+  // Snapshot booking data into local state immediately on mount so it survives
+  // the clearIntake() call (which sets store values to null on the next render).
+  const [snapshot] = useState(() => ({
+    slot: selectedSlot,
+    details: patientDetails,
+    apptId: appointmentId,
+  }));
+
   const [loadingProvider, setLoadingProvider] = useState<CalendarProvider | null>(null);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
     open: false,
@@ -50,7 +58,7 @@ export default function BookingConfirmationPage() {
 
   // Guard: if booking data is missing the patient navigated here directly — redirect to search
   useEffect(() => {
-    if (!patientDetails || !selectedSlot) {
+    if (!snapshot.details || !snapshot.slot) {
       navigate('/appointments/search', { replace: true });
       return;
     }
@@ -66,17 +74,17 @@ export default function BookingConfirmationPage() {
       setSnackbar({ open: true, message: 'Calendar sync failed. Try again.', severity: 'error' });
     }
 
-    // Reset both stores after the booking flow is complete
+    // Reset both stores after snapshotting — safe because we render from snapshot now
     clearIntake();
     clearIntakeStore();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCalendarSync = async (provider: CalendarProvider) => {
-    if (!appointmentId) return;
+    if (!snapshot.apptId) return;
     setLoadingProvider(provider);
     try {
-      const { authUrl } = await getCalendarInitUrl(provider, appointmentId);
+      const { authUrl } = await getCalendarInitUrl(provider, snapshot.apptId);
       window.location.href = authUrl; // OAuth redirect — leaves the page
     } catch {
       setSnackbar({ open: true, message: 'Could not start calendar sync. Try again.', severity: 'error' });
@@ -86,10 +94,10 @@ export default function BookingConfirmationPage() {
 
   const handleSnackbarClose = () => setSnackbar((s) => ({ ...s, open: false }));
 
-  // Render after guard (patientDetails/selectedSlot may be null before redirect fires)
-  if (!patientDetails || !selectedSlot) return null;
+  // Render using snapshot — immune to store being cleared mid-render
+  if (!snapshot.details || !snapshot.slot) return null;
 
-  const effectiveAppointmentId = appointmentId ?? patientDetails.patientId;
+  const effectiveAppointmentId = snapshot.apptId ?? snapshot.details.patientId;
   const pdfUrl = `${(import.meta.env.VITE_API_URL as string | undefined) ?? ''}/api/v1/appointments/${effectiveAppointmentId}/pdf`;
 
   return (
@@ -104,7 +112,7 @@ export default function BookingConfirmationPage() {
       >
         <Typography fontWeight={600}>Booking confirmed!</Typography>
         <Typography variant="body2">
-          A confirmation email and PDF have been sent to {patientDetails.email}.
+          A confirmation email and PDF have been sent to {snapshot.details.email}.
         </Typography>
       </Alert>
 
@@ -119,21 +127,21 @@ export default function BookingConfirmationPage() {
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography variant="body2" color="text.secondary">Date &amp; Time</Typography>
               <Typography variant="body2" fontWeight={500}>
-                {formatDatetime(selectedSlot.datetime)}
+                {formatDatetime(snapshot.slot.datetime)}
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography variant="body2" color="text.secondary">Provider</Typography>
-              <Typography variant="body2" fontWeight={500}>{selectedSlot.provider}</Typography>
+              <Typography variant="body2" fontWeight={500}>{snapshot.slot.provider}</Typography>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography variant="body2" color="text.secondary">Patient</Typography>
-              <Typography variant="body2" fontWeight={500}>{patientDetails.name}</Typography>
+              <Typography variant="body2" fontWeight={500}>{snapshot.details.name}</Typography>
             </Box>
-            {selectedSlot.location && (
+            {snapshot.slot.location && (
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2" color="text.secondary">Location</Typography>
-                <Typography variant="body2" fontWeight={500}>{selectedSlot.location}</Typography>
+                <Typography variant="body2" fontWeight={500}>{snapshot.slot.location}</Typography>
               </Box>
             )}
           </Box>

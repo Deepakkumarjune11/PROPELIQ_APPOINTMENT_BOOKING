@@ -10,6 +10,7 @@ using PatientAccess.Data;
 using PatientAccess.Data.Entities;
 using PatientAccess.Domain.Enums;
 using AdminEntity = PatientAccess.Data.Entities.Admin;
+using PatientEntity = PatientAccess.Data.Entities.Patient;
 
 namespace Admin.Application.Services;
 
@@ -23,6 +24,7 @@ public sealed class UserManagementService(
     PropelIQDbContext                 db,
     IPasswordHasher<Staff>            staffHasher,
     IPasswordHasher<AdminEntity>      adminHasher,
+    IPasswordHasher<PatientEntity>    patientHasher,
     ISessionInvalidator               sessionInvalidator,
     ILogger<UserManagementService>    logger) : IUserManagementService
 {
@@ -66,7 +68,7 @@ public sealed class UserManagementService(
                 CreatedAt           = DateTime.UtcNow,
                 IsActive            = true,
             };
-            staff.AuthCredentials = staffHasher.HashPassword(staff, GenerateSecureTemporaryPassword());
+            staff.AuthCredentials = staffHasher.HashPassword(staff, req.Password);
             db.Staff.Add(staff);
             await db.SaveChangesAsync(ct);
 
@@ -75,6 +77,30 @@ public sealed class UserManagementService(
 
             logger.LogInformation("Admin {ActorId} created Staff user {UserId}", actorId, staff.Id);
             return MapStaff(staff);
+        }
+        else if (req.Role == "Patient")
+        {
+            var patient = new PatientEntity
+            {
+                Id        = Guid.NewGuid(),
+                Name      = req.Name.Trim(),
+                Email     = req.Email.Trim(),
+                Phone     = string.Empty,
+                Dob       = DateOnly.MinValue,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+            };
+            patient.AuthCredentials = patientHasher.HashPassword(patient, req.Password);
+            if (req.Department is not null)
+                patient.SetDepartment(req.Department);
+            db.Patients.Add(patient);
+            await db.SaveChangesAsync(ct);
+
+            await WriteAuditAsync(actorId, AuditActionType.AdminAction, patient.Id,
+                $"UserCreated|role=Patient|email={req.Email}", ct);
+
+            logger.LogInformation("Admin {ActorId} created Patient user {UserId}", actorId, patient.Id);
+            return MapPatient(patient);
         }
         else
         {
@@ -86,7 +112,7 @@ public sealed class UserManagementService(
                 CreatedAt        = DateTime.UtcNow,
                 IsActive         = true,
             };
-            admin.AuthCredentials = adminHasher.HashPassword(admin, GenerateSecureTemporaryPassword());
+            admin.AuthCredentials = adminHasher.HashPassword(admin, req.Password);
             db.Admins.Add(admin);
             await db.SaveChangesAsync(ct);
 
@@ -105,6 +131,8 @@ public sealed class UserManagementService(
         if (staff is not null)
         {
             staff.Username = req.Name;
+            if (!string.IsNullOrWhiteSpace(req.Password))
+                staff.AuthCredentials = staffHasher.HashPassword(staff, req.Password);
             await db.SaveChangesAsync(ct);
             await WriteAuditAsync(actorId, AuditActionType.AdminAction, userId,
                 "UserUpdated|type=Staff", ct);
@@ -115,31 +143,70 @@ public sealed class UserManagementService(
             ?? throw new UserNotFoundException(userId);
 
         admin.Username = req.Name;
+        if (!string.IsNullOrWhiteSpace(req.Password))
+            admin.AuthCredentials = adminHasher.HashPassword(admin, req.Password);
         await db.SaveChangesAsync(ct);
         await WriteAuditAsync(actorId, AuditActionType.AdminAction, userId, "UserUpdated|type=Admin", ct);
         return MapAdmin(admin);
     }
 
+    public async Task ResetPasswordAsync(
+        Guid userId, ResetPasswordRequest req, Guid actorId, CancellationToken ct)
+    {
+        var staff = await db.Staff.FindAsync([userId], ct);
+        if (staff is not null)
+        {
+            staff.AuthCredentials = staffHasher.HashPassword(staff, req.NewPassword);
+            await db.SaveChangesAsync(ct);
+            await sessionInvalidator.InvalidateSessionAsync(userId, ct);
+            await WriteAuditAsync(actorId, AuditActionType.AdminAction, userId, "PasswordReset|type=Staff", ct);
+            logger.LogInformation("Admin {ActorId} reset password for Staff {UserId}", actorId, userId);
+            return;
+        }
+
+        var admin = await db.Admins.FindAsync([userId], ct)
+            ?? throw new UserNotFoundException(userId);
+
+        admin.AuthCredentials = adminHasher.HashPassword(admin, req.NewPassword);
+        await db.SaveChangesAsync(ct);
+        await sessionInvalidator.InvalidateSessionAsync(userId, ct);
+        await WriteAuditAsync(actorId, AuditActionType.AdminAction, userId, "PasswordReset|type=Admin", ct);
+        logger.LogInformation("Admin {ActorId} reset password for Admin {UserId}", actorId, userId);
+    }
+
     public async Task AssignRoleAsync(
         Guid userId, AssignRoleRequest req, Guid actorId, CancellationToken ct)
     {
-        var staff = await db.Staff.FindAsync([userId], ct)
+        var staff = await db.Staff.FindAsync([userId], ct);
+        if (staff is not null)
+        {
+            var conflict = PermissionValidator.Validate(req.StaffRole, req.PermissionsBitfield);
+            if (conflict is not null)
+                throw new PermissionConflictException(conflict);
+
+            staff.Role                = req.StaffRole;
+            staff.PermissionsBitfield = req.PermissionsBitfield;
+            await db.SaveChangesAsync(ct);
+
+            // Force re-login so the user's JWT reflects the updated role claim (UC-006 AC-3 / 4a)
+            await sessionInvalidator.InvalidateSessionAsync(userId, ct);
+            await WriteAuditAsync(actorId, AuditActionType.AdminAction, userId,
+                $"RoleAssigned|newRole={req.StaffRole}|bits={req.PermissionsBitfield}", ct);
+            logger.LogInformation("Admin {ActorId} assigned role {Role} to {UserId}", actorId, req.StaffRole, userId);
+            return;
+        }
+
+        // Admin users do not have a StaffRole sub-role; only update AccessPrivileges.
+        var admin = await db.Admins.FindAsync([userId], ct)
             ?? throw new UserNotFoundException(userId);
 
-        var conflict = PermissionValidator.Validate(req.StaffRole, req.PermissionsBitfield);
-        if (conflict is not null)
-            throw new PermissionConflictException(conflict);
-
-        staff.Role                = req.StaffRole;
-        staff.PermissionsBitfield = req.PermissionsBitfield;
+        admin.AccessPrivileges = req.PermissionsBitfield;
         await db.SaveChangesAsync(ct);
 
-        // Force re-login so the user's JWT reflects the updated role claim (UC-006 AC-3 / 4a)
         await sessionInvalidator.InvalidateSessionAsync(userId, ct);
         await WriteAuditAsync(actorId, AuditActionType.AdminAction, userId,
-            $"RoleAssigned|newRole={req.StaffRole}|bits={req.PermissionsBitfield}", ct);
-
-        logger.LogInformation("Admin {ActorId} assigned role {Role} to {UserId}", actorId, req.StaffRole, userId);
+            $"PermissionsUpdated|bits={req.PermissionsBitfield}", ct);
+        logger.LogInformation("Admin {ActorId} updated permissions for Admin user {UserId}", actorId, userId);
     }
 
     public async Task DisableUserAsync(Guid userId, Guid actorId, CancellationToken ct)
@@ -191,6 +258,9 @@ public sealed class UserManagementService(
 
     private static AdminUserDto MapAdmin(AdminEntity a) =>
         new(a.Id, a.Username, a.Username, "Admin", a.IsActive, a.AccessPrivileges);
+
+    private static AdminUserDto MapPatient(PatientEntity p) =>
+        new(p.Id, p.Name, p.Email, "Patient", !p.IsDeleted, 0, p.Department);
 
     /// <summary>
     /// Generates a cryptographically random 16-character temporary password.

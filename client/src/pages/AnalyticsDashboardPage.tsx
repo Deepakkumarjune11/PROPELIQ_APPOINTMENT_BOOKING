@@ -1,7 +1,7 @@
 // SCR-028 — Analytics Dashboard (US_033, EP-008).
 // Accessible to Staff and Admin roles. Sections: KPI Cards, Trend Charts, System Health.
 // Screen states: Default, Loading (Skeleton), Empty (no data), Error (Alert + Retry).
-// Breadcrumb: Staff Dashboard > Analytics (UXR-002).
+// Breadcrumb: Admin Dashboard > Analytics (admin) | Staff Dashboard > Analytics (staff) — UXR-002.
 import {
   Alert,
   Box,
@@ -16,6 +16,8 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+
+import { useAuthStore } from '@/stores/auth-store';
 
 import DateRangeFilter from '@/components/analytics/DateRangeFilter';
 import ExportButton from '@/components/analytics/ExportButton';
@@ -37,6 +39,9 @@ function buildDefaultRange(): DateRange {
 }
 
 export default function AnalyticsDashboardPage() {
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === 'admin';
+
   const [dateRange, setDateRange] = useState<DateRange>(buildDefaultRange);
 
   const kpiQuery = useKpiMetrics(dateRange);
@@ -67,10 +72,15 @@ export default function AnalyticsDashboardPage() {
 
   return (
     <Box>
-      {/* Breadcrumb — UXR-002 */}
+      {/* Breadcrumb — UXR-002: role-aware parent link */}
       <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
-        <Link component={RouterLink} to="/staff/dashboard" underline="hover" color="inherit">
-          Staff Dashboard
+        <Link
+          component={RouterLink}
+          to={isAdmin ? '/admin/dashboard' : '/staff/dashboard'}
+          underline="hover"
+          color="inherit"
+        >
+          {isAdmin ? 'Admin Dashboard' : 'Staff Dashboard'}
         </Link>
         <Typography color="text.primary">Analytics</Typography>
       </Breadcrumbs>

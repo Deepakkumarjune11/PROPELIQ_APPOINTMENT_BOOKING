@@ -87,10 +87,10 @@ export default function AuthenticatedLayout() {
       <AppBreadcrumbs />
 
       {/* Persistent full sidebar — desktop (≥ 1200px) */}
-      {showFullSidebar && <Sidebar />}
+      {showFullSidebar && <Sidebar role={user?.role} />}
 
       {/* Persistent icon rail — tablet (900–1199px) */}
-      {showIconRail && <Sidebar iconRail />}
+      {showIconRail && <Sidebar iconRail role={user?.role} />}
 
       {/* Swipe-to-open overlay drawer — mobile (< 900px), staff/admin only */}
       {showBottomNav && isStaffOrAdmin && (
@@ -106,7 +106,7 @@ export default function AuthenticatedLayout() {
             },
           }}
         >
-          <Sidebar />
+          <Sidebar role={user?.role} />
         </Drawer>
       )}
 

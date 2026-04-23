@@ -91,6 +91,28 @@ public sealed class AdminController(IUserManagementService userService) : Contro
         }
     }
 
+    // ── PATCH /api/v1/admin/users/{id}/reset-password ────────────────────────
+
+    [HttpPatch("{id:guid}/reset-password")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ResetPassword(Guid id, [FromBody] ResetPasswordRequest request, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(request.NewPassword))
+            return BadRequest(new { error_code = "invalid_password", message = "New password is required." });
+
+        try
+        {
+            await userService.ResetPasswordAsync(id, request, ActorId, ct);
+            return NoContent();
+        }
+        catch (UserNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
     // ── PATCH /api/v1/admin/users/{id}/disable ───────────────────────────────
 
     [HttpPatch("{id:guid}/disable")]

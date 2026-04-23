@@ -53,13 +53,19 @@ public sealed class AppointmentRegistrationRepository : IAppointmentRegistration
             await using var tx = await _db.Database.BeginTransactionAsync(ct);
 
             // ── a. Patient upsert ───────────────────────────────────────────────
-            // IgnoreQueryFilters bypasses the soft-delete global filter so an IsDeleted=true
-            // row with the same email doesn't trigger a false "not found" result (AC-4).
-            var patient = await _db.Patients
+            // Project to Id only — materialising the full Patient entity would invoke
+            // PhiEncryptedConverter.Unprotect on every PHI column.  Rows inserted by
+            // the development seeder are stored as plaintext, so Unprotect throws
+            // CryptographicException.  Selecting only the non-encrypted Id column
+            // sidesteps the converter entirely (OWASP A02 / BUG-010).
+            var existingId = await _db.Patients
                 .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(p => p.Email == email, ct);
+                .Where(p => p.Email == email)
+                .Select(p => (Guid?)p.Id)
+                .FirstOrDefaultAsync(ct);
 
-            if (patient is null)
+            Patient patient;
+            if (existingId is null)
             {
                 patient = new Patient
                 {
@@ -75,7 +81,10 @@ public sealed class AppointmentRegistrationRepository : IAppointmentRegistration
             }
             else
             {
-                // AC-4: reuse existing record; refresh mutable demographic fields on re-visit.
+                // AC-4: attach a stub entity so EF generates a targeted UPDATE without
+                // ever reading (and therefore decrypting) the existing PHI column values.
+                patient = new Patient { Id = existingId.Value };
+                _db.Patients.Attach(patient);
                 patient.Name      = name;
                 patient.Phone     = phone;
                 patient.UpdatedAt = DateTime.UtcNow;

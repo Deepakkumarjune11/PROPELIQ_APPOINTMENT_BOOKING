@@ -23,6 +23,12 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  // For FormData (multipart/form-data) requests, remove the default
+  // application/json Content-Type so Axios can auto-set the correct
+  // multipart boundary required by the server ([Consumes("multipart/form-data")]).
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
   return config;
 });
 

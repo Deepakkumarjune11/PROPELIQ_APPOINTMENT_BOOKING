@@ -2,6 +2,6 @@ namespace Admin.Application.DTOs;
 
 /// <summary>
 /// Request payload for <c>PUT /api/v1/admin/users/{id}</c>.
-/// Password is intentionally excluded — credential updates require a separate flow.
+/// <c>Password</c> is optional — if null or empty the existing password is preserved.
 /// </summary>
-public record UpdateUserRequest(string Name, string? Department = null);
+public record UpdateUserRequest(string Name, string? Password = null, string? Department = null);

@@ -32,6 +32,15 @@ export default defineConfig(({ mode }) => {
 
   return {
   plugins: [react()],
+  optimizeDeps: {
+    include: [
+      '@emotion/react',
+      '@emotion/styled',
+      '@mui/material',
+      '@mui/material/styles',
+      '@mui/icons-material',
+    ],
+  },
   resolve: {
     // Mirror tsconfig.json paths — Rollup must know about @/ or it cannot bundle
     alias: {
