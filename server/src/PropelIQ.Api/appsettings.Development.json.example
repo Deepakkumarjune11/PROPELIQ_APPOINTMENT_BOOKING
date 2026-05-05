@@ -6,7 +6,7 @@
     "Key": "propeliq-dev-jwt-secret-32-char-min!"
   },
   "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=Kumarjun11@;Minimum Pool Size=10;Maximum Pool Size=100"
+    "DefaultConnection": "Host=localhost;Port=5432;Database=propeliq_dev;Username=propeliq;Password=propeliq_dev_local;Minimum Pool Size=10;Maximum Pool Size=100"
   },
   "Redis": {
     "ConnectionString": "localhost:6379,abortConnect=False,connectTimeout=500,syncTimeout=500,asyncTimeout=500"
