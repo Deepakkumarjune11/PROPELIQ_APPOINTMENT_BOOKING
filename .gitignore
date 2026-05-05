@@ -59,6 +59,7 @@ server/**/nuget.dgspec.json
 # ASP.NET Core — ignore all environment-specific overrides; keep only the base config
 server/**/appsettings.*.json
 !server/**/appsettings.json
+!server/**/appsettings.*.json.example
 
 # Secrets
 server/**/*secrets*.json
