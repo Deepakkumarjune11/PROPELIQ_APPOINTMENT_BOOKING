@@ -30,9 +30,11 @@ export function useQueueSignalR({ onReconnecting, onReconnected }: UseQueueSigna
       .configureLogging(LogLevel.Warning)
       .build();
 
-    // Real-time queue update — invalidate cache so React Query re-fetches fresh data (AC-4).
     connection.on('QueueUpdated', () => {
       void queryClient.invalidateQueries({ queryKey: QUEUE_QUERY_KEY });
+      // Dashboard summary counts (walkInsToday, queueLength) must also be refreshed
+      // whenever the queue changes — invalidate the dashboard cache key too.
+      void queryClient.invalidateQueries({ queryKey: ['staff', 'dashboard'] });
     });
 
     // Reconnection lifecycle callbacks (edge case — toast wiring delegated to caller).
@@ -41,8 +43,9 @@ export function useQueueSignalR({ onReconnecting, onReconnected }: UseQueueSigna
     });
 
     connection.onreconnected(() => {
-      // Re-fetch immediately on reconnect so the queue is current.
+      // Re-fetch immediately on reconnect so the queue and dashboard counts are current.
       void queryClient.invalidateQueries({ queryKey: QUEUE_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: ['staff', 'dashboard'] });
       onReconnected?.();
     });
 

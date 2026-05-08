@@ -100,14 +100,21 @@ public sealed class AppointmentsController : ControllerBase
     {
         try
         {
+        // BUG-008: when the caller is an authenticated Patient, extract their verified Patient.Id
+        // from the JWT sub claim and pass it to the command so the repository links the new
+        // appointment to the correct account regardless of the email entered in the form.
+        // For staff/admin callers the value is null and the email-based upsert runs as before.
+        Guid? authenticatedPatientId = User.IsInRole("Patient") ? ExtractPatientId() : null;
+
         var command = new RegisterForAppointmentCommand(
-            SlotId:            slotId,
-            Email:             request.Email,
-            Name:              request.Name,
-            Dob:               request.Dob,
-            Phone:             request.Phone,
-            InsuranceProvider: request.InsuranceProvider,
-            InsuranceMemberId: request.InsuranceMemberId);
+            SlotId:                  slotId,
+            Email:                   request.Email,
+            Name:                    request.Name,
+            Dob:                     request.Dob,
+            Phone:                   request.Phone,
+            InsuranceProvider:       request.InsuranceProvider,
+            InsuranceMemberId:       request.InsuranceMemberId,
+            AuthenticatedPatientId:  authenticatedPatientId);
 
         var result = await _mediator.Send(command, cancellationToken);
 

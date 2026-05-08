@@ -114,9 +114,9 @@ public sealed class PatientsController : ControllerBase
     ///   <c>401 Unauthorized</c> when the request is not authenticated (NFR-004).
     /// </returns>
     [HttpPost("{patientId:guid}/intake")]
+    [AllowAnonymous] // BUG-014: intake is part of the anonymous booking flow — no JWT exists at this stage
     [ProducesResponseType(typeof(SubmitIntakeResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> SubmitIntake(
         [FromRoute] Guid patientId,
         [FromBody] SubmitIntakeRequest request,
@@ -147,9 +147,9 @@ public sealed class PatientsController : ControllerBase
     ///   <c>401 Unauthorized</c> when the request is not authenticated (NFR-004).
     /// </returns>
     [HttpPost("{patientId:guid}/intake/chat")]
+    [AllowAnonymous] // BUG-014: conversational intake is part of the anonymous booking flow
     [ProducesResponseType(typeof(IntakeChatResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> SendIntakeChatMessage(
         [FromRoute] Guid patientId,
         [FromBody] IntakeChatRequest request,

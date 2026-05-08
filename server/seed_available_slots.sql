@@ -1,3 +1,16 @@
+-- BUG-013 fix: delete expired available slots so the idempotency guard below
+-- checks only FUTURE available slots. Without this, slots seeded weeks ago
+-- (now in the past but still Status='Available') block re-seeding forever.
+-- NOTE: EF Core stores AppointmentStatus enum as PascalCase strings ('Available',
+-- 'Booked', etc.) via HasConversion<string>(). SQL comparisons must match exactly.
+DELETE FROM appointment
+WHERE  "Status"       = 'Available'
+  AND  "SlotDatetime" <= NOW();
+
+-- Also remove any incorrectly-cased rows from previous seed runs
+DELETE FROM appointment
+WHERE  "Status" = 'available';
+
 INSERT INTO appointment (
   "Id","SlotDatetime","Status","Provider","VisitType","Location",
   "DurationMinutes","IsWalkIn","IsDeleted","CreatedAt","UpdatedAt"
@@ -5,7 +18,7 @@ INSERT INTO appointment (
 SELECT
   gen_random_uuid(),
   d + (h * interval '1 hour'),
-  'available',
+  'Available',
   p.pname,
   p.vtype,
   CASE p.vtype WHEN 'telehealth' THEN 'Telehealth' ELSE 'PropelIQ Clinic - Suite 200' END,
@@ -24,4 +37,11 @@ FROM
   ) AS p(pname, vtype)
 WHERE
   h NOT IN (12, 13)
-  AND NOT EXISTS (SELECT 1 FROM appointment WHERE "Status" = 'available' LIMIT 1);
+  -- BUG-013 fix: guard on FUTURE available slots only (PascalCase to match EF Core storage).
+  -- Previously guarded on ANY available slot, so expired past slots blocked re-seeding.
+  AND NOT EXISTS (
+    SELECT 1 FROM appointment
+    WHERE  "Status"       = 'Available'
+      AND  "SlotDatetime" > NOW()
+    LIMIT 1
+  );

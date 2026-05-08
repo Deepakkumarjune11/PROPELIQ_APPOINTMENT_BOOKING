@@ -79,14 +79,18 @@ export default function PreferredSlotSelectionPage() {
     isError: slotsError,
     refetch: refetchSlots,
   } = useQuery<SlotAvailabilityEntry[], Error>({
-    queryKey: ['slotAvailability', appointment?.providerId, selectedDate.year(), selectedDate.month() + 1],
+    // BUG-009 fix: key by appointmentId (stable, from URL) and calendar month.
+    // providerId was used before but the backend always returns it as null, so
+    // `enabled: Boolean(appointment?.providerId)` permanently blocked the query.
+    queryKey: ['slotAvailability', appointmentId, selectedDate.year(), selectedDate.month() + 1],
     queryFn: () =>
       getSlotAvailability(
-        appointment!.providerId,
         selectedDate.year(),
         selectedDate.month() + 1, // dayjs months are 0-indexed; API uses 1-indexed
+        appointment?.providerId ?? undefined,
       ),
-    enabled: Boolean(appointment?.providerId),
+    // Enable as soon as we have the appointmentId from the URL — no providerId required.
+    enabled: !!appointmentId,
     staleTime: 30_000,
   });
 
@@ -112,31 +116,40 @@ export default function PreferredSlotSelectionPage() {
     },
   });
 
-  // ── Derived: days that have at least one watchlist-eligible (booked) slot ─
-  const eligibleDays = useMemo(() => {
-    const days = new Set<string>();
-    allSlots
-      .filter((s) => !s.available) // booked = eligible
-      .forEach((s) => {
-        const d = new Date(s.datetime);
-        days.add(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`);
-      });
-    return days;
-  }, [allSlots]);
 
-  // ── shouldDisableDate: disable days with NO watchlist-eligible slots ───────
+  // ── Derived: future-only slots (BUG-012: exclude past/elapsed slots) ───────────────────────
+  const nowMs = Date.now();
+  const futureSlots = useMemo(
+    () => allSlots.filter((s) => new Date(s.datetime).getTime() > nowMs),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [allSlots], // nowMs intentionally not in deps — it's a render-time snapshot
+  );
+
+  // ── Derived: ALL days that have at least one FUTURE slot ─────────────────
+  // BUG-011 fix: shouldDisableDate must only hide days with zero slots.
+  // BUG-012 fix: count only future slots so past days appear disabled.
+  const daysWithAnySlots = useMemo(() => {
+    const days = new Set<string>();
+    futureSlots.forEach((s) => {
+      const d = new Date(s.datetime);
+      days.add(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`);
+    });
+    return days;
+  }, [futureSlots]);
+
+  // ── shouldDisableDate: disable days with NO slots at all ─────────────────
   const shouldDisableDate = useCallback(
     (date: Dayjs) => {
       const key = `${date.year()}-${date.month()}-${date.date()}`;
-      return !eligibleDays.has(key);
+      return !daysWithAnySlots.has(key);
     },
-    [eligibleDays],
+    [daysWithAnySlots],
   );
 
-  // ── Slots for the selected date ───────────────────────────────────────────
+  // ── Slots for the selected date (future-only, BUG-012) ──────────────────
   const slotsForDay = useMemo(
-    () => allSlots.filter((s) => isSameDay(s.datetime, selectedDate)),
-    [allSlots, selectedDate],
+    () => futureSlots.filter((s) => isSameDay(s.datetime, selectedDate)),
+    [futureSlots, selectedDate],
   );
 
   const handleConfirm = () => {
@@ -187,8 +200,8 @@ export default function PreferredSlotSelectionPage() {
     );
   }
 
-  // ── Empty state — no watchlist-eligible slots for this provider ────────────
-  const hasEligibleSlots = eligibleDays.size > 0;
+  // ── Derived: slots for the selected day split by eligibility ──────────────
+  const eligibleSlotsForDay = slotsForDay.filter((s) => !s.isAvailable);
 
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
@@ -196,33 +209,36 @@ export default function PreferredSlotSelectionPage() {
         Select preferred slot
       </Typography>
 
-      {/* UXR-003: Inline guidance explaining the automatic swap process */}
+      {/* UXR-003: Permanent guidance explaining the automatic swap process */}
       <Alert
         icon={<InfoIcon fontSize="inherit" />}
-        severity="warning"
+        severity="info"
         sx={{ mb: 3 }}
       >
         <Typography variant="body2" fontWeight={500}>
-          No slots currently available
+          How this works
         </Typography>
         <Typography variant="body2">
-          Select your preferred time slot and we&rsquo;ll notify you when it becomes available.
+          Select a slot that&rsquo;s already taken — we&rsquo;ll automatically swap you in and
+          notify you if it becomes available. Greyed-out slots are open and can be booked directly.
         </Typography>
       </Alert>
 
-      {!hasEligibleSlots ? (
-        // ── Empty: no booked slots to watchlist ───────────────────────────
-        <Box sx={{ textAlign: 'center', py: 6 }}>
-          <Typography variant="body1" color="text.secondary" gutterBottom>
-            There are no unavailable slots for this provider right now.
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Check back later or choose a different provider.
-          </Typography>
-        </Box>
-      ) : (
-        // ── Default: calendar + slot grid ─────────────────────────────────
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
+      {/* BUG-011 fix: always render the calendar so patients can browse months.
+          Previously the calendar was hidden when no booked slots existed,
+          making it impossible to navigate to months that do have booked slots. */}
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        {futureSlots.length === 0 ? (
+          // ── Truly empty: no future slots returned for this month ─────────────
+          <Box sx={{ textAlign: 'center', py: 6 }}>
+            <Typography variant="body1" color="text.secondary" gutterBottom>
+              No slots found for this month.
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Use the calendar arrows to browse other months.
+            </Typography>
+          </Box>
+        ) : (
           <Box
             sx={{
               bgcolor: 'background.paper',
@@ -240,10 +256,11 @@ export default function PreferredSlotSelectionPage() {
                   setSelectedSlotDatetime(null); // reset selection on day change
                 }
               }}
+              disablePast
               shouldDisableDate={shouldDisableDate}
               sx={{
                 width: '100%',
-                // Highlight enabled (watchlist-eligible) days with primary accent
+                // Highlight days that have watchlist-eligible (booked) slots
                 '& .MuiPickersDay-root:not(.Mui-disabled):not(.MuiPickersDay-today)': {
                   color: 'primary.main',
                   fontWeight: 600,
@@ -251,25 +268,35 @@ export default function PreferredSlotSelectionPage() {
               }}
             />
           </Box>
+        )}
 
-          {/* Slot grid for the selected day */}
-          {slotsForDay.length > 0 && (
-            <Box
-              sx={{
-                bgcolor: 'background.paper',
-                borderRadius: 2,
-                boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
-                p: 3,
-                mb: 3,
-              }}
-            >
-              <Typography variant="subtitle1" fontWeight={500} gutterBottom>
-                {selectedDate.format('dddd, MMMM D, YYYY')}
-              </Typography>
-              <Grid container spacing={2}>
-                {slotsForDay.map((slot) => {
-                  const isEligible = !slot.available; // booked = watchlist eligible
-                  const isSelected = selectedSlotDatetime === slot.datetime;
+        {/* Slot grid for the selected day */}
+        {slotsForDay.length > 0 && (
+          <Box
+            sx={{
+              bgcolor: 'background.paper',
+              borderRadius: 2,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+              p: 3,
+              mb: 3,
+            }}
+          >
+            <Typography variant="subtitle1" fontWeight={500} gutterBottom>
+              {selectedDate.format('dddd, MMMM D, YYYY')}
+            </Typography>
+
+            {/* Per-day hint when all slots on this day are still available */}
+            {eligibleSlotsForDay.length === 0 && (
+              <Alert severity="warning" sx={{ mb: 2 }}>
+                All slots on this day are currently open. Select a taken slot to join the watchlist,
+                or book an available slot directly.
+              </Alert>
+            )}
+
+            <Grid container spacing={2}>
+              {slotsForDay.map((slot) => {
+                const isEligible = !slot.isAvailable; // booked = watchlist eligible
+                const isSelected = selectedSlotDatetime === slot.datetime;
 
                   return (
                     <Grid item xs={6} sm={4} key={slot.datetime}>
@@ -323,7 +350,6 @@ export default function PreferredSlotSelectionPage() {
             </Box>
           )}
         </LocalizationProvider>
-      )}
 
       {/* Action buttons */}
       <Stack spacing={2}>

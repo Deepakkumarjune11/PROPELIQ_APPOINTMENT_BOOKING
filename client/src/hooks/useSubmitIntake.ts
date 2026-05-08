@@ -1,6 +1,6 @@
 // React Query mutation hook for POST /api/v1/patients/{patientId}/intake.
 // Navigates to /appointments/confirmation on success; surfaces error message on failure.
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
 import { submitIntake, type IntakeSubmissionRequest } from '@/api/intake';
@@ -13,6 +13,7 @@ interface UseSubmitIntakeOptions {
 
 export function useSubmitIntake({ onError }: UseSubmitIntakeOptions) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { clearIntake } = useIntakeStore();
 
   return useMutation<
@@ -25,6 +26,8 @@ export function useSubmitIntake({ onError }: UseSubmitIntakeOptions) {
     onSuccess: () => {
       // Clear intake answers from sessionStorage after successful submission
       clearIntake();
+      // Ensure appointment list is fresh when the patient visits My Appointments.
+      void queryClient.invalidateQueries({ queryKey: ['appointments'] });
       navigate('/appointments/confirmation');
     },
 

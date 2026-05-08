@@ -22,10 +22,17 @@ export const SIDEBAR_WIDTH = 240;
 /** Icon-rail width (tablet / 900–1199px). Used by AuthenticatedLayout for margin calc. */
 export const ICON_RAIL_WIDTH = 64;
 
-// BRD §6: Staff (front desk/call center) nav items
-const STAFF_NAV_ITEMS = [
+// BRD §6: FrontDesk / CallCenter — operational scheduling, no clinical review
+const FRONT_DESK_NAV_ITEMS = [
   { label: 'Dashboard', icon: <DashboardIcon />, path: '/staff/dashboard', navId: undefined },
   { label: 'Walk-in',   icon: <PersonAddIcon />,  path: '/staff/walk-in',  navId: 'nav-book' },
+  { label: 'Queue',     icon: <ListIcon />,        path: '/staff/queue',    navId: undefined },
+  { label: 'Metrics',   icon: <BarChartIcon />,    path: '/metrics',        navId: 'nav-documents' },
+] as const;
+
+// BRD §6: ClinicalReviewer — chart review, conflict resolution, code verification; no walk-in
+const CLINICAL_REVIEWER_NAV_ITEMS = [
+  { label: 'Dashboard', icon: <DashboardIcon />, path: '/staff/dashboard', navId: undefined },
   { label: 'Queue',     icon: <ListIcon />,        path: '/staff/queue',    navId: undefined },
   { label: 'Verify',    icon: <FactCheckIcon />,   path: '/staff/patients', navId: undefined },
   { label: 'Metrics',   icon: <BarChartIcon />,    path: '/metrics',        navId: 'nav-documents' },
@@ -44,18 +51,25 @@ interface SidebarProps {
    * Icons are visible; labels are hidden and exposed via `Tooltip` for pointer/keyboard users.
    */
   iconRail?: boolean;
-  /** Current user role — drives which nav item set is rendered (BRD §6 role separation). */
+  /** Current user role — drives admin vs staff nav set. */
   role?: string;
+  /** Staff sub-role — drives FrontDesk/CallCenter vs ClinicalReviewer nav items. */
+  staffRole?: string;
 }
 
 // SCR-025: Persistent sidebar for staff/admin roles.
 // Full-width (240px) on desktop (lg+); icon-rail (64px) on tablet (md–lg).
 // Admin role gets a separate nav set per BRD §6 (user management focus, no clinical tools).
-export default function Sidebar({ iconRail = false, role }: SidebarProps) {
+export default function Sidebar({ iconRail = false, role, staffRole }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const NAV_ITEMS = role === 'admin' ? ADMIN_NAV_ITEMS : STAFF_NAV_ITEMS;
+  const NAV_ITEMS =
+    role === 'admin'
+      ? ADMIN_NAV_ITEMS
+      : staffRole === 'ClinicalReviewer'
+        ? CLINICAL_REVIEWER_NAV_ITEMS
+        : FRONT_DESK_NAV_ITEMS;
   const drawerWidth = iconRail ? ICON_RAIL_WIDTH : SIDEBAR_WIDTH;
 
   return (

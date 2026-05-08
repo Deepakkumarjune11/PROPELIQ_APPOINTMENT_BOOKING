@@ -1,6 +1,5 @@
 import { CssBaseline, GlobalStyles, ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 import AuthenticatedLayout from '@/components/layout/AuthenticatedLayout';
@@ -109,7 +108,7 @@ const router = createBrowserRouter([
         path: 'staff/walk-in',
         handle: { crumb: 'Walk-In Booking' },
         element: (
-          <StaffRouteGuard>
+          <StaffRouteGuard allowedStaffRoles={['FrontDesk', 'CallCenter']}>
             <WalkInBookingPage />
           </StaffRouteGuard>
         ),
@@ -133,7 +132,7 @@ const router = createBrowserRouter([
         path: 'staff/patients',
         handle: { crumb: 'Patient Charts' },
         element: (
-          <StaffRouteGuard>
+          <StaffRouteGuard allowedStaffRoles={['ClinicalReviewer']}>
             <PatientChartReviewPage />
           </StaffRouteGuard>
         ),
@@ -144,7 +143,7 @@ const router = createBrowserRouter([
         path: 'staff/patients/:patientId/360-view',
         handle: { crumb: '360° View' },
         element: (
-          <StaffRouteGuard>
+          <StaffRouteGuard allowedStaffRoles={['ClinicalReviewer']}>
             <PatientView360Page />
           </StaffRouteGuard>
         ),
@@ -154,7 +153,7 @@ const router = createBrowserRouter([
         path: 'staff/patients/:patientId/conflict-resolution',
         handle: { crumb: 'Conflict Resolution' },
         element: (
-          <StaffRouteGuard>
+          <StaffRouteGuard allowedStaffRoles={['ClinicalReviewer']}>
             <ConflictResolutionPage />
           </StaffRouteGuard>
         ),
@@ -164,7 +163,7 @@ const router = createBrowserRouter([
         path: 'staff/patients/:patientId/code-verification',
         handle: { crumb: 'Code Verification' },
         element: (
-          <StaffRouteGuard>
+          <StaffRouteGuard allowedStaffRoles={['ClinicalReviewer']}>
             <CodeVerificationPage />
           </StaffRouteGuard>
         ),
@@ -174,7 +173,7 @@ const router = createBrowserRouter([
         path: 'staff/patients/:patientId/verification-complete',
         handle: { crumb: 'Verification Complete' },
         element: (
-          <StaffRouteGuard>
+          <StaffRouteGuard allowedStaffRoles={['ClinicalReviewer']}>
             <VerificationCompletePage />
           </StaffRouteGuard>
         ),
@@ -250,7 +249,7 @@ export default function App() {
         <RouterProvider router={router} />
         {/* ToastProvider renders app-global toast stack (US_038 AC-2, AC-3, AC-5) */}
         <ToastProvider />
-        {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+
       </QueryClientProvider>
     </ThemeProvider>
     </AppErrorBoundary>

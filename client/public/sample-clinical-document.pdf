@@ -1,0 +1,79 @@
+%PDF-1.4
+1 0 obj
+<</Type /Catalog /Pages 2 0 R>>
+endobj
+2 0 obj
+<</Type /Pages /Kids [3 0 R] /Count 1>>
+endobj
+3 0 obj
+<</Type /Page /Parent 2 0 R /MediaBox [0 0 612 792]
+  /Contents 4 0 R
+  /Resources <</Font <</F1 5 0 R>>>>>>
+endobj
+4 0 obj
+<</Length 1588>>
+stream
+BT
+/F1 11 Tf
+50 740 Td
+16 TL
+(CLINICAL SUMMARY REPORT) Tj T*
+(================================================) Tj T*
+(Patient : Jane Smith) Tj T*
+(DOB     : 1985-04-10) Tj T*
+(MRN     : MRN-TEST-001) Tj T*
+(Date    : 2026-05-04) Tj T*
+T*
+(--- VITALS ---) Tj T*
+(Blood Pressure : 128/82 mmHg) Tj T*
+(Heart Rate     : 74 bpm) Tj T*
+(Temperature    : 98.4 F) Tj T*
+(Weight         : 68 kg) Tj T*
+(Height         : 165 cm) Tj T*
+(BMI            : 24.98) Tj T*
+(SpO2           : 98%) Tj T*
+T*
+(--- MEDICATIONS ---) Tj T*
+(Metformin 500 mg  - oral - twice daily) Tj T*
+(Lisinopril 10 mg  - oral - once daily) Tj T*
+(Atorvastatin 20 mg - oral - once daily at bedtime) Tj T*
+(Aspirin 81 mg     - oral - once daily) Tj T*
+T*
+(--- DIAGNOSES ---) Tj T*
+(Type 2 Diabetes Mellitus  ICD-10: E11.9) Tj T*
+(Essential Hypertension    ICD-10: I10) Tj T*
+(Hyperlipidaemia           ICD-10: E78.5) Tj T*
+T*
+(--- HISTORY ---) Tj T*
+(5-year history of Type 2 Diabetes, diet and medication controlled.) Tj T*
+(Family history of cardiovascular disease \(father - MI at age 62\).) Tj T*
+(Non-smoker. Occasional alcohol use. No known drug allergies.) Tj T*
+(Previous hospitalisation: appendectomy 2010.) Tj T*
+T*
+(--- PROCEDURES ---) Tj T*
+(HbA1c test           - result: 7.2%  \(target <7.0%\)) Tj T*
+(Fasting lipid panel  - LDL 112 mg/dL, HDL 48 mg/dL, TG 145 mg/dL) Tj T*
+(Annual eye exam      - no diabetic retinopathy detected) Tj T*
+(ECG                  - normal sinus rhythm) Tj T*
+T*
+(================================================) Tj T*
+(Recorded by: Dr. A. Patel  |  Dept: General Medicine) Tj T*
+ET
+endstream
+endobj
+5 0 obj
+<</Type /Font /Subtype /Type1 /BaseFont /Helvetica>>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000056 00000 n 
+0000000111 00000 n 
+0000000235 00000 n 
+0000001873 00000 n 
+trailer
+<</Size 6 /Root 1 0 R>>
+startxref
+1941
+%%EOF

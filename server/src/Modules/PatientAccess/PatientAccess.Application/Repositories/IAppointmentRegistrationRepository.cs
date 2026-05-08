@@ -34,6 +34,10 @@ public interface IAppointmentRegistrationRepository
     /// <param name="insuranceMemberId">Optional insurance member ID.</param>
     /// <param name="insuranceStatus">Pre-computed validation result string to persist.</param>
     /// <param name="noShowRiskScore">Pre-computed no-show risk score to persist atomically (AC-3).</param>
+    /// <param name="authenticatedPatientId">
+    ///   When non-null the repository skips the email-based upsert and attaches the patient by this ID
+    ///   directly, ensuring the appointment is linked to the authenticated user's account (BUG-008).
+    /// </param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns><see cref="AppointmentRegistrationData"/> on success.</returns>
     /// <exception cref="NotFoundException">Thrown when <paramref name="slotId"/> does not exist.</exception>
@@ -49,5 +53,6 @@ public interface IAppointmentRegistrationRepository
         string?  insuranceMemberId,
         string   insuranceStatus,
         decimal? noShowRiskScore,
+        Guid?    authenticatedPatientId = null,
         CancellationToken ct = default);
 }

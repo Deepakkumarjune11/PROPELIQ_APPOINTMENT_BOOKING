@@ -23,6 +23,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
 import { type DashboardData, getDashboardData } from '@/api/staff';
+import { useQueueSignalR } from '@/hooks/useQueueSignalR';
+import { useAuthStore } from '@/stores/auth-store';
 import DashboardSummaryCard from './DashboardSummaryCard';
 
 // ── Status badge colour mapping ───────────────────────────────────────────────
@@ -57,11 +59,22 @@ function statusLabel(status: string): string {
 export default function StaffDashboardPage() {
   const navigate = useNavigate();
 
+  // Live SignalR connection — invalidates this page's data whenever the queue
+  // changes (walk-in booked, status changed, reordered) so counts update in real
+  // time without requiring navigation away and back (AC-4).
+  useQueueSignalR();
+
   const { data, isLoading, isError, refetch } = useQuery<DashboardData, Error>({
     queryKey: ['staff', 'dashboard'],
     queryFn: getDashboardData,
     staleTime: 30_000,
   });
+
+  const user    = useAuthStore((s) => s.user);
+  const canBookWalkIn =
+    user?.role === 'admin' ||
+    user?.staffRole === 'FrontDesk' ||
+    user?.staffRole === 'CallCenter';
 
   const summary = data?.summary;
   const queue   = data?.queue ?? [];
@@ -90,13 +103,15 @@ export default function StaffDashboardPage() {
         <Typography variant="h4" component="h1" fontWeight={400}>
           Staff Dashboard
         </Typography>
-        <Button
-          variant="contained"
-          onClick={() => void navigate('/staff/walk-in')}
-          sx={{ backgroundColor: 'primary.main' }}
-        >
-          Walk-In Booking
-        </Button>
+        {canBookWalkIn && (
+          <Button
+            variant="contained"
+            onClick={() => void navigate('/staff/walk-in')}
+            sx={{ backgroundColor: 'primary.main' }}
+          >
+            Walk-In Booking
+          </Button>
+        )}
       </Box>
 
       {/* ── Error state ── */}
@@ -182,9 +197,11 @@ export default function StaffDashboardPage() {
             }}
           >
             <Typography color="text.secondary">No walk-ins today.</Typography>
-            <Button variant="contained" onClick={() => void navigate('/staff/walk-in')}>
-              Book a Walk-In
-            </Button>
+            {canBookWalkIn && (
+              <Button variant="contained" onClick={() => void navigate('/staff/walk-in')}>
+                Book a Walk-In
+              </Button>
+            )}
           </Box>
         ) : (
           /* ── Default table ── */

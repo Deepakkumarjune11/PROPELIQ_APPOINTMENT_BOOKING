@@ -14,6 +14,13 @@ namespace PatientAccess.Application.Commands.RegisterForAppointment;
 /// <param name="Phone">Patient contact phone number.</param>
 /// <param name="InsuranceProvider">Optional insurance provider name.</param>
 /// <param name="InsuranceMemberId">Optional insurance member ID.</param>
+/// <param name="AuthenticatedPatientId">
+///   When the caller is an authenticated Patient principal, the controller populates this with
+///   the patient's <c>Patient.Id</c> extracted from the JWT <c>sub</c> claim.
+///   The repository uses this ID directly instead of performing an email lookup, guaranteeing
+///   the appointment is associated with the authenticated user (BUG-008, OWASP A01).
+///   Null for staff-initiated bookings where the email-based upsert is appropriate.
+/// </param>
 public sealed record RegisterForAppointmentCommand(
     Guid     SlotId,
     string   Email,
@@ -21,5 +28,6 @@ public sealed record RegisterForAppointmentCommand(
     DateOnly Dob,
     string   Phone,
     string?  InsuranceProvider,
-    string?  InsuranceMemberId
+    string?  InsuranceMemberId,
+    Guid?    AuthenticatedPatientId = null
 ) : IRequest<RegisterForAppointmentResponse>;

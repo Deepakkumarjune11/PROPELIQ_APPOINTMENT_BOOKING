@@ -42,16 +42,20 @@ public sealed class WalkInBookingRepository : IWalkInBookingRepository
                 var todayEnd   = todayStart.AddDays(1);
 
                 // Duplicate guard: same patient booked twice today → 409.
+                // Excludes Left/Completed so a patient who was marked as left can be
+                // re-admitted with a new walk-in on the same day.
                 bool alreadyBooked = await _db.Appointments
                     .AnyAsync(
                         a => a.PatientId == command.PatientId &&
                              a.IsWalkIn &&
                              a.SlotDatetime >= todayStart &&
-                             a.SlotDatetime < todayEnd,
+                             a.SlotDatetime < todayEnd &&
+                             a.Status != AppointmentStatus.Left &&
+                             a.Status != AppointmentStatus.Completed,
                         cancellationToken);
 
                 if (alreadyBooked)
-                    throw new ConflictException("Patient already has a walk-in appointment today.");
+                    throw new ConflictException("Patient already has an active walk-in appointment today.");
 
                 // Check for an available same-day slot (slot = Available status appointment today).
                 bool slotAvailable = await _db.Appointments

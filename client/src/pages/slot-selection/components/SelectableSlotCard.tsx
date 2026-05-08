@@ -16,7 +16,6 @@ import Typography from '@mui/material/Typography';
 import type { KeyboardEvent } from 'react';
 
 import type { AvailabilitySlot } from '@/api/availability';
-import NoShowRiskBadge from './NoShowRiskBadge';
 
 function formatDatetime(datetime: string): string {
   return new Intl.DateTimeFormat('en-US', {
@@ -87,11 +86,7 @@ export default function SelectableSlotCard({ slot, isSelected, onSelect }: Selec
               {isVirtual ? 'Telehealth visit' : 'In-person visit'}
             </Typography>
           </Box>
-          <NoShowRiskBadge
-            noShowRisk={slot.noShowRisk}
-            riskContributingFactors={slot.riskContributingFactors}
-            isPartialScoring={slot.isPartialScoring}
-          />
+
         </Box>
 
         {/* Metadata row: location + duration */}

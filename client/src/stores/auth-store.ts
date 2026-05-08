@@ -6,6 +6,8 @@ export interface UserProfile {
   email: string;
   name: string;
   role: 'patient' | 'staff' | 'admin';
+  /** Staff sub-role — present only when role === 'staff'. */
+  staffRole?: 'FrontDesk' | 'CallCenter' | 'ClinicalReviewer';
 }
 
 interface AuthState {

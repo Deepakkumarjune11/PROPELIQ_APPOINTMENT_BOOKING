@@ -9,7 +9,7 @@ namespace PatientAccess.Application.Appointments.Commands.BookWalkIn;
 /// <summary>
 /// Handles <see cref="BookWalkInCommand"/> — delegates the atomic SERIALIZABLE transaction
 /// to <see cref="IWalkInBookingRepository"/> which enforces queue-position integrity.
-/// Redis cache is invalidated after a successful commit (AC-4).
+/// Redis cache is invalidated and a SignalR broadcast is sent after a successful commit (AC-4).
 /// </summary>
 public sealed class BookWalkInHandler
     : IRequestHandler<BookWalkInCommand, WalkInBookingResultDto>
@@ -18,16 +18,19 @@ public sealed class BookWalkInHandler
 
     private readonly IWalkInBookingRepository    _repo;
     private readonly ICacheService               _cache;
+    private readonly IQueueBroadcastService      _broadcast;
     private readonly ILogger<BookWalkInHandler>  _logger;
 
     public BookWalkInHandler(
         IWalkInBookingRepository   repo,
         ICacheService              cache,
+        IQueueBroadcastService     broadcast,
         ILogger<BookWalkInHandler> logger)
     {
-        _repo   = repo;
-        _cache  = cache;
-        _logger = logger;
+        _repo      = repo;
+        _cache     = cache;
+        _broadcast = broadcast;
+        _logger    = logger;
     }
 
     public async Task<WalkInBookingResultDto> Handle(
@@ -42,6 +45,9 @@ public sealed class BookWalkInHandler
 
         // Invalidate Redis queue cache after commit so next GET queue read reflects the new entry.
         await _cache.RemoveAsync(QueueCacheKey, cancellationToken);
+
+        // Broadcast to all connected staff so their queue and dashboard caches are invalidated.
+        await _broadcast.BroadcastQueueUpdatedAsync(cancellationToken);
 
         return result;
     }

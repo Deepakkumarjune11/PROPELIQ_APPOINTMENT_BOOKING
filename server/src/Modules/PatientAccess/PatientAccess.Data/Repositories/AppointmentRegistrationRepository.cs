@@ -42,6 +42,7 @@ public sealed class AppointmentRegistrationRepository : IAppointmentRegistration
         string?  insuranceMemberId,
         string   insuranceStatus,
         decimal? noShowRiskScore,
+        Guid?    authenticatedPatientId = null,
         CancellationToken ct = default)
     {
         // NpgsqlRetryingExecutionStrategy blocks direct BeginTransactionAsync calls (BUG-008).
@@ -53,41 +54,64 @@ public sealed class AppointmentRegistrationRepository : IAppointmentRegistration
             await using var tx = await _db.Database.BeginTransactionAsync(ct);
 
             // ── a. Patient upsert ───────────────────────────────────────────────
-            // Project to Id only — materialising the full Patient entity would invoke
-            // PhiEncryptedConverter.Unprotect on every PHI column.  Rows inserted by
-            // the development seeder are stored as plaintext, so Unprotect throws
-            // CryptographicException.  Selecting only the non-encrypted Id column
-            // sidesteps the converter entirely (OWASP A02 / BUG-010).
-            var existingId = await _db.Patients
-                .IgnoreQueryFilters()
-                .Where(p => p.Email == email)
-                .Select(p => (Guid?)p.Id)
-                .FirstOrDefaultAsync(ct);
-
+            // BUG-008 fix: when the caller is an authenticated Patient principal the
+            // controller supplies their verified Patient.Id via authenticatedPatientId.
+            // Use that ID directly to avoid creating a second Patient entity under a
+            // different email, which would make the appointment invisible to the logged-in
+            // user (GET /api/v1/appointments queries by JWT sub == Patient.Id).
+            //
+            // For staff/anonymous paths authenticatedPatientId is null and we fall back to
+            // the original email-based upsert (AC-4, OWASP A02 / BUG-010 notes still apply).
             Patient patient;
-            if (existingId is null)
+            if (authenticatedPatientId.HasValue)
             {
-                patient = new Patient
-                {
-                    Id        = Guid.NewGuid(),
-                    Email     = email,
-                    Name      = name,
-                    Dob       = dob,
-                    Phone     = phone,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                };
-                _db.Patients.Add(patient);
-            }
-            else
-            {
-                // AC-4: attach a stub entity so EF generates a targeted UPDATE without
-                // ever reading (and therefore decrypting) the existing PHI column values.
-                patient = new Patient { Id = existingId.Value };
+                // Authenticated patient booking — trust the JWT identity.
+                // Attach by known ID; update mutable contact fields without reading
+                // (and therefore decrypting) existing PHI columns (OWASP A02 / BUG-010).
+                patient = new Patient { Id = authenticatedPatientId.Value };
                 _db.Patients.Attach(patient);
                 patient.Name      = name;
                 patient.Phone     = phone;
                 patient.UpdatedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                // Non-authenticated path (staff booking on behalf of patient, or legacy):
+                // Project to Id only — materialising the full Patient entity would invoke
+                // PhiEncryptedConverter.Unprotect on every PHI column.  Rows inserted by
+                // the development seeder are stored as plaintext, so Unprotect throws
+                // CryptographicException.  Selecting only the non-encrypted Id column
+                // sidesteps the converter entirely (OWASP A02 / BUG-010).
+                var existingId = await _db.Patients
+                    .IgnoreQueryFilters()
+                    .Where(p => p.Email == email)
+                    .Select(p => (Guid?)p.Id)
+                    .FirstOrDefaultAsync(ct);
+
+                if (existingId is null)
+                {
+                    patient = new Patient
+                    {
+                        Id        = Guid.NewGuid(),
+                        Email     = email,
+                        Name      = name,
+                        Dob       = dob,
+                        Phone     = phone,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow,
+                    };
+                    _db.Patients.Add(patient);
+                }
+                else
+                {
+                    // AC-4: attach a stub entity so EF generates a targeted UPDATE without
+                    // ever reading (and therefore decrypting) the existing PHI column values.
+                    patient = new Patient { Id = existingId.Value };
+                    _db.Patients.Attach(patient);
+                    patient.Name      = name;
+                    patient.Phone     = phone;
+                    patient.UpdatedAt = DateTime.UtcNow;
+                }
             }
 
             // ── b. Slot reservation ─────────────────────────────────────────────

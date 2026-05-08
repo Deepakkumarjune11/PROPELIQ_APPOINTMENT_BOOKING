@@ -10,10 +10,10 @@ export interface AppointmentDto {
   id: string;
   /** ISO-8601 datetime e.g. "2026-04-19T09:00:00" */
   slotDatetime: string;
-  providerName: string;
-  /** Opaque provider identifier used for slot-availability lookups. */
-  providerId: string;
-  visitType: string;
+  providerName: string | null;
+  /** Opaque provider identifier used for slot-availability lookups. Null when not stored on entity. */
+  providerId: string | null;
+  visitType: string | null;
   status: 'booked' | 'arrived' | 'completed' | 'cancelled' | 'no-show';
   /** null = not on the swap watchlist; non-null = preferred slot datetime registered. */
   preferredSlotDatetime: string | null;
@@ -22,8 +22,12 @@ export interface AppointmentDto {
 export interface SlotAvailabilityEntry {
   /** ISO-8601 datetime of the slot. */
   datetime: string;
-  /** true = slot is open for direct booking; false = booked (eligible for watchlist). */
-  available: boolean;
+  /**
+   * true = slot is open for direct booking (disabled in SCR-009 calendar).
+   * false = slot is already booked and eligible for watchlist enrollment.
+   * Matches the backend's camelCase serialised field name `isAvailable`.
+   */
+  isAvailable: boolean;
 }
 
 /** Error shape thrown by all appointment API functions on non-2xx responses. */
@@ -57,12 +61,12 @@ export async function getAppointments(): Promise<AppointmentDto[]> {
  * watchlist-eligible (booked) from directly-bookable (available) slots.
  */
 export async function getSlotAvailability(
-  providerId: string,
   year: number,
   month: number,
+  providerId?: string | null,
 ): Promise<SlotAvailabilityEntry[]> {
   const response = await api.get<SlotAvailabilityEntry[]>('/api/v1/slots/availability', {
-    params: { providerId, year, month },
+    params: { year, month, ...(providerId ? { providerId } : {}) },
   });
   return response.data;
 }

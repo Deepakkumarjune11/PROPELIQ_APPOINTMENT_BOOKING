@@ -10,7 +10,6 @@ import Typography from '@mui/material/Typography';
 import { useNavigate } from 'react-router-dom';
 
 import type { AvailabilitySlot } from '@/api/availability';
-import NoShowRiskBadge from '@/pages/slot-selection/components/NoShowRiskBadge';
 
 function formatTime(datetime: string): string {
   return new Intl.DateTimeFormat('en-US', {
@@ -91,12 +90,7 @@ export default function SlotCard({ slot }: SlotCardProps) {
           </Typography>
         </Box>
 
-        {/* BRD: no-show risk badge — only rendered when risk > 0.7 */}
-        <NoShowRiskBadge
-          noShowRisk={slot.noShowRisk}
-          riskContributingFactors={slot.riskContributingFactors}
-          isPartialScoring={slot.isPartialScoring}
-        />
+
 
         <Button
           variant="outlined"

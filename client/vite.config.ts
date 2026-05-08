@@ -39,6 +39,14 @@ export default defineConfig(({ mode }) => {
       '@mui/material',
       '@mui/material/styles',
       '@mui/icons-material',
+      // x-date-pickers must share the same pre-bundled @emotion/styled instance as
+      // @mui/material. Without this, Vite processes x-date-pickers as a separate ESM
+      // chunk and ends up with two @emotion/styled instances → "styled_default is not
+      // a function" at runtime. (BUG-010 follow-up)
+      '@mui/x-date-pickers',
+      '@mui/x-date-pickers/DateCalendar',
+      '@mui/x-date-pickers/LocalizationProvider',
+      '@mui/x-date-pickers/AdapterDayjs',
     ],
   },
   resolve: {

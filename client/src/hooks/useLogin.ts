@@ -53,6 +53,11 @@ export function useLogin() {
         email: data.username,
         name: data.username,
         role,
+        // Preserve the backend sub-role (FrontDesk | CallCenter | ClinicalReviewer)
+        // so the UI can render role-appropriate navigation and gate routes.
+        staffRole: role === 'staff'
+          ? (data.role as UserProfile['staffRole'])
+          : undefined,
       };
       setAuth(user, data.token, data.expiresAt);
       if (role === 'staff') navigate('/staff/dashboard', { replace: true });

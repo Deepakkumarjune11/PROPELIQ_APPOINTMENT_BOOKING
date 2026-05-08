@@ -50,6 +50,7 @@ public sealed class WatchlistRepository : IWatchlistRepository
             .Where(a =>
                 a.SlotDatetime >= startUtc &&
                 a.SlotDatetime < endUtc &&
+                a.SlotDatetime > DateTime.UtcNow && // BUG-012: exclude past/elapsed slots
                 !a.IsDeleted)
             .OrderBy(a => a.SlotDatetime)
             .Select(a => new SlotData(

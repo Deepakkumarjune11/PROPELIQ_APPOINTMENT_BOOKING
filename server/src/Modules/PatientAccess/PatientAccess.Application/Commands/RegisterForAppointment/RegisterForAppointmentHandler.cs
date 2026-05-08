@@ -97,16 +97,17 @@ public sealed class RegisterForAppointmentHandler
         // DbUpdateConcurrencyException (xmin mismatch) is caught in the repository
         // and re-thrown as SlotAlreadyBookedException → controller returns 409 (AC-4).
         var data = await _repository.RegisterAsync(
-            slotId:            cmd.SlotId,
-            email:             cmd.Email,
-            name:              cmd.Name,
-            dob:               cmd.Dob,
-            phone:             cmd.Phone,
-            insuranceProvider: cmd.InsuranceProvider,
-            insuranceMemberId: cmd.InsuranceMemberId,
-            insuranceStatus:   insuranceStatus,
-            noShowRiskScore:   riskResult.Score,
-            ct:                ct);
+            slotId:                  cmd.SlotId,
+            email:                   cmd.Email,
+            name:                    cmd.Name,
+            dob:                     cmd.Dob,
+            phone:                   cmd.Phone,
+            insuranceProvider:       cmd.InsuranceProvider,
+            insuranceMemberId:       cmd.InsuranceMemberId,
+            insuranceStatus:         insuranceStatus,
+            noShowRiskScore:         riskResult.Score,
+            authenticatedPatientId:  cmd.AuthenticatedPatientId,
+            ct:                      ct);
 
         _logger.LogInformation(
             "Appointment {SlotId} booked for patient {PatientId} (insuranceStatus={InsuranceStatus} riskScore={RiskScore})",
